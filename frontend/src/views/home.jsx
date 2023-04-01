@@ -6,7 +6,7 @@ import { Button, Container } from 'reactstrap';
 
 function Home(){
     return (
-        <div className='home_body'>
+        <div className='home-body'>
         <div className='home'>
         <HeaderHero/>
         <Container className='signup-container'>

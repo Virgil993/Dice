@@ -1,0 +1,38 @@
+.header-login{
+    height: 120px;
+    top: 0;
+}
+
+.header-logo{
+    display: flex;
+    height: 100%;
+    align-items: center;
+    width: 200px;
+}
+
+.header-logo-img{
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.card-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-form{
+    width: 460px;
+}
+
+.input-login-text{
+    background-color: #bab8b8;
+    border-color: black;
+    border: 2px solid;
+    color: black;
+}
+
+.input-login-text::placeholder{
+    color: black;
+}

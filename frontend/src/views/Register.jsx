@@ -6,10 +6,13 @@ import {acceptedFileTypesPhotos,availableGames} from '../constants/utils'
 import closeIconLogo from '../assets/closePhotoIcon.svg'
 import addIconLogo from '../assets/addPhotoIcon.svg'
 import GameRegister from '../components/GameRegister';
+import { User } from '../backend_sdk/user.sdk';
+import { useNavigate } from 'react-router-dom';
 
 
 function Register() {
 
+    const navigate = useNavigate();
 
     const [image1,setImage1] = React.useState(null)
     const [photo1Border,setPhoto1Border] = React.useState("2px dashed rgb(58, 58, 66)")
@@ -39,6 +42,7 @@ function Register() {
     const [errorPassword2,setErrorPassword2] = React.useState(null)
     const [errorBirthday,setErrorBirthday] = React.useState(null)
     const [errorGender,setErrorGender] = React.useState(null)
+    const [errorGeneral,setErrorGeneral] = React.useState(null)
 
     const [isSubmiting,setIsSubmiting] = React.useState(false)
 
@@ -143,6 +147,91 @@ function Register() {
             element.scrollIntoView({behavior: 'smooth'})
             return
         }
+
+        var image1DB
+        var image2DB
+        var image3DB = null
+        var image4DB = null
+
+        if(image1 == null){
+            if(image2 == null){
+                image1DB = image3
+                image2DB = image4
+            }
+            else{
+                image1DB = image2
+                if(image3 == null){
+                    image2DB = image4
+                }
+                else{
+                    image2DB = image3
+                    if(image4 != null){
+                        image3DB = image4
+                    }
+                }
+            }
+        }
+        else{
+            image1DB = image1
+            if(image2 == null){
+                if(image3 == null){
+                    image2DB = image4
+                }
+                else{
+                    image2DB=image3
+                    if(image4 != null){
+                        image3DB = image4
+                    }
+                }
+            }
+            else{
+                image2DB = image2
+                if(image3 == null){
+                    if(image4 != null){
+                        image3DB = image4
+                    }
+                }
+                else{
+                    image3DB = image3
+                    if(image4 != null){
+                        image4DB = image4
+                    }
+                }
+            }
+        }
+
+        const res = await User.create(
+            firstName,
+            email,
+            password1,
+            birthday,
+            gender,
+            description,
+            image1DB,
+            image2DB,
+            image3DB,
+            image4DB,
+            gamesSelected
+            ).catch((err) =>{
+                setErrorGeneral(err.msg);
+                console.log(err.error);
+                return;
+            })
+            if(!res){
+                setErrorGeneral("Unknown error, please try again later");
+                console.log("Error at the Database");
+                return;
+            }
+            if(!res.success){
+                setErrorGeneral(res.msg);
+                console.log(res.msg);
+                return;
+            }
+            else{
+                navigate("/auth/login");
+            }
+            
+
         // setIsSubmiting(true)
 
     }
@@ -487,18 +576,22 @@ function Register() {
             }
             <Container style={{textAlign:"center",marginTop:"20px",fontSize:"20px"}}>Choose at least 5 games to continue</Container>
             </Container>
+            <Alert isOpen={errorGeneral != null} color="danger" style={{marginTop:"10px"}}>
+                {errorGeneral}
+            </Alert>
             <Container className='continue-button-container'>
                 {
                     validContinue ?
                     <Button className='continue-button' color="success"size='lg' onClick={(e)=>{handleSubmit(e)}}>Continue</Button>
                     :
-                    <Button className='continue-button' size='lg'>Continue</Button>
+                    <Button className='continue-button' size='lg' style={{cursor:"auto"}} onClick={(e)=>{e.preventDefault()}}>Continue</Button>
                 }
             </Container>
             <Container className='login-link'>
                 Already have an account?
-                <a href="">Log in here</a>
+                <a href="/auth/login">Log in here</a>
             </Container>
+
         </Form>
         <Footer/>
         </div>

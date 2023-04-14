@@ -2,14 +2,19 @@ import React from "react";
 import '../styles/login.css'
 import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, CardTitle, CardBody, CardFooter } from 'reactstrap';
 import diceLogo from '../assets/diceLogoTest.webp'
+import { User } from "../backend_sdk/user.sdk";
+import { useNavigate } from "react-router-dom";
 
 function Login(){
+
+    const navigate = useNavigate()
 
     const [email,setEmail] = React.useState("")
     const [password,setPassword] = React.useState("")
     
     const [errorEmail,setErrorEmail] = React.useState(null)
     const [errorPassword,setErrorPassword] = React.useState(null)
+    const [errorGeneral, setErrorGeneral] = React.useState(null)
 
     function isValidEmail(email){
         return /\S+@\S+\.\S+/.test(email);
@@ -35,6 +40,26 @@ function Login(){
             var element = document.getElementById("password-login")
             element.scrollIntoView({behavior: 'smooth'})
             return
+        }
+
+        const res = await User.login(email,password).catch((err)=>{
+            setErrorGeneral(err.msg);
+            console.log(err.error);
+            return;
+        });
+        if (!res){
+            setErrorGeneral("Unknown error, please try again later");
+            console.log("Error at the Database");
+            return;
+        }
+        if (!res.success) {
+            setErrorGeneral(res.msg);
+            console.log(res.msg);
+            return;
+        } else {
+            localStorage.setItem("apiToken", res.token);
+            localStorage.setItem("user", JSON.stringify(res.user));
+            navigate("/admin/dashboard");
         }
 
 
@@ -93,6 +118,9 @@ function Login(){
                         </CardBody>
                         <CardFooter style={{display:"flex",flexDirection:"column"}}>
                             <Button className='continue-button' color="success"size='lg' style={{marginTop:"10px",marginBottom:"20px"}} onClick={(e)=>{handleSubmit(e)}}>Continue</Button>
+                            <Alert isOpen={errorGeneral != null} color="danger" style={{marginTop:"10px"}}>
+                                {errorGeneral}
+                            </Alert>
                             <span>
                                 Don't have an account? <a href="/auth/register" style={{fontWeight:"bold",color:"green"}}>Register</a>
                             </span>

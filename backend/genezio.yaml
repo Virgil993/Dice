@@ -24,4 +24,7 @@ sdk:
     runtime: browser
   language: js
   path: ../frontend/src/backend_sdk
-classes: []
+classes:
+  - path: user.js
+    type: jsonrpc
+    methods: []

@@ -3,8 +3,12 @@ import "../styles/home.css"
 import Footer from '../components/Footer';
 import HeaderHero from '../components/HeaderHero';
 import { Button, Container } from 'reactstrap';
+import { useNavigate } from 'react-router-dom';
 
 function Home(){
+
+    const navigate = useNavigate()
+
     return (
         <div className='home-body'>
         <div className='home'>
@@ -16,7 +20,10 @@ function Home(){
                 </h1>
             </Container>
             <Container className='signup-button-container'>
-            <Button  className='signup-button' color='success' size="lg">Sign up</Button>
+            <Button  className='signup-button' color='success' size="lg" onClick={(e)=>{
+                e.preventDefault();
+                navigate("/auth/register")
+            }}>Sign up</Button>
             </Container>
         </Container>
         </div>          

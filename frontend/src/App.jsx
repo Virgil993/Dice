@@ -6,6 +6,7 @@ import {} from "reactstrap"
 import Register from './views/Register';
 import Login from './views/Login';
 import Dashboard from './views/Dashboard';
+import Profile from './views/Profile';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from './layouts/Admin';
 import AuthLayout from './layouts/Auth';
@@ -26,6 +27,7 @@ function App() {
               element={<AuthLayout element={<Register />} />}
             />
             <Route path="/auth/home" element={<AuthLayout element={<Home />} />} />
+            <Route path="/admin/profile" element={<AdminLayout element={<Profile />} />} />
             <Route path="*" element={<Navigate to="/auth/home" />} />
           </Routes>
         </BrowserRouter>

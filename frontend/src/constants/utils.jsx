@@ -1,5 +1,5 @@
 
-const acceptedFileTypesPhotos = ["image/svg","image/png","image/jpg","image/jpeg","image/svgz","image/webp"]
+const acceptedFileTypesPhotos = ["image/png","image/jpg","image/jpeg","image/webp"]
 const availableGames = [
 'Chess',
 'Monopoly',

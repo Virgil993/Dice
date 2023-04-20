@@ -98,14 +98,14 @@ function NavbarMain(props) {
                 <span className="navbar-links navbar-profile">
                     {   
                         profileSelected ?
-                        <NavLink href="/admin/dashboard" className="navlink" style={{borderBottom:"4px solid black"}}>
+                        <NavLink href="/admin/profile" className="navlink" style={{borderBottom:"4px solid black"}}>
                             <div className="navlink-icon-container">
                             <img src={"sads"} alt="N/A" />
                             </div>
                             <h1 className="navlink-text">Profile</h1>
                         </NavLink>
                         :
-                        <NavLink href="/admin/dashboard" className="navlink" style={{paddingBottom:"4px"}}>
+                        <NavLink href="/admin/profile" className="navlink" style={{paddingBottom:"4px"}}>
                             <div className="navlink-icon-container">
                             <img src={"sad."} alt="N/A" />
                             </div>

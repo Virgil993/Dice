@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "genezio": "^0.3.11",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.0.3"
   }

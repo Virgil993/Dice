@@ -8,6 +8,7 @@ import addIconLogo from '../assets/addPhotoIcon.svg'
 import GameRegister from '../components/GameRegister';
 import { User } from '../backend_sdk/user.sdk';
 import { useNavigate } from 'react-router-dom';
+import imageCompression from 'browser-image-compression'
 
 
 function Register() {
@@ -25,6 +26,12 @@ function Register() {
     
     const [image4,setImage4] = React.useState(null)
     const [photo4Border,setPhoto4Border] = React.useState("2px dashed rgb(58, 58, 66)")
+
+    const [image1File,setImage1File] = React.useState(null)
+    const [image2File,setImage2File] = React.useState(null)
+    const [image3File,setImage3File] = React.useState(null)
+    const [image4File,setImage4File] = React.useState(null)
+
 
     const [gamesSelected,setGamesSelected] = React.useState([])
 
@@ -83,6 +90,24 @@ function Register() {
         var ageDifMs = newDate - nowDate;
         var ageDate = new Date(ageDifMs);
         return Math.abs(ageDate.getUTCFullYear() - 1970);
+    }
+
+    function convertBase64(blob){
+        return new Promise((resolve,reject) => {
+            const file = new File([blob],"Image",{
+                type: blob.type
+            })
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+
+            fileReader.onload = () => {
+                resolve(fileReader.result);
+            };
+
+            fileReader.onerror = (err)=>{
+                reject(err);
+            }
+        })
     }
 
     async function handleSubmit(event) {
@@ -155,50 +180,54 @@ function Register() {
 
         if(image1 == null){
             if(image2 == null){
-                image1DB = image3
-                image2DB = image4
+                image1DB = await convertBase64(image3File)
+                image2DB = await convertBase64(image4File)
             }
             else{
-                image1DB = image2
+                image1DB = await convertBase64(image2File)
                 if(image3 == null){
-                    image2DB = image4
+                    image2DB = await convertBase64(image4File)
                 }
                 else{
-                    image2DB = image3
+                    image2DB = await convertBase64(image3File)
                     if(image4 != null){
-                        image3DB = image4
+                        image3DB = await convertBase64(image4File)
                     }
                 }
             }
         }
         else{
-            image1DB = image1
+            image1DB = await convertBase64(image1File)
             if(image2 == null){
                 if(image3 == null){
-                    image2DB = image4
+                    image2DB = await convertBase64(image4File)
                 }
                 else{
-                    image2DB=image3
+                    image2DB=await convertBase64(image3File)
                     if(image4 != null){
-                        image3DB = image4
+                        image3DB = await convertBase64(image4File)
                     }
                 }
             }
             else{
-                image2DB = image2
+                image2DB = await convertBase64(image2File)
                 if(image3 == null){
                     if(image4 != null){
-                        image3DB = image4
+                        image3DB = await convertBase64(image4File)
                     }
                 }
                 else{
-                    image3DB = image3
+                    image3DB = await convertBase64(image3File)
                     if(image4 != null){
-                        image4DB = image4
+                        image4DB = await convertBase64(image4File)
                     }
                 }
             }
         }
+
+        
+        
+        
 
         const res = await User.create(
             firstName,
@@ -214,7 +243,7 @@ function Register() {
             gamesSelected
             ).catch((err) =>{
                 setErrorGeneral(err.msg);
-                console.log(err.error);
+                console.log(err);
                 return;
             })
             if(!res){
@@ -385,11 +414,22 @@ function Register() {
                             accept='image/*' 
                             className='photo1-upload-register' 
                             hidden 
-                            onChange={(event)=>{
+                            onChange={async (event)=>{
                                 event.preventDefault()
                                 if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
                                     setImage1(URL.createObjectURL(event.target.files[0]))
                                     setPhoto1Border("hidden")
+                                    const options = {
+                                        maxSizeMB: 0.5,
+                                        maxWidthOrHeight: 1024
+                                    }
+                                    try{
+                                        const compressedFile = await imageCompression(event.target.files[0],options)
+                                        setImage1File(compressedFile)
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }
                                 }
                                 event.target.value=null
                                 
@@ -412,6 +452,7 @@ function Register() {
                             className='remove-photo-icon'  
                             cursor='pointer' 
                             onClick={()=>{
+                                setImage1File(null)
                                 setImage1(null)
                                 setPhoto1Border("2px dashed rgb(58, 58, 66)")
                             }}
@@ -429,11 +470,22 @@ function Register() {
                             accept='image/*' 
                             className='photo2-upload-register' 
                             hidden 
-                            onChange={(event)=>{
+                            onChange={async (event)=>{
                                 event.preventDefault()
                                 if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
                                     setImage2(URL.createObjectURL(event.target.files[0]))
                                     setPhoto2Border("hidden")
+                                    const options = {
+                                        maxSizeMB: 0.5,
+                                        maxWidthOrHeight: 1024
+                                    }
+                                    try{
+                                        const compressedFile = await imageCompression(event.target.files[0],options)
+                                        setImage2File(compressedFile)
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }
                                 }
                                 event.target.value=null
                                 
@@ -456,6 +508,8 @@ function Register() {
                             className='remove-photo-icon'  
                             cursor='pointer' 
                             onClick={()=>{
+                                setImage2File(null)
+                                console.log(image2File)
                                 setImage2(null)
                                 setPhoto2Border("2px dashed rgb(58, 58, 66)")
                             }}
@@ -473,11 +527,22 @@ function Register() {
                             accept='image/*' 
                             className='photo3-upload-register' 
                             hidden 
-                            onChange={(event)=>{
+                            onChange={async (event)=>{
                                 event.preventDefault()
                                 if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
                                     setImage3(URL.createObjectURL(event.target.files[0]))
                                     setPhoto3Border("hidden")
+                                    const options = {
+                                        maxSizeMB: 0.5,
+                                        maxWidthOrHeight: 1024
+                                    }
+                                    try{
+                                        const compressedFile = await imageCompression(event.target.files[0],options)
+                                        setImage3File(compressedFile)
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }
                                 }
                                 event.target.value=null
                                 
@@ -500,6 +565,7 @@ function Register() {
                             className='remove-photo-icon'  
                             cursor='pointer' 
                             onClick={()=>{
+                                setImage3File(null)
                                 setImage3(null)
                                 setPhoto3Border("2px dashed rgb(58, 58, 66)")
                             }}
@@ -517,11 +583,22 @@ function Register() {
                             accept='image/*' 
                             className='photo4-upload-register' 
                             hidden 
-                            onChange={(event)=>{
+                            onChange={async (event)=>{
                                 event.preventDefault()
                                 if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
                                     setImage4(URL.createObjectURL(event.target.files[0]))
                                     setPhoto4Border("hidden")
+                                    const options = {
+                                        maxSizeMB: 0.5,
+                                        maxWidthOrHeight: 1024
+                                    }
+                                    try{
+                                        const compressedFile = await imageCompression(event.target.files[0],options)
+                                        setImage4File(compressedFile)
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }
                                 }
                                 event.target.value=null
                                 
@@ -544,6 +621,7 @@ function Register() {
                             className='remove-photo-icon'  
                             cursor='pointer' 
                             onClick={()=>{
+                                setImage4File(null)
                                 setImage4(null)
                                 setPhoto4Border("2px dashed rgb(58, 58, 66)")
                             }}

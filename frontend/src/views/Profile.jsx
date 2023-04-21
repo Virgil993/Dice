@@ -7,12 +7,14 @@ import { User } from "../backend_sdk/user.sdk";
 
 function Profile() {
 
+    const [errro, setError] = React.useState(null)
+
     async function handleLogout(event) {
         event.preventDefault();
         const res = await User.logout(localStorage.getItem("apiToken")).catch(
           (err) => {
             setError(err.msg);
-            console.log(err.error);
+            console.log(JSON.stringify(err));
     
             return;
           }
@@ -25,7 +27,7 @@ function Profile() {
         }
         if (!res.success) {
           setError(res.msg);
-          console.log(res.msg);
+          console.log(res.error);
           return;
         }
         localStorage.clear();

@@ -59,16 +59,16 @@ function Register() {
 
     React.useEffect(()=>{
         var numberOfImages=0
-        if(image1){
+        if(image1File){
             numberOfImages=numberOfImages+1
         }
-        if(image2){
+        if(image2File){
             numberOfImages=numberOfImages+1
         }
-        if(image3){
+        if(image3File){
             numberOfImages=numberOfImages+1
         }
-        if(image4){
+        if(image4File){
             numberOfImages=numberOfImages+1
         }
         if(gamesSelected.length>=5 && numberOfImages>=2){
@@ -77,7 +77,7 @@ function Register() {
         else{
             setValidContinue(false)
         }
-    },[image1,image2,image3,image4,gamesSelected,validContinue])
+    },[image1File,image2File,image3File,image4File,gamesSelected,validContinue])
 
 
     function isValidEmail(email){
@@ -101,7 +101,7 @@ function Register() {
             fileReader.readAsDataURL(file);
 
             fileReader.onload = () => {
-                resolve(fileReader.result);
+                resolve(fileReader.result.toString());
             };
 
             fileReader.onerror = (err)=>{
@@ -175,8 +175,8 @@ function Register() {
 
         var image1DB
         var image2DB
-        var image3DB = null
-        var image4DB = null
+        var image3DB 
+        var image4DB
 
         if(image1 == null){
             if(image2 == null){
@@ -226,7 +226,10 @@ function Register() {
         }
 
         
-        
+        const image1DBcopy = image1DB
+        const image2DBcopy = image2DB
+        const image3DBcopy = image3DB
+        const image4DBcopy = image4DB
         
 
         const res = await User.create(
@@ -236,10 +239,10 @@ function Register() {
             birthday,
             gender,
             description,
-            image1DB,
-            image2DB,
-            image3DB,
-            image4DB,
+            image1DBcopy,
+            image2DBcopy,
+            image3DBcopy,
+            image4DBcopy,
             gamesSelected
             ).catch((err) =>{
                 setErrorGeneral(err.msg);

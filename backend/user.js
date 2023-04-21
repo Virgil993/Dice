@@ -124,7 +124,9 @@ export class User {
   // logout
   async logout(token) {
     try {
-      await ActiveSession.deleteMany({ token: token });
+      await ActiveSession.deleteMany({ token: token }).catch((err)=>{
+        return { success: false, msg: "error at logout", error: err } 
+      });
       return { success: true };
     } catch (err) {
       return { success: false, msg: "error at logout", error: err };
@@ -200,6 +202,24 @@ export class User {
       return { success: true, msg: "update completed" };
     } catch (err) {
       return { success: false, msg: "error at update", error: err };
+    }
+  }
+
+  async delete(token) {
+    try {
+      const sessionStatus = await this.getUserByToken(token);
+      if (!sessionStatus.success) {
+        return { success: false, msg: sessionStatus.msg };
+      }
+      const user = sessionStatus.user;
+      if (!user) {
+        return { success: false, msg: "user not found" };
+      }
+      await User.delete({_id: user._id})
+      await ActiveSession.deleteMany({ token: token });
+      return { success: true };
+    } catch (err) {
+      return { success: false, msg: "error at delete", error: err };
     }
   }
 }

@@ -58,7 +58,11 @@ function Login(){
             return;
         } else {
             localStorage.setItem("apiToken", res.token);
-            localStorage.setItem("user", JSON.stringify(res.user));
+            localStorage.setItem("user_name", JSON.stringify(res.user.name));
+            localStorage.setItem("user_email", JSON.stringify(res.user.email));
+            localStorage.setItem("user_birthday", JSON.stringify(res.user.birthday));
+            localStorage.setItem("user_gender", JSON.stringify(res.user.gender));
+            localStorage.setItem("user_description", JSON.stringify(res.user.description));
             navigate("/admin/dashboard");
         }
 

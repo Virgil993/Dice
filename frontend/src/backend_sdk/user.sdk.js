@@ -6,7 +6,7 @@
 import { Remote } from "./remote.js"
 
 export class User {
-  static remote = new Remote("https://vu3dbgvbtjt2qnjwv5u3b3jrky0xvfxb.lambda-url.us-east-1.on.aws/")
+  static remote = new Remote("http://127.0.0.1:8083/User")
 
   static async create(name, email, password, birthday, gender, description, img1, img2, img3, img4, gamesSelected) {
     return User.remote.call("User.create", name, email, password, birthday, gender, description, img1, img2, img3, img4, gamesSelected)
@@ -26,6 +26,10 @@ export class User {
 
   static async updateUser(token, updatedUser) {
     return User.remote.call("User.updateUser", token, updatedUser)
+  }
+
+  static async delete(token) {
+    return User.remote.call("User.delete", token)
   }
 
 }

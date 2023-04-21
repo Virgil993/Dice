@@ -15,6 +15,8 @@ function NavbarMain(props) {
     const [mesagesSelected,setMesagesSelected] = React.useState(false)
     const [profileSelected,setProfileSelected] = React.useState(false)
     const [user,setUser] = React.useState(null)
+    const [profilePhoto,setProfilePhoto] = React.useState(null)
+
 
     React.useEffect(()=>{
 
@@ -25,11 +27,17 @@ function NavbarMain(props) {
                 navigate("/auth/home");
                 return;
             }
+
             setUser(res.user)
+
         }
 
         getUser()
     })
+
+    React.useEffect(()=>{
+        console.log(user)
+    },[user])
 
 
     React.useEffect(()=>{

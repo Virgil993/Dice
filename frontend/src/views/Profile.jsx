@@ -4,10 +4,12 @@ import NavbarMain from "../components/Navbar";
 import { Button, Container } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
 
-    const [errro, setError] = React.useState(null)
+    const navigate = useNavigate()
+    const [error, setError] = React.useState(null)
 
     async function handleLogout(event) {
         event.preventDefault();

@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"
 import { User } from "../backend_sdk/user.sdk";
+import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3";
 
 function NavbarMain(props) {
 
@@ -16,7 +17,7 @@ function NavbarMain(props) {
     const [profileSelected,setProfileSelected] = React.useState(false)
     const [user,setUser] = React.useState(null)
     const [profilePhoto,setProfilePhoto] = React.useState(null)
-
+    const [photoLoaded,setPhotoLoaded] = React.useState(false)
 
     React.useEffect(()=>{
 
@@ -29,15 +30,20 @@ function NavbarMain(props) {
             }
 
             setUser(res.user)
-
+            var image1 = await readImageFromS3WithNativeSdk(res.user._id,"1")
+            var blob = new Blob([image1.Body],{type: "octet/stream"})
+            setProfilePhoto(URL.createObjectURL(blob))
         }
-
-        getUser()
-    })
+        if(!user){
+            getUser()
+        }
+    },[user,profilePhoto])
 
     React.useEffect(()=>{
-        console.log(user)
-    },[user])
+        if(profilePhoto && !photoLoaded){
+            setPhotoLoaded(true)
+        }
+    },[profilePhoto])
 
 
     React.useEffect(()=>{
@@ -61,68 +67,53 @@ function NavbarMain(props) {
 
     return (
         <nav className="navbar-main">
+        {
+            photoLoaded ?
             <div className="navbar-container">
-                <span className="navbar-links">
-                    <NavbarBrand href="/admin/dashboard" className="navbar-logo">
-                    <img src={diceLogo} alt="No photo here" className="navbar-logo-img"/>
-                    </NavbarBrand>
-
-                    {
-                        dashboardSelected ?
-                        <NavLink href="/admin/dashboard" className="navlink" style={{borderBottom:"4px solid black"}}>
-                            <div className="navlink-icon-container">
-                            <BsPeopleFill/>
-                            </div>
-                            <h1 className="navlink-text">Discover</h1>
-                        </NavLink>
-                        :
-                        <NavLink href="/admin/dashboard" className="navlink" style={{paddingBottom:"4px"}}>
-                            <div className="navlink-icon-container">
-                            <BsPeopleFill/>
-                            </div>
-                            <h1 className="navlink-text">Discover</h1>
-                        </NavLink>
-
-                    }
-
-                    {   
-                        mesagesSelected ?
-                        <NavLink href="/admin/dashboard" className="navlink" style={{borderBottom:"4px solid black"}}>
-                            <div className="navlink-icon-container">
-                            <RiMessage2Fill/>
-                            </div>
-                            <h1 className="navlink-text">Messages</h1>
-                        </NavLink>
-                        :
-                        <NavLink href="/admin/dashboard" className="navlink" style={{paddingBottom:"4px"}}>
-                            <div className="navlink-icon-container">
-                            <RiMessage2Fill/>
-                            </div>
-                            <h1 className="navlink-text">Messages</h1>
-                        </NavLink>
-
-                    }
-                </span>
-                <span className="navbar-links navbar-profile">
-                    {   
-                        profileSelected ?
-                        <NavLink href="/admin/profile" className="navlink" style={{borderBottom:"4px solid black"}}>
-                            <div className="navlink-icon-container">
-                            <img src={"sads"} alt="N/A" />
-                            </div>
-                            <h1 className="navlink-text">Profile</h1>
-                        </NavLink>
-                        :
-                        <NavLink href="/admin/profile" className="navlink" style={{paddingBottom:"4px"}}>
-                            <div className="navlink-icon-container">
-                            <img src={"sad."} alt="N/A" />
-                            </div>
-                            <h1 className="navlink-text">Profile</h1>
-                        </NavLink>
-
-                    }
-                </span>
+            <span className="navbar-links">
+                <NavbarBrand href="/admin/dashboard" className="navbar-logo">
+                <img src={diceLogo} alt="No photo here" className="navbar-logo-img"/>
+                </NavbarBrand>
+                <NavLink href="/admin/dashboard" className="navlink" style={
+                    dashboardSelected ?
+                    {borderBottom:"4px solid black"}
+                    :
+                    {paddingBottom: "4px"}
+                    }>
+                    <div className="navlink-icon-container">
+                    <BsPeopleFill/>
+                    </div>
+                    <h1 className="navlink-text">Discover</h1>
+                </NavLink>
+                <NavLink href="/admin/dashboard" className="navlink" style={
+                    mesagesSelected ?
+                    {borderBottom:"4px solid black"}
+                    :
+                    {paddingBottom:"4px"}
+                }>
+                    <div className="navlink-icon-container">
+                    <RiMessage2Fill/>
+                    </div>
+                    <h1 className="navlink-text">Messages</h1>
+                </NavLink>  
+            </span>
+            <span className="navbar-links navbar-profile">
+                <NavLink href="/admin/profile" className="navlink" style={
+                    profileSelected ?
+                    {borderBottom:"4px solid black"}
+                    : 
+                    {paddingBottom:"4px"}
+                    }>
+                    <div className="navlink-img-container">
+                    <img className="navlink-icon-img" src={profilePhoto} alt="N/A" />
+                    </div>
+                    <h1 className="navlink-text">Profile</h1>
+                </NavLink>
+            </span>
             </div>
+            :
+            <></>
+        }
         </nav>
     )
 }

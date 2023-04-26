@@ -64,3 +64,18 @@
     margin-right: 15px;
     padding-top: 5px;
 }
+
+.navlink-img-container{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 100%;
+    width: 40px;
+    margin-right: 15px;
+    padding-top: 5px;
+}
+
+.navlink-icon-img{
+    border-radius: 100px;
+    height: 40px;
+}

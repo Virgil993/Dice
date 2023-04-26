@@ -79,7 +79,21 @@ const availableGames = [
 'Summoner Wars',
 ]
 
+const dummyUser = {
+    _id: "id",
+    name: "name",
+    email: "email",
+    birthday: "birthday",
+    gender: "gender",
+    description: "",
+    saidYesTo: [],
+    saidNoTo: [],
+    gamesSelected:[],
+
+}
+
 export {
     acceptedFileTypesPhotos,
-    availableGames
+    availableGames,
+    dummyUser
 }

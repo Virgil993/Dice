@@ -9,6 +9,7 @@ import GameRegister from '../components/GameRegister';
 import { User } from '../backend_sdk/user.sdk';
 import { useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression'
+import { uploadImageToS3WithNativeSdk } from '../components/ImageHandlingS3';
 
 
 function Register() {
@@ -92,22 +93,11 @@ function Register() {
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     }
 
-    function convertBase64(blob){
-        return new Promise((resolve,reject) => {
-            const file = new File([blob],"Image",{
-                type: blob.type
-            })
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(file);
-
-            fileReader.onload = () => {
-                resolve(fileReader.result.toString());
-            };
-
-            fileReader.onerror = (err)=>{
-                reject(err);
-            }
+    function convertFromBlobToFile(blob,ImageNr){
+        const file = new File([blob],"Image"+ImageNr,{
+            type: blob.type
         })
+        return file
     }
 
     async function handleSubmit(event) {
@@ -173,64 +163,60 @@ function Register() {
             return
         }
 
-        var image1DB
-        var image2DB
-        var image3DB 
-        var image4DB
+        var image1DB = new File([""],"Image1")
+        var image2DB = new File([""],"Image2")
+        var image3DB = new File([""],"Image3")
+        var image4DB = new File([""],"Image4")
 
         if(image1 == null){
             if(image2 == null){
-                image1DB = await convertBase64(image3File)
-                image2DB = await convertBase64(image4File)
+                image1DB =  convertFromBlobToFile(image3File,"1")
+                image2DB =  convertFromBlobToFile(image4File,"2")
             }
             else{
-                image1DB = await convertBase64(image2File)
+                image1DB =  convertFromBlobToFile(image2File,"1")
                 if(image3 == null){
-                    image2DB = await convertBase64(image4File)
+                    image2DB =  convertFromBlobToFile(image4File,"2")
                 }
                 else{
-                    image2DB = await convertBase64(image3File)
+                    image2DB =  convertFromBlobToFile(image3File,"2")
                     if(image4 != null){
-                        image3DB = await convertBase64(image4File)
+                        image3DB =  convertFromBlobToFile(image4File,"3")
                     }
                 }
             }
         }
         else{
-            image1DB = await convertBase64(image1File)
+            image1DB =  convertFromBlobToFile(image1File,"1")
             if(image2 == null){
                 if(image3 == null){
-                    image2DB = await convertBase64(image4File)
+                    image2DB =  convertFromBlobToFile(image4File,"2")
                 }
                 else{
-                    image2DB=await convertBase64(image3File)
+                    image2DB= convertFromBlobToFile(image3File,"2")
                     if(image4 != null){
-                        image3DB = await convertBase64(image4File)
+                        image3DB =  convertFromBlobToFile(image4File,"3")
                     }
                 }
             }
             else{
-                image2DB = await convertBase64(image2File)
+                image2DB =  convertFromBlobToFile(image2File,"2")
                 if(image3 == null){
                     if(image4 != null){
-                        image3DB = await convertBase64(image4File)
+                        image3DB =  convertFromBlobToFile(image4File,"3")
                     }
                 }
                 else{
-                    image3DB = await convertBase64(image3File)
+                    image3DB = convertFromBlobToFile(image3File,"3")
                     if(image4 != null){
-                        image4DB = await convertBase64(image4File)
+                        image4DB = convertFromBlobToFile(image4File,"4")
                     }
                 }
             }
         }
 
-        
-        const image1DBcopy = image1DB
-        const image2DBcopy = image2DB
-        const image3DBcopy = image3DB
-        const image4DBcopy = image4DB
-        
+        console.log(image1DB)
+
 
         const res = await User.create(
             firstName,
@@ -239,10 +225,6 @@ function Register() {
             birthday,
             gender,
             description,
-            image1DBcopy,
-            image2DBcopy,
-            image3DBcopy,
-            image4DBcopy,
             gamesSelected
             ).catch((err) =>{
                 setErrorGeneral(err.msg);
@@ -260,6 +242,10 @@ function Register() {
                 return;
             }
             else{
+                uploadImageToS3WithNativeSdk(image1DB,res.userId)
+                uploadImageToS3WithNativeSdk(image2DB,res.userId)
+                uploadImageToS3WithNativeSdk(image3DB,res.userId)
+                uploadImageToS3WithNativeSdk(image4DB,res.userId)
                 navigate("/auth/login");
             }
             
@@ -428,6 +414,7 @@ function Register() {
                                     }
                                     try{
                                         const compressedFile = await imageCompression(event.target.files[0],options)
+                                        console.log(compressedFile)
                                         setImage1File(compressedFile)
                                     }
                                     catch (error) {

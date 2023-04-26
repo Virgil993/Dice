@@ -8,7 +8,7 @@ const usersSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  password: {
+  password: { 
     type: String,
     required: true,
   },
@@ -21,22 +21,6 @@ const usersSchema = new mongoose.Schema({
     required: true,
   },
   description: {
-    type: String,
-    required: false,
-  },
-  img1: {
-    type: String,
-    required: true,
-  },
-  img2: {
-    type: String,
-    required: true,
-  },
-  img3: {
-    type: String,
-    required: false,
-  },
-  img4: {
     type: String,
     required: false,
   },

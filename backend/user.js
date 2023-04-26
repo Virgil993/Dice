@@ -20,7 +20,7 @@ export class User {
   }
 
   // create a new user
-  async create(name, email, password, birthday, gender, description, img1, img2, img3, img4, gamesSelected) {
+  async create(name, email, password, birthday, gender, description, gamesSelected) {
     if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
       return { success: false, msg: "wrong email format" };
     }
@@ -48,10 +48,6 @@ export class User {
                   birthday:birthday,
                   gender: gender,
                   description:description,
-                  img1: img1,
-                  img2: img2,
-                  img3: img3,
-                  img4: img4,
                   saidYesTo: [],
                   saidNoTo: [],
                   gamesSelected: gamesSelected,
@@ -168,22 +164,6 @@ export class User {
         dataToSet.description = updatedUser.description;
     }
 
-    if (updatedUser.img1 != null) {
-        dataToSet.img1 = updatedUser.img1;
-    }
-
-    if (updatedUser.img2 != null) {
-        dataToSet.img2 = updatedUser.img2;
-    }
-
-    if (updatedUser.img3 != null) {
-        dataToSet.img3 = updatedUser.img3;
-    }
-
-    if (updatedUser.img4 != null) {
-        dataToSet.img4 = updatedUser.img4;
-    }
-
     if (updatedUser.saidYesTo != null) {
         dataToSet.saidYesTo = updatedUser.saidYesTo;
     }
@@ -220,6 +200,48 @@ export class User {
       return { success: true };
     } catch (err) {
       return { success: false, msg: "error at delete", error: err };
+    }
+  }
+
+  async getAllUsersSorted(user) {
+    try {
+      var saidYesTo = user.saidYesTo
+      var saidNoTo = user.saidNoTo
+      var gamesSelected = user.gamesSelected
+      var allUsers = await UserModel.find({})
+      for(let i=0; i< allUsers.length;i++) {
+        if(allUsers[i]._id == user._id){
+          allUsers.splice(i,1)
+        }
+        else{
+          if(saidYesTo.includes(allUsers[i]._id) || saidNoTo.includes(allUsers[i]._id)){
+            allUsers.splice(i,1)
+          }
+        }
+      }
+
+      function elemCommon(a, b){
+        return a.filter((element)=>{
+          return b.includes(element)
+        })
+      }
+
+      function compareCompatibility(a, b) {
+        if (elemCommon(gamesSelected,a.gamesSelected) < elemCommon(gamesSelected,b.gamesSelected)){
+          return 1;
+        }
+        if (elemCommon(gamesSelected,a.gamesSelected) > elemCommon(gamesSelected,b.gamesSelected)){
+          return 2;
+        }
+        return 0;
+      }
+
+      allUsers.sort( compareCompatibility );
+      return  { success: true, users: allUsers  };
+
+    }
+    catch (err) {
+      return { success: false, msg: "error at get all sorted users", error: err };
     }
   }
 }

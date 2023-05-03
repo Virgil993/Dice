@@ -1,3 +1,4 @@
+import {io} from 'socket.io-client'
 
 const acceptedFileTypesPhotos = ["image/png","image/jpg","image/jpeg","image/webp"]
 const availableGames = [
@@ -92,8 +93,12 @@ const dummyUser = {
 
 }
 
+const socket = io('http://localhost:3000')
+
 export {
     acceptedFileTypesPhotos,
     availableGames,
-    dummyUser
+    dummyUser,
+    socket
 }
+

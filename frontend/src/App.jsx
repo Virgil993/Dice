@@ -10,6 +10,7 @@ import Profile from './views/Profile';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from './layouts/Admin';
 import AuthLayout from './layouts/Auth';
+import Messages from './views/Messages';
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
             />
             <Route path="/auth/home" element={<AuthLayout element={<Home />} />} />
             <Route path="/admin/profile" element={<AdminLayout element={<Profile />} />} />
+            <Route path="/admin/messages" element={<AdminLayout element={<Messages/>} />} />
             <Route path="*" element={<Navigate to="/auth/home" />} />
           </Routes>
         </BrowserRouter>

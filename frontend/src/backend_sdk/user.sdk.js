@@ -28,12 +28,20 @@ export class User {
     return User.remote.call("User.updateUser", token, updatedUser)
   }
 
+  static async updateSaidTo(token, NewUserId, saidYes) {
+    return User.remote.call("User.updateSaidTo", token, NewUserId, saidYes)
+  }
+
   static async delete(token) {
     return User.remote.call("User.delete", token)
   }
 
-  static async getAllUsersSorted(user) {
-    return User.remote.call("User.getAllUsersSorted", user)
+  static async getAllUsersSorted(token, user) {
+    return User.remote.call("User.getAllUsersSorted", token, user)
+  }
+
+  static async shouldCreateConversation(token, userId) {
+    return User.remote.call("User.shouldCreateConversation", token, userId)
   }
 
 }

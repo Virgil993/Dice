@@ -5,7 +5,6 @@ import { Container } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
 import DashboardPerson from "../components/DashboardPerson";
-import { dummyUser } from "../constants/utils";
 
 function Dashboard() {
 
@@ -27,7 +26,7 @@ function Dashboard() {
 
             setUser(res.user)
 
-            const resAllUsers = await User.getAllUsersSorted(res.user)
+            const resAllUsers = await User.getAllUsersSorted(localStorage.getItem("apiToken"),res.user)
             if(!res || !res.success){
                 console.log("error at get users sorted");
                 return;
@@ -51,9 +50,6 @@ function Dashboard() {
         }
     },[allUsers])
 
-    React.useEffect(()=>{
-        console.log(indexInUsers)
-    },[indexInUsers])
 
     return(
         <div className="dashboard-body">
@@ -65,8 +61,10 @@ function Dashboard() {
                     {
                         allUsers.length != 0 ?
                         <DashboardPerson 
+                            connectedUser = {user}
                             user={allUsers[indexInUsers]} 
                             key={allUsers[indexInUsers]._id} 
+                            userId = {allUsers[indexInUsers]._id}
                             indexInUsers={indexInUsers} 
                             maxLength={allUsers.length} 
                             setIndexInUsers={setIndexInUsers} 

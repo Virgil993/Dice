@@ -85,7 +85,7 @@ function NavbarMain(props) {
                     </div>
                     <h1 className="navlink-text">Discover</h1>
                 </NavLink>
-                <NavLink href="/admin/dashboard" className="navlink" style={
+                <NavLink href="/admin/messages" className="navlink" style={
                     mesagesSelected ?
                     {borderBottom:"4px solid black"}
                     :

@@ -1,0 +1,36 @@
+.chat-component{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+#message-container {
+    width: 80%;
+    max-width: 1200px;
+    margin-left: 200px;
+    margin-top: 50px;
+}
+
+#message-container div {
+background-color: #CCC;
+padding: 5px;
+}
+
+#message-container div:nth-child(2n) {
+background-color: #FFF;
+}
+
+#send-container {
+position: fixed;
+padding-bottom: 60px;
+bottom: 0;
+margin-left: 100px;
+background-color: white;
+width: 80%;
+display: flex;
+}
+
+#message-input {
+flex-grow: 1;
+}

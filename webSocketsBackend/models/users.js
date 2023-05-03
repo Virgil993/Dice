@@ -25,12 +25,12 @@ const usersSchema = new mongoose.Schema({
     required: false,
   },
   saidYesTo: {
-    type: [String],
-    default: undefined
+    type: Array,
+    required: true,
   },
   saidNoTo: {
-    type: [String],
-    default: undefined
+    type: Array,
+    required: true,
   },
   gamesSelected: {
     type: Array,

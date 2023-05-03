@@ -1,11 +1,11 @@
 import React from "react"
 import { Container,Card,CardBody,CardTitle, Button, CardText } from "reactstrap"
 import '../styles/dashboard_person.css'
-import Capture from "../assets/Capture.png"
-import Capture2 from "../assets/Capture2.png"
 import FsLightbox from "fslightbox-react"
 import { availableGames } from "../constants/utils"
 import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3"
+import { User } from "../backend_sdk/user.sdk"
+import { Conversation } from "../backend_sdk/conversation.sdk"
 
 
 function DashboardPerson(props){
@@ -109,7 +109,41 @@ function DashboardPerson(props){
         return Math.abs(ageDate.getUTCFullYear() - 1970)-1;
     }
 
+    async function updateUser(saidYes){
+        const token = localStorage.getItem("apiToken")
+        if(saidYes){
+            const response = await User.updateSaidTo(token,props.userId,true);
+            if(!response || !response.success)
+            {
+                console.log("error at update user")
+                return;
+            }
 
+            const conversationResponse = await User.shouldCreateConversation(token,props.userId)
+            if(!conversationResponse || !conversationResponse.success)
+            {
+                console.log("error at should create conversation")
+                console.log(conversationResponse)
+                return;
+            }
+            console.log(conversationResponse)
+            if(conversationResponse.success && conversationResponse.shouldCreate){
+                const createConv = await Conversation.create(token,[props.connectedUser._id,props.userId])
+                if (!createConv || !createConv.success){
+                    console.log("error at create conversation")
+                    return;
+                }
+            }
+        }
+        else{
+            const response = await User.updateSaidTo(token,props.userId,false);
+            if(!response || !response.success)
+            {
+                console.log("error at update user")
+                return;
+            }
+        }
+    }
 
     return(
         moreUsersAvailable ?
@@ -122,6 +156,7 @@ function DashboardPerson(props){
                     </Container>
                     <Container className="container-actions-card-main">
                         <Button className="buttons-choose" onClick={() => {
+                            updateUser(false)
                             if(props.indexInUsers<props.maxLength-1){
                                 props.setIndexInUsers(props.indexInUsers+1)
                             }
@@ -130,6 +165,7 @@ function DashboardPerson(props){
                             }
                         }}>PASS</Button>
                         <Button className="buttons-choose" color="success" onClick={() => {
+                            updateUser(true)
                             if(props.indexInUsers<props.maxLength-1){
                                 props.setIndexInUsers(props.indexInUsers+1)
                             }
@@ -156,7 +192,7 @@ function DashboardPerson(props){
                     />
                     </Container>
                     :
-                    <Container style={{height:"250px"}}></Container>
+                    <Container style={{height:"250px",marginTop:"20px"}}></Container>
                 }
             </Card>
             <Container className="container-desc-compat">

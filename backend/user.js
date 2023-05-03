@@ -48,8 +48,6 @@ export class User {
                   birthday:birthday,
                   gender: gender,
                   description:description,
-                  saidYesTo: [],
-                  saidNoTo: [],
                   gamesSelected: gamesSelected,
                 });
               if (err) {
@@ -185,6 +183,60 @@ export class User {
     }
   }
 
+  async updateSaidTo(token, NewUserId, saidYes){
+    const sessionStatus = await this.getUserByToken(token);
+    if (!sessionStatus.success) {
+      return { success: false, msg: sessionStatus.msg };
+    }
+    const user = sessionStatus.user;
+    if (!user) {
+      return { success: false, msg: "user not found" };
+    }
+
+    if(!NewUserId) {
+      return {success: false, msg: "new userId not found"};
+    }
+     try {
+       if(saidYes){
+          if(user.saidYesTo){
+            await UserModel.findByIdAndUpdate(
+              {_id: user._id},
+              { "$push": {"saidYesTo": NewUserId.toString()} }, 
+              { "new": true, "upsert": true }
+              )
+              return { success: true, msg: "update completed" };
+          }
+          else{
+            await UserModel.findByIdAndUpdate(
+              {_id: user._id},
+              { "$set": {"saidYesTo": [NewUserId.toString()]} }, 
+              )
+              return { success: true, msg: "update completed" };
+          }        
+       }
+       else{
+          if(user.saidNoTo){
+            await UserModel.findByIdAndUpdate(
+              {_id: user._id},
+              { "$push": {"saidNoTo": NewUserId.toString()} }, 
+              { "new": true, "upsert": true }
+              )
+              return { success: true, msg: "update completed" };
+          }
+          else{
+            await UserModel.findByIdAndUpdate(
+              {_id: user._id},
+              { "$set": {"saidNoTo": [NewUserId.toString()]} }, 
+              )
+              return { success: true, msg: "update completed" };
+          }
+       }
+     }
+     catch (err) {
+      return { success: false, msg: "error at update", error: err };
+    }
+  }
+
   async delete(token) {
     try {
       const sessionStatus = await this.getUserByToken(token);
@@ -203,23 +255,24 @@ export class User {
     }
   }
 
-  async getAllUsersSorted(user) {
+  async getAllUsersSorted(token,user) {
     try {
+      const sessionStatus = await this.getUserByToken(token);
+      if (!sessionStatus.success) {
+        return { success: false, msg: sessionStatus.msg };
+      }
+      if (!user) {
+        return { success: false, msg: "user not found" };
+      }
       var saidYesTo = user.saidYesTo
       var saidNoTo = user.saidNoTo
       var gamesSelected = user.gamesSelected
       var allUsers = await UserModel.find({})
-      for(let i=0; i< allUsers.length;i++) {
-        if(allUsers[i]._id == user._id){
-          allUsers.splice(i,1)
-        }
-        else{
-          if(saidYesTo.includes(allUsers[i]._id) || saidNoTo.includes(allUsers[i]._id)){
-            allUsers.splice(i,1)
-          }
-        }
-      }
 
+      allUsers = allUsers.filter(element => element._id.toString() != user._id.toString() 
+      && (!saidYesTo || !(saidYesTo.includes(element._id.toString()))) 
+      && (!saidNoTo || !(saidNoTo.includes(element._id.toString()))))
+      
       function elemCommon(a, b){
         return a.filter((element)=>{
           return b.includes(element)
@@ -242,6 +295,38 @@ export class User {
     }
     catch (err) {
       return { success: false, msg: "error at get all sorted users", error: err };
+    }
+  }
+
+  async shouldCreateConversation(token,userId){
+    try{
+      const sessionStatus = await this.getUserByToken(token);
+      if (!sessionStatus.success) {
+        return { success: false, msg: sessionStatus.msg };
+      }
+      const user = sessionStatus.user;
+      if (!user) {
+        return { success: false, msg: "user not found" };
+      }
+
+      const user2 = await UserModel.find({_id:userId})
+      if (!user2) {
+        return { success: false, msg: "user 2 not found" };
+      }
+
+      console.log(user2)
+      console.log(user._id.toString())
+      console.log(user2.saidYesTo)
+      if(user2.saidYesTo && user2.saidYesTo.includes(user._id.toString())){
+        return {success: true, shouldCreate: true}
+      }
+      else{
+        
+        return {success: true, shouldCreate: false}
+      }
+    }
+    catch(err){
+      return { success: false, msg: "error at should Create Conversation", error: err };
     }
   }
 }

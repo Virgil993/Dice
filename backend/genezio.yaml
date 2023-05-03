@@ -1,30 +1,15 @@
-#File that configures what classes will be deployed in Genezio Infrastructure.
-#Add the paths to classes that you want to deploy in "classes".
-
-#Example:
-
-#name: hello-world
-#region: us-east-1
-#sdk:
-#  language: js
-#  options:
-#    runtime: node
-#  path: ./sdk/
-#classes:
-#  - path: ./hello.js
-#    type: jsonrpc
-#    methods:
-#      - name: hello
-#        type: http
-
 name: DiceBackend
 region: us-east-1
+cloudProvider: aws
 sdk:
+  language: js
   options:
     runtime: browser
-  language: js
   path: ../frontend/src/backend_sdk
 classes:
   - path: user.js
+    type: jsonrpc
+    methods: []
+  - path: conversation.js
     type: jsonrpc
     methods: []

@@ -93,7 +93,7 @@ const dummyUser = {
 
 }
 
-const socket = io('http://localhost:3000')
+const socket = io('http://1.1.1.129:3000')
 
 export {
     acceptedFileTypesPhotos,

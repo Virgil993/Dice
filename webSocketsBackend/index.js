@@ -1,7 +1,11 @@
 const WebSocket = require("ws")
 const mongoose = require("mongoose")
 const users = require("./models/users")
-const io = require('socket.io')(3000, {cors: {origin: "*"}})
+const conversations = require("./models/conversations")
+const httpServer = require("http").createServer();
+const io = require('socket.io')(httpServer, {
+    cors: {origin: "*"}
+})
 
 
 const MONGO_DB_URI =
@@ -19,12 +23,17 @@ db.once("open", function () {
 //     console.log(usersDB) 
 // }
 
-// getUsers()  
+// getUsers()
+
 
   
 io.on('connection', socket => {
     // socket.emit("chat-message","Hello world")
-    socket.on("send-chat-message", message => {
+    socket.on("send-chat-message", async message => {
         socket.broadcast.emit("chat-message",message)
     })
+})
+
+httpServer.listen({
+    port:3000
 })

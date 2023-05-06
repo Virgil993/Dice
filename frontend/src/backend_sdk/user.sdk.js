@@ -20,6 +20,10 @@ export class User {
     return User.remote.call("User.getUserByToken", token)
   }
 
+  static async getUserById(token, userId) {
+    return User.remote.call("User.getUserById", token, userId)
+  }
+
   static async logout(token) {
     return User.remote.call("User.logout", token)
   }

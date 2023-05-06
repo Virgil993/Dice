@@ -115,6 +115,20 @@ export class User {
     return { success: true, user: user };
   }
 
+  async getUserById(token,userId){
+    const activeSession = await reqAuth(token);
+    if (!activeSession.success) {
+      return { success: false, msg: activeSession.msg };
+    }
+
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      return { success: false, msg: "user not not found" };
+    }
+    return { success: true, user: user };
+  }
+
   // logout
   async logout(token) {
     try {
@@ -309,14 +323,11 @@ export class User {
         return { success: false, msg: "user not found" };
       }
 
-      const user2 = await UserModel.find({_id:userId})
+      const user2 = await UserModel.findOne({_id:userId})
       if (!user2) {
         return { success: false, msg: "user 2 not found" };
       }
 
-      console.log(user2)
-      console.log(user._id.toString())
-      console.log(user2.saidYesTo)
       if(user2.saidYesTo && user2.saidYesTo.includes(user._id.toString())){
         return {success: true, shouldCreate: true}
       }

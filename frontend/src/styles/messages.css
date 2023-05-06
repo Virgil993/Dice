@@ -1,36 +1,97 @@
-.chat-component{
-    padding: 0;
-    margin: 0;
+.messages-body{
+    /* background-color: #c7ddb5; */
+    background-color: #ddead1;
+    height: 100vh;
+}
+
+.body-container{
+    display: flex;
+    flex-direction: row;
+    height: 80vh;
+    margin-top: 50px;
+    max-width: 90vw;
+}
+
+.conversations-component{
+    max-width: 600px;
+    border: #198754 solid 5px;
+    border-radius: 10px 0px 0px 10px;
+    padding: 0px;
+    background-color: #f1f7fb;
+}
+
+.no-conversations-container{
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 90%;
+    text-align: center;
+    width: 60%;
+    font-size: 25px;
+    color: gray;
+}
+
+.conversation-profile{
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    width: 100%;
+    height: 10%;
+    gap:20px;
+    background-color: #198754;
+    padding-bottom: 5px;
+}
+
+.conversation-profile-text-div{
+    font-size: 25px;
+    color: black;
+    font-weight: 500;
+
+}
+
+#profile-row-img{
+    cursor: pointer;
+}
+
+.conversation-row-container{
+    display: flex;
+    justify-content: left;
     flex-direction: column;
-}
-#message-container {
-    width: 80%;
-    max-width: 1200px;
-    margin-left: 200px;
-    margin-top: 50px;
+    height: 90%;
+    padding: 0px;
 }
 
-#message-container div {
-background-color: #CCC;
-padding: 5px;
+.conversation-row{
+    background-color:rgb(174, 228, 174);
+    width: fit-content;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    border-bottom: #198754 3px solid;
+    cursor: pointer;
+}
+.conversation-row:hover{
+    background-color: #72bf6a
 }
 
-#message-container div:nth-child(2n) {
-background-color: #FFF;
+.profile-picture-conversation-div{
+    width: 50px;
+    height: 50px;
 }
 
-#send-container {
-position: fixed;
-padding-bottom: 60px;
-bottom: 0;
-margin-left: 100px;
-background-color: white;
-width: 80%;
-display: flex;
+.profile-picture-conversation-div img{
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
 }
 
-#message-input {
-flex-grow: 1;
+.conversation-row-name{
+    font-size: 25px;
 }
+

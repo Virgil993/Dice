@@ -12,8 +12,16 @@ export class Conversation {
     return Conversation.remote.call("Conversation.create", token, users)
   }
 
+  static async getByBothUserId(user1Id, user2Id) {
+    return Conversation.remote.call("Conversation.getByBothUserId", user1Id, user2Id)
+  }
+
   static async getByUserId(token) {
     return Conversation.remote.call("Conversation.getByUserId", token)
+  }
+
+  static async addMessage(message) {
+    return Conversation.remote.call("Conversation.addMessage", message)
   }
 
   static async delete(token, id) {

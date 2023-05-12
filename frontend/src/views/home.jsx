@@ -10,7 +10,7 @@ function Home(){
     const navigate = useNavigate()
 
     return (
-        <div className='home-body'>
+        <div className='home-body' style={{backgroundColor:"#ddead1"}}>
         <div className='home'>
         <HeaderHero/>
         <Container className='signup-container'>

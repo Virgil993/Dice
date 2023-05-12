@@ -74,10 +74,32 @@
     width: 100%;
     border-bottom: #198754 3px solid;
     cursor: pointer;
+ 
 }
 .conversation-row:hover{
     background-color: #72bf6a
 }
+
+
+.delete-conversation-button{
+    background-color: rgb(184, 64, 64);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    margin-right: 15px;
+    border-radius: 30px;
+    cursor: pointer;
+    
+}
+
+.delete-conversation-button:hover{
+    background-color: rgb(153, 52, 52); 
+}
+
+
 
 .profile-picture-conversation-div{
     width: 50px;
@@ -94,4 +116,5 @@
 .conversation-row-name{
     font-size: 25px;
 }
+
 

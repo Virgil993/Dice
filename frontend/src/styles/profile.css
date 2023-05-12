@@ -203,7 +203,6 @@
 
 .games-profile-card{
 
-    margin-bottom: 200px;
     padding: 20px;
     align-items: center;
 }
@@ -234,4 +233,14 @@
     width: 100px;
     font-weight: 500;
     font-size: 15px;
+}
+
+.profile-logout-delete-buttons{
+    display: flex;
+    justify-content: center;
+    gap:20px;
+}
+
+.profile-logout-delete-buttons button{
+    width: 200px;
 }

@@ -261,7 +261,8 @@ export class User {
       if (!user) {
         return { success: false, msg: "user not found" };
       }
-      await User.delete({_id: user._id})
+      console.log(user._id)
+      await UserModel.deleteMany({_id: user._id})
       await ActiveSession.deleteMany({ token: token });
       return { success: true };
     } catch (err) {

@@ -1,12 +1,13 @@
 import React from 'react'
-import { Container,Card,CardBody,CardTitle, Button, CardText } from "reactstrap"
+import { Container,Card,CardBody,CardTitle, Button, CardText, Modal, ModalHeader, ModalBody } from "reactstrap"
 import { User } from "../backend_sdk/user.sdk"
 import { Conversation } from "../backend_sdk/conversation.sdk"
 import '../styles/chat_component.css'
-import { socket } from "../constants/utils"
+import { availableGames, socket } from "../constants/utils"
 import {AiOutlineSend} from 'react-icons/ai'
 import {BsSendFill} from 'react-icons/bs'
 import {GrClose} from 'react-icons/gr'
+import GameRegister from './GameRegister'
 
 function ChatComponent(props){
 
@@ -18,6 +19,9 @@ function ChatComponent(props){
     const [allMessages,setAllMessages] = React.useState([])
     const [recevier,setRecevier] = React.useState(null)
     const [conversation,setConversation] = React.useState(null)
+
+    const [modalUser,setModalUser] = React.useState(false)
+    const toggleUser = ()=>setModalUser(!modalUser)
 
     React.useEffect(()=>{
         bottomRef.current?.scrollIntoView({behavior:'smooth'});
@@ -88,14 +92,64 @@ function ChatComponent(props){
         };
     },[props.connectedUser,recevier,allMessages])
 
+    function calculateAge(date){
+        var newDate = new Date(date);
+        var nowDate = new Date();
+        var ageDifMs = newDate - nowDate;
+        var ageDate = new Date(ageDifMs);
+        return Math.abs(ageDate.getUTCFullYear() - 1970)-1;
+    }
+
     return(
         <Container className="chat-component">
         <Container className='recevier-profile'>
+            <Container className='recevier-container-info' onClick={toggleUser}>
             <div className="recevier-profile-picture">
                 <img src={props.conversation.profilePicture} alt="N/A"/>
             </div>
             <div className="conversation-profile-text-div">{props.conversation.name}</div>
+            </Container>
+            <Modal isOpen={modalUser} toggle={toggleUser} size='xl'>
+            <ModalHeader toggle={toggleUser}>{props.conversation.name}'s profile</ModalHeader>
+            <ModalBody className='modal-recevier-body'>
+                <div>Gender: {props.conversation.recevier.gender}</div>
+                <div>Age: {calculateAge(props.conversation.recevier.birthday)}</div>
+                <div>Description:</div>
+                {
+                    props.conversation.recevier.description ?
+                    <div>{props.conversation.recevier.description}</div>
+                    :
+                    <div>This user dosen't have a description</div>
+                }
+                <div>Photos:</div>
+                <div style={{display:"flex",gap:"20px"}}>
+                    {
+                        props.conversation.photos.map((element,index)=>{
+                            if(element.size!=0){
+                                return(
+                                    <div style={{width:"200px",height:"200px"}} key={element+index}>
+                                        <img src={URL.createObjectURL(element)} alt='N/A' style={{width:"100%",height:"100%",borderRadius:"20px"}}></img>
+                                    </div>
+                                )
+                            }
+                            return <></>
+                        })
+                    }
+                </div>
+                <div>Chosen games:</div>
+                <div>
+                    {
+                        props.conversation.recevier.gamesSelected.map((element,index)=>{
+                            return(
+                                <GameRegister key={element+index} name={availableGames[element]} isSelected={true}></GameRegister>
+                            )
+                        })
+                    }
+                </div>
+            </ModalBody>
+            </Modal>
             <div className='close-icon-recevier-profile' onClick={(e)=>{
+                console.log(props.conversation.recevier.gender)
                 e.preventDefault()
                 props.setIndexInConversations(null)
             }}>

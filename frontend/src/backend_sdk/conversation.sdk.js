@@ -28,4 +28,8 @@ export class Conversation {
     return Conversation.remote.call("Conversation.delete", token, id)
   }
 
+  static async deleteAll(token) {
+    return Conversation.remote.call("Conversation.deleteAll", token)
+  }
+
 }

@@ -1,7 +1,7 @@
 import React from "react"
 import '../styles/messages.css'
 import NavbarMain from "../components/Navbar"
-import { Container } from "reactstrap"
+import { Container,Modal,ModalBody,ModalHeader, ModalFooter,Button } from "reactstrap"
 import { socket } from "../constants/utils"
 import { User } from "../backend_sdk/user.sdk"
 import { Conversation } from "../backend_sdk/conversation.sdk"
@@ -9,6 +9,7 @@ import ChatComponent from "../components/ChatComponent"
 import { readImageFromS3WithNativeSdk } from "../components/ImageHandlingS3"
 import { useNavigate } from "react-router-dom"
 
+import {FaTrashAlt} from 'react-icons/fa'
 
 
 function Messages(props){
@@ -20,6 +21,9 @@ function Messages(props){
     const [conversationsLoaded,setConversationsLoaded] = React.useState(false)
     const [indexInConversations,setIndexInConversations] = React.useState(null)
     const [userLoaded,setUserLoaded] = React.useState(false)
+
+    const [modalDelete,setModalDelete] = React.useState(false)
+    const toggleDelete = () => setModalDelete(!modalDelete)
 
     React.useEffect(()=>{
         async function getUserConversations(){
@@ -44,17 +48,35 @@ function Messages(props){
             for(let i=0;i<convRes.elements.length;i++){
                 if(convRes.elements[i].users[0]==res.user._id){
                     var image1 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"1")
+                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"2")
+                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"3")
+                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[1])
-                    var blob = new Blob([image1.Body],{type: "octet/stream"})
-                    convRes.elements[i].profilePicture = URL.createObjectURL(blob)
+                    var blob1 = new Blob([image1.Body],{type: "octet/stream"})
+                    var blob2 = new Blob([image2.Body],{type: "octet/stream"})
+                    var blob3 = new Blob([image3.Body],{type: "octet/stream"})
+                    var blob4 = new Blob([image4.Body],{type: "octet/stream"})
+                    convRes.elements[i].profilePicture = URL.createObjectURL(blob1)
                     convRes.elements[i].name = currentUserInConv.user.name
+                    convRes.elements[i].recevier = currentUserInConv.user
+                    var newPhotos = [blob1,blob2,blob3,blob4]
+                    convRes.elements[i].photos = newPhotos
                 }
                 else{
                     var image1 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"1")
+                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"2")
+                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"3")
+                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[0])
-                    var blob = new Blob([image1.Body],{type: "octet/stream"})
-                    convRes.elements[i].profilePicture = URL.createObjectURL(blob)
+                    var blob1 = new Blob([image1.Body],{type: "octet/stream"})
+                    var blob2 = new Blob([image2.Body],{type: "octet/stream"})
+                    var blob3 = new Blob([image3.Body],{type: "octet/stream"})
+                    var blob4 = new Blob([image4.Body],{type: "octet/stream"})
+                    convRes.elements[i].profilePicture = URL.createObjectURL(blob1)
                     convRes.elements[i].name = currentUserInConv.user.name
+                    convRes.elements[i].recevier = currentUserInConv.user
+                    var newPhotos = [blob1,blob2,blob3,blob4]
+                    convRes.elements[i].photos = newPhotos
                 }
             }
 
@@ -81,6 +103,14 @@ function Messages(props){
             return element.users[0] == userId || element.users[1] == userId
         })
         return index
+    }
+
+    async function deleteConversation(id){
+        const conRes = await Conversation.delete(localStorage.getItem("apiToken"),id)
+        if(!conRes || !conRes.success){
+          console.log("error at delete all conversations")
+          return
+        }
     }
 
 
@@ -111,7 +141,7 @@ function Messages(props){
                                         userIdToShow = elem.users[0]
                                     }
                                     return(
-                                        <div key={elem._id} className="conversation-row" onClick={(e)=>{
+                                        <div key={elem._id} className="conversation-row" id={String(elem._id)} onClick={(e)=>{
                                             e.preventDefault()
                                             setIndexInConversations(findConversationIndexByUserId(userIdToShow))
                                             
@@ -120,6 +150,33 @@ function Messages(props){
                                                 <img src={elem.profilePicture} alt="N/A"/>
                                             </div>
                                             <div className="conversation-row-name">{elem.name}</div>
+                                            <div className="delete-conversation-button" onClick={(e)=>{
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                toggleDelete()
+                                            }}>
+                                                <FaTrashAlt size={20}/>
+                                            </div>
+                                            <Modal isOpen={modalDelete} toggle={toggleDelete} >
+                                                <ModalHeader toggle={toggleDelete}>Delete contact</ModalHeader>
+                                                <ModalBody> Warning! This action will permanently delete this contact and your messages with no chance to retrieve them. You will also not see this person in your dashboard again. Are you sure you want to continue?</ModalBody>
+                                                <ModalFooter>
+                                                    <Button color="danger" onClick={(e)=>{
+                                                    e.preventDefault()
+                                                    deleteConversation(elem._id)
+                                                    var newConversations = conversations
+                                                    newConversations = newConversations.filter(item => item._id != elem._id)
+                                                    setIndexInConversations(null)
+                                                    setConversations([...newConversations])
+                                                    toggleDelete()
+                                                    }}>
+                                                    Yes
+                                                    </Button>
+                                                    <Button onClick={toggleDelete}>
+                                                    No
+                                                    </Button>
+                                                </ModalFooter>
+                                            </Modal>
                                         </div>
                                     )
                                 })

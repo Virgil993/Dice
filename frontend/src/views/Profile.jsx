@@ -1,7 +1,7 @@
 import React from "react";
 import '../styles/profile.css'
 import NavbarMain from "../components/Navbar";
-import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label } from "reactstrap";
+import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import addIconLogo from '../assets/addPhotoIcon.svg';
 import {acceptedFileTypesPhotos, availableGames} from '../constants/utils'
 import imageCompression from 'browser-image-compression'
 import GameRegister from "../components/GameRegister";
+import { Conversation } from "../backend_sdk/conversation.sdk";
 
 function Profile() {
 
@@ -38,6 +39,10 @@ function Profile() {
     const [updatedGames,setUpdatedGames] = React.useState(null)
     const [games,setGames] = React.useState(null)
     const [gamesUpdateActive,setGamesUpdateActive] = React.useState(false)
+
+    const [modal,setModal] = React.useState(false)
+
+    const toggle = () => setModal(!modal)
 
     React.useEffect(()=>{
 
@@ -131,6 +136,25 @@ function Profile() {
       }
     }
 
+    async function deleteUser(){
+      const conRes = await Conversation.deleteAll(localStorage.getItem("apiToken"))
+      if(!conRes || !conRes.success){
+        
+        console.log("error at delete all conversations")
+        return
+      }
+      const res = await User.delete(localStorage.getItem("apiToken"))
+      if(!res || !res.success){
+        console.log(res)
+        console.log("error at delete user")
+        return
+      }
+
+      localStorage.clear();
+      navigate("/auth/home");
+      
+    }
+
     function calculateAge(date){
       var newDate = new Date(date);
       var nowDate = new Date();
@@ -168,12 +192,6 @@ function Profile() {
     return "secondary"
   }
 
-  function checkDescription(state){
-    if(state){
-      return state
-    }
-    return "You don't have a description, add something to increase your chances of being picked by other players"
-  }
 
   function convertFromBlobToFile(blob,ImageNr){
     const file = new File([blob],"Image"+ImageNr,{
@@ -353,7 +371,7 @@ function Profile() {
                       }}>
                         Save
                       </Button>
-                      <Button onClick={(e)=>{
+                      <Button outline onClick={(e)=>{
                         e.preventDefault()
                         setDescriptionUpdateActive(false)
                       }}>
@@ -560,10 +578,36 @@ function Profile() {
                     }
                     </CardBody>
                   </Card>
+                  <Card>
+                    <CardBody className="profile-logout-delete-buttons">
+                      <Button onClick={handleLogout}>
+                        Sign out
+                      </Button>
+                      <Button color="danger" onClick={toggle}>
+                        Delete Account
+                      </Button>
+                      <Modal isOpen={modal} toggle={toggle} >
+                      <ModalHeader toggle={toggle}>Delete account</ModalHeader>
+                      <ModalBody> Warning! This action will permanently delete your account with no chance to retrieve it. Are you sure you want to continue?</ModalBody>
+                      <ModalFooter>
+                        <Button color="danger" onClick={(e)=>{
+                          e.preventDefault()
+                          deleteUser()
+                        }}>
+                          Yes
+                        </Button>
+                        <Button onClick={toggle}>
+                          No
+                        </Button>
+                      </ModalFooter>
+                      </Modal>
+                    </CardBody>
+                  </Card>
                 </Container>
                 :
                 <></>
-            }   
+            }
+            <Footer/>  
         </div>
     )
 }

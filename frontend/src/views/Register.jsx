@@ -90,7 +90,7 @@ function Register() {
         var nowDate = new Date();
         var ageDifMs = newDate - nowDate;
         var ageDate = new Date(ageDifMs);
-        return Math.abs(ageDate.getUTCFullYear() - 1970);
+        return Math.abs(ageDate.getUTCFullYear() - 1970)-1;
     }
 
     function convertFromBlobToFile(blob,ImageNr){
@@ -150,7 +150,7 @@ function Register() {
             element.scrollIntoView({behavior: 'smooth'})
             return
         }
-        if(calculateAge(birthday)-1<18){
+        if(calculateAge(birthday)<18){
             setErrorBirthday("You need to be at least 18 years old to use this app!")
             var element = document.getElementById("birthday-register")
             element.scrollIntoView({behavior: 'smooth'})
@@ -344,7 +344,7 @@ function Register() {
                             if(e.target.value==""){
                                 setErrorBirthday("Birthday is mandatory")
                             }
-                            else if(calculateAge(e.target.value)-1<18){
+                            else if(calculateAge(e.target.value)<18){
                                 setErrorBirthday("You need to be at least 18 years old to use this app!")
                             }
                             else {

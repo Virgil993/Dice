@@ -102,4 +102,14 @@ export class Conversation{
         await ConversationModel.deleteMany({ _id: id });
         return { success: true };
     }
+
+    async deleteAll(token){
+        const authObject = await reqAuth(token);
+        if (!authObject.success) {
+          return { success: false, msg: authObject.msg };
+        }
+
+        await ConversationModel.deleteMany({users: authObject.userId})
+        return {success: true};
+    }
 }

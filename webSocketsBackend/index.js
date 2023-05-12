@@ -28,9 +28,13 @@ db.once("open", function () {
 
   
 io.on('connection', socket => {
-    // socket.emit("chat-message","Hello world")
+    console.log("user connected",socket.id)
     socket.on("send-chat-message", async message => {
         socket.broadcast.emit("chat-message",message)
+    })
+
+    socket.on("disconnect", () =>{
+      console.log("user disconnected",socket.id)
     })
 })
 

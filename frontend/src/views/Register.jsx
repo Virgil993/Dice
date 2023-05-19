@@ -126,7 +126,7 @@ function Register() {
             element.scrollIntoView({behavior: 'smooth'})
             return
         }
-        if(password1.length<9){
+        if(password1.length<=9){
             setErrorPassword1("Password must have at least 10 characters!")
             var element = document.getElementById("password1-register")
             element.scrollIntoView({behavior: 'smooth'})

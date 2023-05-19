@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import Jwt from "jsonwebtoken";
+import Jwt, { decode } from "jsonwebtoken";
 import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
-import { MONGO_DB_URI, secret, reqAuth } from "./helper";
+import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, emailHtml, transporter } from "./helper";
+import resetPasswordSession from "./models/resetPasswordSession";
+
+
 export class User {
   constructor() {
     this.#connect();
@@ -99,6 +102,7 @@ export class User {
     });
     return promise;
   }
+
 
   // get a user by his token
   async getUserByToken(token) {
@@ -268,6 +272,118 @@ export class User {
     } catch (err) {
       return { success: false, msg: "error at delete", error: err };
     }
+  }
+
+
+  async userExist(id,token){
+    const session = await reqResetPassword(token)
+    if(!session || !session.success){
+      return {success: false, msg: session.msg}
+    }
+    const decodedToken = decode(token)
+
+    const user = await UserModel.findById(id)
+    if (!user) {
+      return { success: false, msg: "user dosen't exist" };
+    }
+    if(user.email != decodedToken.email)
+    {
+      return {success: false, msg: "user email dosen't match token email"};
+    }
+    if(id!= decodedToken.id){
+      return {success: false, msg: "tokenId dosen't match user id"};
+    }
+
+    const newSecret = secret + user.password
+
+    try{
+      const payload = Jwt.verify(token,newSecret)
+    }
+    catch (err){
+      return {success: false, msg: "error at verify token", error: err}
+    }
+
+    user.password = null
+    return { success: true, user: user };
+  }
+
+  async forgotPassword(email){
+    const user = await UserModel.findOne({ email: email });
+    if (!user) {
+      return { success: false, msg: "Wrong credentials" };
+    }
+    const newSecret = secret + user.password
+    const payload = {
+      email: user.email,
+      id: user._id
+    }
+    const token = Jwt.sign(payload,newSecret,{expiresIn: '15m'})
+    const link = `http://localhost:8080/auth/resetPassword/${user._id}/${token}`
+    await resetPasswordSession.deleteMany({ userId: user._id });
+    await resetPasswordSession.create({ token: token, userId: user._id });
+
+    try{
+      const info = await transporter.sendMail({
+        from: "No-reply-dice <dicedmn@gmail.com>",
+        to:user.email,
+        subject:"Dice password reset",
+        html: emailHtml(link,user.email),
+      })
+      // console.log(info)
+      return {success: true, msg:"email sent successfully"}
+    }
+    catch(err){
+      return {success:false, msg:"error at send mail", error:err}
+    }
+
+  }
+
+  async resetPassword(id,newPassword){
+    const user = await UserModel.findById(id)
+    if(!user){
+      return {success: false,msg:"user not found"}
+    }
+
+    if (newPassword.length < 10) {
+      return { success: false, msg: "password is too short" };
+    }
+
+
+    const promise = new Promise((resolve, reject) => {
+      bcrypt.genSalt(10, async function (err, salt) {
+        if (err) {
+          reject({ success: false, msg: "Error at genSalt", error: err });
+        } else {
+          bcrypt.hash(newPassword, salt, async function (err, hash) {
+            if (err) {
+              reject({ success: false, msg: "Error at hash", error: err });
+            } else {
+
+              const dataToSet = {}
+              dataToSet.password = hash
+              const newValues = { $set: dataToSet };
+              var err,res = await UserModel.updateOne({_id:user._id},newValues)
+              await resetPasswordSession.deleteMany({ userId: user._id });
+              if (err) {
+                reject({
+                  success: false,
+                  msg: "Error at database",
+                  error: err,
+                });
+              } else {
+                resolve({
+                  success: true,
+                  msg: "password successfully changed",
+                });
+              }
+            }
+          });
+        }
+      });
+    })
+
+  return promise
+
   }
 
   async getAllUsersSorted(token,user) {

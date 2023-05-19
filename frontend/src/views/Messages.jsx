@@ -81,7 +81,6 @@ function Messages(props){
             }
 
             setConversations(convRes.elements)
-            console.log(convRes.elements)
         }
         if(!connectedUser){
             getUserConversations()

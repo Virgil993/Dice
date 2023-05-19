@@ -1,7 +1,8 @@
 import React from "react";
 import "../styles/navbar.css"
 import { Container,Button,Navbar,NavbarBrand, NavbarToggler,Nav,NavItem,NavLink } from "reactstrap";
-import diceLogo from "../assets/diceLogoTest.webp"
+// import diceLogo from "../assets/diceLogoTest.webp"
+import diceLogo from '../assets/logo-450x300.webp'
 import { useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"

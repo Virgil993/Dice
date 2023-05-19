@@ -1,7 +1,8 @@
 import React from "react";
 import '../styles/login.css'
 import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, CardTitle, CardBody, CardFooter } from 'reactstrap';
-import diceLogo from '../assets/diceLogoTest.webp'
+// import diceLogo from '../assets/diceLogoTest.webp'
+import diceLogo from '../assets/logo-450x300.webp'
 import { User } from "../backend_sdk/user.sdk";
 import { useNavigate } from "react-router-dom";
 
@@ -117,7 +118,7 @@ function Login(){
                                 </Alert>
                             </FormGroup>
                             <Container style={{marginTop:"20px",paddingLeft:"0px"}}>
-                                <a href="https://www.google.com/" style={{fontWeight:"bold",color:"green"}}>Forgot password?</a>
+                                <a href="/auth/forgotPassword" style={{fontWeight:"bold",color:"green"}}>Forgot password?</a>
                             </Container>
                         </CardBody>
                         <CardFooter style={{display:"flex",flexDirection:"column"}}>

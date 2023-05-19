@@ -149,7 +149,6 @@ function ChatComponent(props){
             </ModalBody>
             </Modal>
             <div className='close-icon-recevier-profile' onClick={(e)=>{
-                console.log(props.conversation.recevier.gender)
                 e.preventDefault()
                 props.setIndexInConversations(null)
             }}>

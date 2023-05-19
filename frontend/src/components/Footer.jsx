@@ -1,7 +1,8 @@
 import React from "react";
 import '../styles/footer.css'
 import { Container } from "reactstrap";
-import diceLogo from "../assets/diceLogoTest.webp"
+// import diceLogo from "../assets/diceLogoTest.webp"
+import diceLogo from '../assets/logo-450x300.webp'
 
 function Footer(){
     return (

@@ -1,7 +1,8 @@
 import React from "react";
 import "../styles/header_hero.css"
 import { Container,Button } from "reactstrap";
-import diceLogo from "../assets/diceLogoTest.webp"
+// import diceLogo from "../assets/diceLogoTest.webp"
+import diceLogo from '../assets/logo-450x300.webp'
 import { useNavigate } from "react-router-dom";
 
 function HeaderHero() {

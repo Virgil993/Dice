@@ -1,8 +1,10 @@
 import React from "react";
 import AWS from 'aws-sdk';
+import { User } from "../backend_sdk/user.sdk";
 
 const S3_BUCKET = "dice-users-photos-iam";
 const REGION = "eu-north-1"
+
 
 AWS.config.update({
     accessKeyId: 'AKIAXRJKOX2SN5I4MQF5',

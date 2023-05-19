@@ -40,6 +40,18 @@ export class User {
     return User.remote.call("User.delete", token)
   }
 
+  static async userExist(id, token) {
+    return User.remote.call("User.userExist", id, token)
+  }
+
+  static async forgotPassword(email) {
+    return User.remote.call("User.forgotPassword", email)
+  }
+
+  static async resetPassword(id, newPassword) {
+    return User.remote.call("User.resetPassword", id, newPassword)
+  }
+
   static async getAllUsersSorted(token, user) {
     return User.remote.call("User.getAllUsersSorted", token, user)
   }

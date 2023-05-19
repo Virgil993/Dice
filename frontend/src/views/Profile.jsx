@@ -64,7 +64,6 @@ function Profile() {
 
         var blob1 = new Blob([image1.Body],{type: "octet/stream"})
         var blob2 = new Blob([image2.Body],{type: "octet/stream"})
-        console.log(blob2)
         newPhotos.push(URL.createObjectURL(blob1))
         newPhotos.push(URL.createObjectURL(blob2))
         filePhotos.push(blob1)

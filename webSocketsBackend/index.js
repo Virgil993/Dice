@@ -24,17 +24,15 @@ db.once("open", function () {
 // }
 
 // getUsers()
-
-
   
 io.on('connection', socket => {
-    console.log("user connected",socket.id)
+    // console.log("user connected",socket.id)
     socket.on("send-chat-message", async message => {
         socket.broadcast.emit("chat-message",message)
     })
 
     socket.on("disconnect", () =>{
-      console.log("user disconnected",socket.id)
+      // console.log("user disconnected",socket.id)
     })
 })
 

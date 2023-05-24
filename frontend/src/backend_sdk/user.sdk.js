@@ -60,4 +60,12 @@ export class User {
     return User.remote.call("User.shouldCreateConversation", token, userId)
   }
 
+  static async UploadImageToS3(file, userId, fileName) {
+    return User.remote.call("User.UploadImageToS3", file, userId, fileName)
+  }
+
+  static async readImageFromS3(userId, photoNumber) {
+    return User.remote.call("User.readImageFromS3", userId, photoNumber)
+  }
+
 }

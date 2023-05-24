@@ -9,7 +9,6 @@ import GameRegister from '../components/GameRegister';
 import { User } from '../backend_sdk/user.sdk';
 import { useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression'
-import { uploadImageToS3WithNativeSdk } from '../components/ImageHandlingS3';
 
 
 function Register() {
@@ -99,6 +98,18 @@ function Register() {
         })
         return file
     }
+
+    async function uploadImageToS3(file,userId,fileName){
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async function () {
+            const res1 = await User.UploadImageToS3(reader.result,userId,fileName)
+        };
+        reader.onerror = function (error) {
+          console.log('Error: ', error);
+        };
+    }
+
 
     async function handleSubmit(event) {
         event.preventDefault();
@@ -214,10 +225,6 @@ function Register() {
                 }
             }
         }
-
-        console.log(image1DB)
-
-
         const res = await User.create(
             firstName,
             email,
@@ -242,10 +249,10 @@ function Register() {
                 return;
             }
             else{
-                uploadImageToS3WithNativeSdk(image1DB,res.userId)
-                uploadImageToS3WithNativeSdk(image2DB,res.userId)
-                uploadImageToS3WithNativeSdk(image3DB,res.userId)
-                uploadImageToS3WithNativeSdk(image4DB,res.userId)
+                await uploadImageToS3(image1DB,res.userId,"Image1")
+                await uploadImageToS3(image2DB,res.userId,"Image2")
+                await uploadImageToS3(image3DB,res.userId,"Image3")
+                await uploadImageToS3(image4DB,res.userId,"Image4")
                 navigate("/auth/login");
             }
             

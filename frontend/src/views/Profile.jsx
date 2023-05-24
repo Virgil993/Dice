@@ -62,29 +62,23 @@ function Profile() {
         var image4 = await readImageFromS3WithNativeSdk(res.user._id,"4")
         
 
-        var blob1 = new Blob([image1.Body],{type: "octet/stream"})
-        var blob2 = new Blob([image2.Body],{type: "octet/stream"})
-        newPhotos.push(URL.createObjectURL(blob1))
-        newPhotos.push(URL.createObjectURL(blob2))
-        filePhotos.push(blob1)
-        filePhotos.push(blob2)
-        if(image3.ContentLength != 0){
-            var blob3 = new Blob([image3.Body],{type: "octet/stream"})
-            newPhotos.push(URL.createObjectURL(blob3))
-            filePhotos.push(blob3)
+        newPhotos.push(image1.data)
+        newPhotos.push(image2.data)
+        filePhotos.push(image1.data)
+        filePhotos.push(image2.data)
+        if(image3.data.length > 10){
+            newPhotos.push(image3.data)
+            filePhotos.push(image3.data)
         }
         else{
-          let blob = new Blob([],{type:"octet/stream"})
-          filePhotos.push(blob)
+          filePhotos.push("None")
         }
-        if(image4.ContentLength != 0){
-            var blob4 = new Blob([image4.Body],{type: "octet/stream"})
-            newPhotos.push(URL.createObjectURL(blob4))
-            filePhotos.push(blob4)
+        if(image4.data.length >10){
+            newPhotos.push(image4.data)
+            filePhotos.push(image4.data)
         }
         else{
-          let blob = new Blob([],{type:"octet/stream"})
-          filePhotos.push(blob)
+          filePhotos.push("None")
         }
         setUpdatedPhotos(filePhotos)
 
@@ -173,7 +167,7 @@ function Profile() {
     let numberOfPhotos=0
     for(let i=0;i<state.length;i++)
     {
-      if(state[i].size !=0){
+      if(state[i].length >10){
         numberOfPhotos=numberOfPhotos+1
       }
     }
@@ -192,45 +186,38 @@ function Profile() {
   }
 
 
-  function convertFromBlobToFile(blob,ImageNr){
-    const file = new File([blob],"Image"+ImageNr,{
-        type: blob.type
-    })
-    return file
-  }
-
-  function handlePhotosSave(updatedPhotosArray){
-    var image1DB = new File([""],"Image1")
-    var image2DB = new File([""],"Image2")
-    var image3DB = new File([""],"Image3")
-    var image4DB = new File([""],"Image4")
+  async function handlePhotosSave(updatedPhotosArray){
+    var image1DB = "None"
+    var image2DB = "None"
+    var image3DB = "None"
+    var image4DB = "None"
 
 
+    console.log(updatedPhotosArray)
     for(let i=0;i<updatedPhotosArray.length;i++){
-        if(updatedPhotosArray[i].size != 0){
-          if(image1DB.size == 0){
-            image1DB = convertFromBlobToFile(updatedPhotosArray[i],"1")
+        if(updatedPhotosArray[i].length > 10){
+          if(image1DB.length <= 10){
+            image1DB = updatedPhotosArray[i]
           }
           else{
-            if(image2DB.size == 0){
-              image2DB = convertFromBlobToFile(updatedPhotosArray[i],"2")
+            if(image2DB.length <=10 ){
+              image2DB = updatedPhotosArray[i]
             }
             else{
-              if(image3DB.size == 0){
-                image3DB = convertFromBlobToFile(updatedPhotosArray[i],"3")
+              if(image3DB.length <= 10){
+                image3DB = updatedPhotosArray[i]
               }
               else{
-                image4DB = convertFromBlobToFile(updatedPhotosArray[i],"4")
+                image4DB = updatedPhotosArray[i]
               }
             }
           }
         }
     }
-    uploadImageToS3WithNativeSdk(image1DB,user._id)
-    uploadImageToS3WithNativeSdk(image2DB,user._id)
-    uploadImageToS3WithNativeSdk(image3DB,user._id)
-    uploadImageToS3WithNativeSdk(image4DB,user._id)
-
+    await User.UploadImageToS3(image1DB,user._id,"Image1")
+    await User.UploadImageToS3(image2DB,user._id,"Image2")
+    await User.UploadImageToS3(image3DB,user._id,"Image3")
+    await User.UploadImageToS3(image4DB,user._id,"Image4")
   }
 
     return(
@@ -408,16 +395,15 @@ function Profile() {
                         {
                           
                             updatedPhotos.map((element,index)=>{
-                              if(element.size !=0 ){
+                              if(element.length >10 ){
                                 return (
                                   <FormGroup  key={element+index} className="single-photo-container">
-                                    <img src={URL.createObjectURL(element)} alt="N/A" />
-                                    <img src={closeIconLogo} className="remove-photo-icon" onClick={(e)=>{
+                                    <img src={element} alt="N/A" />
+                                    <img src={closeIconLogo} className="remove-photo-icon-profile" onClick={(e)=>{
                                       e.preventDefault()
                                       let newUpdatedPhotos = updatedPhotos
-                                      newUpdatedPhotos[index] =  new Blob([],{type:"octet/stream"})
+                                      newUpdatedPhotos[index] = "None"
                                       setUpdatedPhotos([...newUpdatedPhotos])
-                                      console.log(newUpdatedPhotos)
                                     }}/>
                                   </FormGroup>
                                 )
@@ -441,10 +427,17 @@ function Profile() {
                                         }
                                         try{
                                           const compressedFile = await imageCompression(event.target.files[0],options)
-                                          let OctetStreamCompressedFile = new Blob([compressedFile],{type:"octet/stream"})
-                                          newUpdatedPhotos[index] = OctetStreamCompressedFile
-
-                                          setUpdatedPhotos([...newUpdatedPhotos])
+                                          var reader = new FileReader();
+                                          reader.readAsDataURL(compressedFile);
+                                          reader.onload = function () {
+                                              newUpdatedPhotos[index] = reader.result
+                                              setUpdatedPhotos([...newUpdatedPhotos])
+                                              console.log(newUpdatedPhotos)
+                                          };
+                                          reader.onerror = function (error) {
+                                            console.log('Error: ', error);
+                                          };
+                                          
                                         }
                                         catch (error) {
                                           console.log(error)
@@ -453,7 +446,7 @@ function Profile() {
                                       event.target.value=null
                                   }}
                                   />
-                                  <img src={addIconLogo} className="add-photo-icon" cursor="pointer"/>
+                                  <img src={addIconLogo} className="add-photo-icon-profile" cursor="pointer"/>
                                 </FormGroup>
                               )
                           })
@@ -467,7 +460,7 @@ function Profile() {
                             let numberOfPhotos=0
                             for(let i=0;i<updatedPhotos.length;i++)
                             {
-                              if(updatedPhotos[i].size !=0){
+                              if(updatedPhotos[i].length >10){
                                 numberOfPhotos=numberOfPhotos+1
                               }
                             }
@@ -475,8 +468,8 @@ function Profile() {
                                 handlePhotosSave(updatedPhotos)
                                 var newNormalPhotos = []
                                 for(let i=0;i<updatedPhotos.length;i++){
-                                  if(updatedPhotos[i].size !=0){
-                                     newNormalPhotos.push(URL.createObjectURL(updatedPhotos[i]))
+                                  if(updatedPhotos[i].length >10){
+                                     newNormalPhotos.push(updatedPhotos[i])
                                   }
                                 }
                                 setPhotos([...newNormalPhotos])

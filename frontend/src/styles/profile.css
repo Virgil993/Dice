@@ -176,7 +176,7 @@
     
 }
 
-.remove-photo-icon{
+.remove-photo-icon-profile{
     position: absolute;
     width: 35% !important;
     height: fit-content !important;
@@ -185,7 +185,7 @@
     cursor: pointer;
 }
 
-.add-photo-icon{
+.add-photo-icon-profile{
     width: 50% !important;
     margin: auto;
 }

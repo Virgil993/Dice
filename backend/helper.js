@@ -73,3 +73,10 @@ export const transporter = nodemailer.createTransport({
   }
   
 })
+
+export const AWSConfig = {
+  S3_BUCKET: "dice-images",
+  REGION: "eu-north-1",
+  accessKeyId: 'AKIAXRJKOX2SN5I4MQF5',
+  secretAccessKey: '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'
+}

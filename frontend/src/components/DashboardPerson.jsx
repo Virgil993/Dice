@@ -38,23 +38,19 @@ function DashboardPerson(props){
             
             var imagesArray = []
 
-            var blob1 = new Blob([image1.Body],{type: "octet/stream"})
-            var blob2 = new Blob([image2.Body],{type: "octet/stream"})
-            newPhotos.push(URL.createObjectURL(blob1))
-            newPhotos.push(URL.createObjectURL(blob2))
+            newPhotos.push(image1.data)
+            newPhotos.push(image2.data)
             imagesArray.push(
-                <img src={URL.createObjectURL(blob1)} alt="Image1" width={"850px"} height={"850px"}/>,
-                <img src={URL.createObjectURL(blob2)} alt="Image2" width={"850px"} height={"850px"}/>,
+                <img src={image1.data} alt="Image1" width={"850px"} height={"850px"}/>,
+                <img src={image2.data} alt="Image2" width={"850px"} height={"850px"}/>,
                 )
-            if(image3.ContentLength != 0){
-                var blob3 = new Blob([image3.Body],{type: "octet/stream"})
-                newPhotos.push(URL.createObjectURL(blob3))
-                imagesArray.push(<img src={URL.createObjectURL(blob3)} alt="Image3" width={"850px"} height={"850px"}/>,)
+            if(image3.data.length > 10 ){
+                newPhotos.push(image3.data)
+                imagesArray.push(<img src={image3.data} alt="Image3" width={"850px"} height={"850px"}/>,)
             }
-            if(image4.ContentLength != 0){
-                var blob4 = new Blob([image4.Body],{type: "octet/stream"})
-                newPhotos.push(URL.createObjectURL(blob4))
-                imagesArray.push(<img src={URL.createObjectURL(blob4)} alt="Image4" width={"850px"} height={"850px"}/>,)
+            if(image4.data.length > 10){
+                newPhotos.push(image4.data)
+                imagesArray.push(<img src={image4.data} alt="Image4" width={"850px"} height={"850px"}/>,)
             }
             
 

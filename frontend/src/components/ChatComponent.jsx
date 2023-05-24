@@ -1,10 +1,8 @@
 import React from 'react'
-import { Container,Card,CardBody,CardTitle, Button, CardText, Modal, ModalHeader, ModalBody } from "reactstrap"
-import { User } from "../backend_sdk/user.sdk"
+import { Container, Modal, ModalHeader, ModalBody } from "reactstrap"
 import { Conversation } from "../backend_sdk/conversation.sdk"
 import '../styles/chat_component.css'
 import { availableGames, socket } from "../constants/utils"
-import {AiOutlineSend} from 'react-icons/ai'
 import {BsSendFill} from 'react-icons/bs'
 import {GrClose} from 'react-icons/gr'
 import GameRegister from './GameRegister'
@@ -125,10 +123,10 @@ function ChatComponent(props){
                 <div style={{display:"flex",gap:"20px"}}>
                     {
                         props.conversation.photos.map((element,index)=>{
-                            if(element.size!=0){
+                            if(element.length>10){
                                 return(
                                     <div style={{width:"200px",height:"200px"}} key={element+index}>
-                                        <img src={URL.createObjectURL(element)} alt='N/A' style={{width:"100%",height:"100%",borderRadius:"20px"}}></img>
+                                        <img src={element} alt='N/A' style={{width:"100%",height:"100%",borderRadius:"20px"}}></img>
                                     </div>
                                 )
                             }
@@ -141,7 +139,7 @@ function ChatComponent(props){
                     {
                         props.conversation.recevier.gamesSelected.map((element,index)=>{
                             return(
-                                <GameRegister key={element+index} name={availableGames[element]} isSelected={true}></GameRegister>
+                                <GameRegister key={element*index+index} name={availableGames[element]} isSelected={true}></GameRegister>
                             )
                         })
                     }

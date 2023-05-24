@@ -2,7 +2,8 @@ import React from "react";
 import '../styles/login.css'
 import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, CardTitle, CardBody, CardFooter } from 'reactstrap';
 // import diceLogo from '../assets/diceLogoTest.webp'
-import diceLogo from '../assets/logo-450x300.webp'
+// import diceLogo from '../assets/logo-450x300.webp'
+import diceLogo from '../assets/LOGO-3.webp'
 import { User } from "../backend_sdk/user.sdk";
 import { useNavigate } from "react-router-dom";
 

@@ -3,8 +3,10 @@ import bcrypt from "bcryptjs";
 import Jwt, { decode } from "jsonwebtoken";
 import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
-import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, emailHtml, transporter } from "./helper";
+import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, emailHtml, transporter, AWSConfig } from "./helper";
 import resetPasswordSession from "./models/resetPasswordSession";
+import AWS from 'aws-sdk';
+import conversations from "./models/conversations";
 
 
 export class User {
@@ -88,7 +90,7 @@ export class User {
         } else {
           if (res) {
             const token = Jwt.sign(user.toJSON(), secret, {
-              expiresIn: 86400, // 1 saptamana
+              expiresIn: 86400, // 1 week
             });
             await ActiveSession.deleteMany({ userId: user._id });
             await ActiveSession.create({ token: token, userId: user._id });
@@ -456,5 +458,85 @@ export class User {
     catch(err){
       return { success: false, msg: "error at should Create Conversation", error: err };
     }
+  }
+
+  async UploadImageToS3(file,userId,fileName){
+    const S3_BUCKET = AWSConfig.S3_BUCKET;
+    const REGION = AWSConfig.REGION;
+
+    AWS.config.update({
+        accessKeyId: AWSConfig.accessKeyId,
+        secretAccessKey: AWSConfig.secretAccessKey
+    })
+
+
+    const myBucket = new AWS.S3({
+      params: { Bucket: S3_BUCKET},
+      region: REGION,
+    })
+    return new Promise((resolve,reject) =>{
+      const params = {
+          Body: file,
+          Bucket: S3_BUCKET,
+          Key: userId+"/"+fileName
+      }
+      myBucket.putObject(params,function (err,data) {
+          if (err) {
+              console.log(err)
+              reject({
+                success: false,
+                msg: "Error at upload image to S3 bucket",
+                error: err
+              })
+          }
+          else {
+              console.log("Uploaded Image Successfully!")
+              resolve({
+                success: true,
+                msg: "Uploaded Image Successfully!",
+                data: data
+              })
+          }
+      })
+    })
+  }
+
+  async readImageFromS3(userId,photoNumber){
+    const S3_BUCKET = AWSConfig.S3_BUCKET;
+    const REGION = AWSConfig.REGION;
+
+    AWS.config.update({
+        accessKeyId: AWSConfig.accessKeyId,
+        secretAccessKey: AWSConfig.secretAccessKey
+    })
+
+    const myBucket = new AWS.S3({
+      params: { Bucket: S3_BUCKET},
+      region: REGION,
+    })
+    return new Promise((resolve,reject) =>{
+      const params = {
+          Bucket: S3_BUCKET,
+          Key: userId+"/Image"+photoNumber
+      }
+      myBucket.getObject(params, function (err, data) {
+          if (err) {
+              reject({
+                success: false,
+                msg: "Error at read image from S3 bucket",
+                error: err
+              })
+          }
+          else {
+              let objectData = data.Body.toString('utf-8')
+              resolve({
+                success: true,
+                msg: "Retrieved Image Successfully!",
+                data: objectData
+              })
+          }
+      })
+
+    })
   }
 }

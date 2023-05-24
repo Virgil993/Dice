@@ -1,8 +1,9 @@
 import React from "react";
 import "../styles/navbar.css"
-import { Container,Button,Navbar,NavbarBrand, NavbarToggler,Nav,NavItem,NavLink } from "reactstrap";
+import { NavbarBrand,NavLink } from "reactstrap";
 // import diceLogo from "../assets/diceLogoTest.webp"
-import diceLogo from '../assets/logo-450x300.webp'
+// import diceLogo from '../assets/logo-450x300.webp'
+import diceLogo from '../assets/LOGO-3.webp'
 import { useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"
@@ -20,6 +21,8 @@ function NavbarMain(props) {
     const [profilePhoto,setProfilePhoto] = React.useState(null)
     const [photoLoaded,setPhotoLoaded] = React.useState(false)
 
+    
+
     React.useEffect(()=>{
 
         async function getUser(){
@@ -31,9 +34,10 @@ function NavbarMain(props) {
             }
 
             setUser(res.user)
-            var image1 = await readImageFromS3WithNativeSdk(res.user._id,"1")
-            var blob = new Blob([image1.Body],{type: "octet/stream"})
-            setProfilePhoto(URL.createObjectURL(blob))
+            var res1 = await readImageFromS3WithNativeSdk(res.user._id,"1")
+            var image1 = res1.data
+            setProfilePhoto(image1)
+
         }
         if(!user){
             getUser()

@@ -35,8 +35,7 @@ function Messages(props){
             }
 
             var profilePicture = await readImageFromS3WithNativeSdk(res.user._id,"1")
-            var blob = new Blob([profilePicture.Body],{type: "octet/stream"})
-            res.user.profilePicture = URL.createObjectURL(blob)
+            res.user.profilePicture = profilePicture.data
             setConnectedUser(res.user)
 
             const convRes  = await Conversation.getByUserId(localStorage.getItem("apiToken"))
@@ -52,30 +51,22 @@ function Messages(props){
                     var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"3")
                     var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[1])
-                    var blob1 = new Blob([image1.Body],{type: "octet/stream"})
-                    var blob2 = new Blob([image2.Body],{type: "octet/stream"})
-                    var blob3 = new Blob([image3.Body],{type: "octet/stream"})
-                    var blob4 = new Blob([image4.Body],{type: "octet/stream"})
-                    convRes.elements[i].profilePicture = URL.createObjectURL(blob1)
+                    convRes.elements[i].profilePicture = image1.data
                     convRes.elements[i].name = currentUserInConv.user.name
                     convRes.elements[i].recevier = currentUserInConv.user
-                    var newPhotos = [blob1,blob2,blob3,blob4]
+                    var newPhotos = [image1.data,image2.data,image3.data,image4.data]
                     convRes.elements[i].photos = newPhotos
                 }
                 else{
                     var image1 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"1")
-                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"2")
-                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"3")
-                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"4")
+                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"2")
+                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"3")
+                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[0])
-                    var blob1 = new Blob([image1.Body],{type: "octet/stream"})
-                    var blob2 = new Blob([image2.Body],{type: "octet/stream"})
-                    var blob3 = new Blob([image3.Body],{type: "octet/stream"})
-                    var blob4 = new Blob([image4.Body],{type: "octet/stream"})
-                    convRes.elements[i].profilePicture = URL.createObjectURL(blob1)
+                    convRes.elements[i].profilePicture = image1.data
                     convRes.elements[i].name = currentUserInConv.user.name
                     convRes.elements[i].recevier = currentUserInConv.user
-                    var newPhotos = [blob1,blob2,blob3,blob4]
+                    var newPhotos = [image1.data,image2.data,image3.data,image4.data]
                     convRes.elements[i].photos = newPhotos
                 }
             }
@@ -107,7 +98,7 @@ function Messages(props){
     async function deleteConversation(id){
         const conRes = await Conversation.delete(localStorage.getItem("apiToken"),id)
         if(!conRes || !conRes.success){
-          console.log("error at delete all conversations")
+          console.log("error at delete conversation")
           return
         }
     }

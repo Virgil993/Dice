@@ -1,18 +1,25 @@
 import React from 'react'
 import { Container, Modal, ModalHeader, ModalBody } from "reactstrap"
-import { Conversation } from "../backend_sdk/conversation.sdk"
+import { Message } from '../backend_sdk/message.sdk'
 import '../styles/chat_component.css'
-import { availableGames, socket } from "../constants/utils"
+import { availableGames  } from "../constants/utils"
+import {socket} from '../socket'
 import {BsSendFill} from 'react-icons/bs'
 import {GrClose} from 'react-icons/gr'
 import GameRegister from './GameRegister'
+import { useDispatch, useSelector } from 'react-redux'
+import { removeAllNotificationsFromConversation } from '../redux/notificationsSlice'
 
 function ChatComponent(props){
 
 
     const bottomRef = React.useRef(null)
 
+    const {conversations,messages} = useSelector((state) => state.notifications)
+    const dispatch = useDispatch()
+
     const [isConnected,setIsConnected] = React.useState(socket.connected)
+    const [currentNotifications,setCurrentNotifications] = React.useState(null)
     const [message,setMessage] = React.useState("")
     const [allMessages,setAllMessages] = React.useState([])
     const [recevier,setRecevier] = React.useState(null)
@@ -22,18 +29,47 @@ function ChatComponent(props){
     const toggleUser = ()=>setModalUser(!modalUser)
 
     React.useEffect(()=>{
+
+        async function updateSeenMessages(messages){
+           const res =  await Message.updateSeen(localStorage.getItem("apiToken"),messages)
+           if(!res || !res.success){
+                console.log(res)
+                console.log("error at update seen messages")
+                return
+           }
+        }
+
+        var localStorageConv = JSON.parse(localStorage.getItem("conversations"))
+        var localStorageMessages = JSON.parse(localStorage.getItem("messages"))
+
+        if(localStorageConv.includes(props.conversation._id)){
+            var localUpdateMessages = localStorageMessages.filter(elem => elem.conversationId == props.conversation._id)
+            setCurrentNotifications([...localUpdateMessages])
+            localStorageConv = localStorageConv.filter(elem => elem != props.conversation._id)
+            localStorageMessages = localStorageMessages.filter(elem => elem.conversationId != props.conversation._id)
+            localStorage.setItem("conversations",JSON.stringify(localStorageConv))
+            localStorage.setItem("messages",JSON.stringify(localStorageMessages))
+            dispatch(removeAllNotificationsFromConversation({
+                conversationId: props.conversation._id
+            })) 
+            updateSeenMessages(localUpdateMessages)
+        }
+
+    },[conversations,messages])
+
+    React.useEffect(()=>{
         bottomRef.current?.scrollIntoView({behavior:'smooth'});
     },[allMessages]);
 
     React.useEffect(()=>{
         async function getConversation(){
-            let dbMessages = await Conversation.getByBothUserId(props.conversation.users[0],props.conversation.users[1])
+            let dbMessages = await Message.getByConversationId(localStorage.getItem("apiToken"),props.conversation._id)
             if(!dbMessages || !dbMessages.success){
                 console.log("error at get conversation")
                 return
             } 
-            setConversation(dbMessages.element)
-            setAllMessages(dbMessages.element.messages)
+            setConversation(props.conversation)
+            setAllMessages(dbMessages.elements)
         }
         if(!conversation){
             getConversation()
@@ -54,38 +90,41 @@ function ChatComponent(props){
 
 
     React.useEffect(()=>{
-        function onConnect(){
-            console.log("User conected")
-            setIsConnected(true)
-        }
-        function onDisconnect(){
-            setIsConnected(false)
-        }
-        function onChatMessage(value){
+        async function onChatMessage(value){
             if(value.recevier == props.connectedUser._id && value.sender==recevier)
             {
                 
                 var newMessages = allMessages
                 newMessages.push({
+                    _id: value._id,
+                    conversationId: value.conversationId,
                     sender: value.sender,
-                    message:value.message,
+                    text:value.text,
                     recevier: value.recevier,
-                    date: new Date()
+                    date: value.date,
+                    seen: true,
                 })
                 setAllMessages([
                     ...newMessages
                 ])
                 
+                await Message.updateSeen(localStorage.getItem("apiToken"),[
+                    {
+                        _id: value._id,
+                        conversationId: value.conversationId,
+                        sender: value.sender,
+                        text:value.text,
+                        recevier: value.recevier,
+                        date: value.date,
+                        seen: true,
+                    }
+                ])
             }
         }
 
-        socket.on('connect',onConnect);
-        socket.on('disconnect',onDisconnect)
         socket.on('chat-message',onChatMessage)
 
         return () =>{
-            socket.off('connect',onConnect)
-            socket.off('disconnect',onDisconnect)
             socket.off('chat-message',onChatMessage)
         };
     },[props.connectedUser,recevier,allMessages])
@@ -123,7 +162,7 @@ function ChatComponent(props){
                 <div style={{display:"flex",gap:"20px"}}>
                     {
                         props.conversation.photos.map((element,index)=>{
-                            if(element.length>10){
+                            if(element.length>100){
                                 return(
                                     <div style={{width:"200px",height:"200px"}} key={element+index}>
                                         <img src={element} alt='N/A' style={{width:"100%",height:"100%",borderRadius:"20px"}}></img>
@@ -160,9 +199,9 @@ function ChatComponent(props){
                     let currentDate = new Date(elem.date)
                     if(elem.sender == props.connectedUser._id){
                         return (
-                            <Container key={elem.message+elem.sender+elem.recevier+index} className='send-container' style={{justifyContent:"right"}}>
+                            <Container key={currentDate} className='send-container' style={{justifyContent:"right"}}>
                                 <div className='send-div'>
-                                <div>{elem.message}</div>
+                                <div>{elem.text}</div>
                                 <div style={{fontSize:"12px"}}>{ currentDate.getDate() +"/" + String(parseInt(currentDate.getMonth())+1)+"/"+ currentDate.getFullYear()} {
                                 currentDate.toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit'})
                                 }</div>
@@ -170,10 +209,23 @@ function ChatComponent(props){
                             </Container>
                         )
                     }
+                    else if(currentNotifications && currentNotifications.length != 0 &&  elem._id == currentNotifications[0]._id){
+                        return (
+                            <Container key={currentDate} className='send-container' style={{justifyContent:"left"}}>
+                                <div className='recevie-div'>
+                                    <div>Not read</div>
+                                    <div>{elem.text}</div>
+                                    <div style={{fontSize:"12px"}}>{ currentDate.getDate() +"/" + String(parseInt(currentDate.getMonth())+1)+"/"+ currentDate.getFullYear()} {
+                                    currentDate.toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit'})
+                                    }</div>
+                                </div>
+                            </Container>
+                        )
+                    }
                     return (
-                        <Container key={elem.message+elem.sender+elem.recevier+index} className='send-container' style={{justifyContent:"left"}}>
+                        <Container key={currentDate} className='send-container' style={{justifyContent:"left"}}>
                             <div className='recevie-div'>
-                                <div>{elem.message}</div>
+                                <div>{elem.text}</div>
                                 <div style={{fontSize:"12px"}}>{ currentDate.getDate() +"/" + String(parseInt(currentDate.getMonth())+1)+"/"+ currentDate.getFullYear()} {
                                 currentDate.toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit'})
                                 }</div>
@@ -194,22 +246,45 @@ function ChatComponent(props){
             <form id="send-form" onSubmit={async (e)=>{
                 e.preventDefault()
                 if(message){
-                    const res = await Conversation.addMessage({message: message, recevier: recevier, sender: props.connectedUser._id,date: new Date()})
+                    const res = await Message.create(localStorage.getItem("apiToken"),props.conversation._id,message,props.connectedUser._id,recevier, new Date(),false)
                     if(!res || !res.success){
                         console.log("error at add message")
                         return
                     }
                     var newMessages = allMessages
                     newMessages.push({
+                        _id: res.messageId,
+                        conversationId: props.conversation._id,
+                        text:message,
                         sender: props.connectedUser._id,
-                        message:message,
                         recevier: recevier,
-                        date: new Date()
+                        date: new Date(),
+                        seen: false,
                     })
                     setAllMessages([
                         ...newMessages
                     ])
-                    socket.emit("send-chat-message",{message: message, recevier: recevier, sender: props.connectedUser._id,date: new Date()})
+                    socket.emit("send-chat-message",{
+                        _id: res.messageId,
+                        conversationId: props.conversation._id,
+                        text:message,
+                        sender: props.connectedUser._id,
+                        recevier: recevier,
+                        date: new Date(),
+                        seen: false,
+                    })
+                    socket.emit("send-notification",{
+                        conversationId: conversation._id,
+                        message:{
+                            _id: res.messageId,
+                            conversationId: props.conversation._id,
+                            text:message,
+                            sender: props.connectedUser._id,
+                            recevier: recevier,
+                            date: new Date(),
+                            seen: false,
+                        }
+                    })
                     setMessage("")
                 }
             }}>
@@ -219,22 +294,45 @@ function ChatComponent(props){
             <div type="submit" id="send-button" onClick={async (e)=>{
                 e.preventDefault()
                 if(message){
-                    const res = await Conversation.addMessage({message: message, recevier: recevier, sender: props.connectedUser._id,date: new Date()})
+                    const res = await Message.create(localStorage.getItem("apiToken"),props.conversation._id,message,props.connectedUser._id,recevier, new Date(),false)
                     if(!res || !res.success){
                         console.log("error at add message")
                         return
                     }
                     var newMessages = allMessages
                     newMessages.push({
+                        _id: res.messageId,
+                        conversationId: props.conversation._id,
+                        text:message,
                         sender: props.connectedUser._id,
-                        message:message,
                         recevier: recevier,
-                        date: new Date()
+                        date: new Date(),
+                        seen: false,
                     })
                     setAllMessages([
                         ...newMessages
                     ])
-                    socket.emit("send-chat-message",{message: message, recevier: recevier, sender: props.connectedUser._id,date: new Date()})
+                    socket.emit("send-chat-message",{
+                        _id: res.messageId,
+                        conversationId: props.conversation._id,
+                        text:message,
+                        sender: props.connectedUser._id,
+                        recevier: recevier,
+                        date: new Date(),
+                        seen: false,
+                    })
+                    socket.emit("send-notification",{
+                        conversationId: conversation._id,
+                        message:{
+                            _id: res.messageId,
+                            conversationId: props.conversation._id,
+                            text:message,
+                            sender: props.connectedUser._id,
+                            recevier: recevier,
+                            date: new Date(),
+                            seen: false,
+                        }
+                    })
                     setMessage("")
                 }
             }}> <BsSendFill  size={30}/></div>

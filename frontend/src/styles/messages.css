@@ -70,7 +70,7 @@
     flex-direction: row;
     justify-content: left;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     width: 100%;
     border-bottom: #198754 3px solid;
     cursor: pointer;
@@ -78,6 +78,18 @@
 }
 .conversation-row:hover{
     background-color: #72bf6a
+}
+
+.notification-point-conversation-row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    background-color: blue;
+    color: aqua;
+    margin-top: 5px;
 }
 
 
@@ -115,6 +127,51 @@
 
 .conversation-row-name{
     font-size: 25px;
+}
+
+.loading-messages{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.loading-conversations{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+    text-align: center;
+    width: 60%;
+    color: gray;
+}
+
+
+.loading-icon{
+    text-align: center;
+
+    animation: rotation 2s infinite linear;
+    
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+.loading-text{
+    text-align: center;
+    font-size: 70px;
+}
+
+.loading-conversations-text{
+    text-align: center;
+    font-size: 50px;
 }
 
 

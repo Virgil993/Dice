@@ -85,3 +85,34 @@
     display: inline-block;
     background-color:rgb(98, 204, 137);
 }
+
+
+.loading-photos{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 250px;
+    margin-top: 20px;
+}
+
+.loading-icon-photos{
+    text-align: center;
+
+    animation: rotation 2s infinite linear;
+    
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+.loading-text-photos{
+    text-align: center;
+    font-size: 40px;
+}

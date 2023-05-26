@@ -12,8 +12,9 @@ import {acceptedFileTypesPhotos, availableGames} from '../constants/utils'
 import imageCompression from 'browser-image-compression'
 import GameRegister from "../components/GameRegister";
 import { Conversation } from "../backend_sdk/conversation.sdk";
+import {BsFillDice6Fill} from 'react-icons/bs'
 
-function Profile() {
+function Profile(props) {
 
     const navigate = useNavigate()
     const [error, setError] = React.useState(null)
@@ -42,6 +43,8 @@ function Profile() {
 
     const [modal,setModal] = React.useState(false)
 
+    const [navbarLoaded,setNavbarLoaded] = React.useState(false)
+
     const toggle = () => setModal(!modal)
 
     React.useEffect(()=>{
@@ -66,14 +69,14 @@ function Profile() {
         newPhotos.push(image2.data)
         filePhotos.push(image1.data)
         filePhotos.push(image2.data)
-        if(image3.data.length > 10){
+        if(image3.data.length > 100){
             newPhotos.push(image3.data)
             filePhotos.push(image3.data)
         }
         else{
           filePhotos.push("None")
         }
-        if(image4.data.length >10){
+        if(image4.data.length >100){
             newPhotos.push(image4.data)
             filePhotos.push(image4.data)
         }
@@ -196,15 +199,15 @@ function Profile() {
     console.log(updatedPhotosArray)
     for(let i=0;i<updatedPhotosArray.length;i++){
         if(updatedPhotosArray[i].length > 10){
-          if(image1DB.length <= 10){
+          if(image1DB.length <= 100){
             image1DB = updatedPhotosArray[i]
           }
           else{
-            if(image2DB.length <=10 ){
+            if(image2DB.length <=100 ){
               image2DB = updatedPhotosArray[i]
             }
             else{
-              if(image3DB.length <= 10){
+              if(image3DB.length <= 100){
                 image3DB = updatedPhotosArray[i]
               }
               else{
@@ -222,9 +225,9 @@ function Profile() {
 
     return(
         <div className="profile-body">
-            <NavbarMain page="profile"/>
+            <NavbarMain page="profile" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
             {
-              user && photos && name && gender && games && (description !== null)?
+              user && photos && name && gender && games && (description !== null) && navbarLoaded?
               <Container className="profile-body-container">
                 <Card className="profile-title-main">Your profile</Card>
                 <Card className="profile-picture-name">
@@ -597,7 +600,10 @@ function Profile() {
                   </Card>
                 </Container>
                 :
-                <></>
+                <Container className="loading-profile">
+                  <Container className="loading-icon"><BsFillDice6Fill size={70}/></Container>
+                  <Container className="loading-text">Loading...</Container>
+                </Container>
             }
             <Footer/>  
         </div>

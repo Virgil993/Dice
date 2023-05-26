@@ -60,11 +60,9 @@ function Login(){
             return;
         } else {
             localStorage.setItem("apiToken", res.token);
-            localStorage.setItem("user_name", JSON.stringify(res.user.name));
-            localStorage.setItem("user_email", JSON.stringify(res.user.email));
-            localStorage.setItem("user_birthday", JSON.stringify(res.user.birthday));
-            localStorage.setItem("user_gender", JSON.stringify(res.user.gender));
-            localStorage.setItem("user_description", JSON.stringify(res.user.description));
+            localStorage.setItem("conversations",JSON.stringify([]))
+            localStorage.setItem("messages",JSON.stringify([]))
+            localStorage.setItem("retrievedNotifications",JSON.stringify(false))
             navigate("/admin/dashboard");
         }
 

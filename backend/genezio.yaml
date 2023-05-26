@@ -13,3 +13,7 @@ classes:
   - path: conversation.js
     type: jsonrpc
     methods: []
+  - path: message.js
+    type: jsonrpc
+    methods: []
+  

@@ -39,6 +39,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-decoration: none;
 }
 
 .navlink-text{
@@ -56,6 +57,31 @@
     margin-left: auto;
 }
 
+.messages-link-div{
+    display: flex;
+    gap: 5px;
+}
+
+.notification-div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 7px;
+}
+
+.notification-point{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 15px;
+    border-radius: 30px;
+    width: 20px;
+    height: 20px;
+    background-color:blue;
+    color: aqua;
+}
+
 .navlink-icon-container{
     display: flex;
     justify-content: center;
@@ -63,7 +89,9 @@
     height: 100%;
     margin-right: 15px;
     padding-top: 5px;
+    color: black;
 }
+
 
 .navlink-img-container{
     display: flex;

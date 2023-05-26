@@ -2,28 +2,34 @@ import React from "react"
 import '../styles/messages.css'
 import NavbarMain from "../components/Navbar"
 import { Container,Modal,ModalBody,ModalHeader, ModalFooter,Button } from "reactstrap"
-import { socket } from "../constants/utils"
 import { User } from "../backend_sdk/user.sdk"
 import { Conversation } from "../backend_sdk/conversation.sdk"
+import { Message } from "../backend_sdk/message.sdk"
 import ChatComponent from "../components/ChatComponent"
 import { readImageFromS3WithNativeSdk } from "../components/ImageHandlingS3"
 import { useNavigate } from "react-router-dom"
 
 import {FaTrashAlt} from 'react-icons/fa'
-
+import { useSelector } from "react-redux"
+import {BsFillDice6Fill} from 'react-icons/bs'
 
 function Messages(props){
 
     const navigate = useNavigate()
 
+    const {conversations,messages} = useSelector((state) => state.notifications)
+
     const [connectedUser,setConnectedUser] = React.useState(null)
-    const [conversations,setConversations] = React.useState(null)
+    const [allConversations,setAllConversations] = React.useState(null)
     const [conversationsLoaded,setConversationsLoaded] = React.useState(false)
     const [indexInConversations,setIndexInConversations] = React.useState(null)
     const [userLoaded,setUserLoaded] = React.useState(false)
+    const [navbarLoaded,setNavbarLoaded] = React.useState(false)
+
 
     const [modalDelete,setModalDelete] = React.useState(false)
     const toggleDelete = () => setModalDelete(!modalDelete)
+
 
     React.useEffect(()=>{
         async function getUserConversations(){
@@ -40,7 +46,7 @@ function Messages(props){
 
             const convRes  = await Conversation.getByUserId(localStorage.getItem("apiToken"))
             if(!convRes || !convRes.success){
-                console.log("error at get conversations")
+                console.log("error at get allConversations")
                 return
             }
 
@@ -71,25 +77,25 @@ function Messages(props){
                 }
             }
 
-            setConversations(convRes.elements)
+            setAllConversations(convRes.elements)
         }
         if(!connectedUser){
             getUserConversations()
         }
-    },[connectedUser,conversations])
+    },[connectedUser,allConversations])
 
     React.useEffect(()=>{
-        if(conversations && !conversationsLoaded){
+        if(allConversations && !conversationsLoaded){
             setConversationsLoaded(true)
         }
         if(connectedUser && !userLoaded){
             setUserLoaded(true)
         }
-    },[conversations,conversationsLoaded,connectedUser,userLoaded])
+    },[allConversations,conversationsLoaded,connectedUser,userLoaded])
 
 
     function findConversationIndexByUserId(userId){
-        const index = conversations.findIndex(element => {
+        const index = allConversations.findIndex(element => {
             return element.users[0] == userId || element.users[1] == userId
         })
         return index
@@ -101,15 +107,27 @@ function Messages(props){
           console.log("error at delete conversation")
           return
         }
+
+        const messageRes = Message.deleteAllByConversationId(localStorage.getItem("apiToken"),id)
+        if(!messageRes || !messageRes.success){
+            console.log("error at delete conversation")
+            return
+          }
+    }
+
+    function getConversationMessagesLength(id){
+        return messages.filter(elem => elem.conversationId == id).length
     }
 
 
     return(
         <div className="messages-body">
-            <NavbarMain page="messages"></NavbarMain>
-            <Container className="body-container">
+            <NavbarMain page="messages" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}></NavbarMain>
+            {
+                navbarLoaded ?
+                <Container className="body-container">
                 {
-                    conversationsLoaded && conversations.length!=0 ?
+                    conversationsLoaded && allConversations.length!=0 ?
                     <Container className="conversations-component">
                         <Container className="conversation-profile">
                             <div className="profile-picture-conversation-div" id="profile-row-img" onClick={(e)=>{
@@ -122,7 +140,7 @@ function Messages(props){
                         </Container>
                         <Container className="conversation-row-container">
                             {
-                                conversations.map((elem,index)=>{
+                                allConversations.map((elem,index)=>{
                                     var userIdToShow 
                                     if(elem.users[0] == connectedUser._id){
                                         userIdToShow = elem.users[1]
@@ -134,12 +152,25 @@ function Messages(props){
                                         <div key={elem._id} className="conversation-row" id={String(elem._id)} onClick={(e)=>{
                                             e.preventDefault()
                                             setIndexInConversations(findConversationIndexByUserId(userIdToShow))
+
                                             
                                         }}>
                                             <div className="profile-picture-conversation-div">
                                                 <img src={elem.profilePicture} alt="N/A"/>
                                             </div>
                                             <div className="conversation-row-name">{elem.name}</div>
+                                            {
+                                                conversations && conversations.includes(elem._id) ?
+                                                <div className="notification-div-conversation-row">
+                                                <div className="notification-point-conversation-row">
+                                                    <div>
+                                                    {getConversationMessagesLength(elem._id)}
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                :
+                                                <></>
+                                            }
                                             <div className="delete-conversation-button" onClick={(e)=>{
                                                 e.preventDefault()
                                                 e.stopPropagation()
@@ -154,10 +185,10 @@ function Messages(props){
                                                     <Button color="danger" onClick={(e)=>{
                                                     e.preventDefault()
                                                     deleteConversation(elem._id)
-                                                    var newConversations = conversations
+                                                    var newConversations = allConversations
                                                     newConversations = newConversations.filter(item => item._id != elem._id)
                                                     setIndexInConversations(null)
-                                                    setConversations([...newConversations])
+                                                    setAllConversations([...newConversations])
                                                     toggleDelete()
                                                     }}>
                                                     Yes
@@ -174,7 +205,7 @@ function Messages(props){
                         </Container>
                     </Container>
                     :                 
-                    userLoaded ?
+                    userLoaded && conversationsLoaded && allConversations.length==0 ?
                     <Container className="conversations-component">
                     <Container className="conversation-profile">
                         <div className="profile-picture-conversation-div" id="profile-row-img" onClick={(e)=>{
@@ -190,18 +221,39 @@ function Messages(props){
                     </Container>
                     </Container>
                     :
+                    userLoaded && !conversationsLoaded ?
+                    <Container className="conversations-component">
+                    <Container className="conversation-profile">
+                        <div className="profile-picture-conversation-div" id="profile-row-img" onClick={(e)=>{
+                            e.preventDefault()
+                            navigate("/admin/profile")
+                        }}>
+                            <img src={connectedUser.profilePicture} alt="N/A"/>
+                        </div>
+                        <div className="conversation-profile-text-div">Your conversations</div>
+                    </Container>
+                    <Container className="loading-conversations">
+                        <Container className="loading-icon"><BsFillDice6Fill size={70}/></Container>
+                        <Container className="loading-conversations-text">Loading conversations...</Container>
+                    </Container> 
+                    </Container>              
+                    :
                     <></>
-                    
-                    
                 }
                 {
                     (indexInConversations || indexInConversations == 0) && conversationsLoaded ?
-                    <ChatComponent connectedUser = {connectedUser} conversation = {conversations[indexInConversations]} key={conversations[indexInConversations]._id} indexInConversations={indexInConversations} setIndexInConversations={setIndexInConversations}></ChatComponent>
+                    <ChatComponent connectedUser = {connectedUser} conversation = {allConversations[indexInConversations]} key={allConversations[indexInConversations]._id} indexInConversations={indexInConversations} setIndexInConversations={setIndexInConversations}></ChatComponent>
                     :
                     <Container style={{padding:"0",margin:"0",display:"flex",justifyContent:"center",alignItems:"center",height:"600px"}}></Container>
                 }
-            </Container>
-            
+                </Container>
+                :
+                <Container className="loading-messages">
+                    <Container className="loading-icon"><BsFillDice6Fill size={70}/></Container>
+                    <Container className="loading-text">Loading...</Container>
+                </Container>
+                
+            }
         </div>
     )
 }

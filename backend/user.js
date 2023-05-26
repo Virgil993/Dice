@@ -490,7 +490,6 @@ export class User {
               })
           }
           else {
-              console.log("Uploaded Image Successfully!")
               resolve({
                 success: true,
                 msg: "Uploaded Image Successfully!",

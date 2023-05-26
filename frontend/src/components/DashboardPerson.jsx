@@ -6,6 +6,7 @@ import { availableGames } from "../constants/utils"
 import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3"
 import { User } from "../backend_sdk/user.sdk"
 import { Conversation } from "../backend_sdk/conversation.sdk"
+import { BsFillDice6Fill } from "react-icons/bs"
 
 
 function DashboardPerson(props){
@@ -44,11 +45,11 @@ function DashboardPerson(props){
                 <img src={image1.data} alt="Image1" width={"850px"} height={"850px"}/>,
                 <img src={image2.data} alt="Image2" width={"850px"} height={"850px"}/>,
                 )
-            if(image3.data.length > 10 ){
+            if(image3.data.length > 100 ){
                 newPhotos.push(image3.data)
                 imagesArray.push(<img src={image3.data} alt="Image3" width={"850px"} height={"850px"}/>,)
             }
-            if(image4.data.length > 10){
+            if(image4.data.length > 100){
                 newPhotos.push(image4.data)
                 imagesArray.push(<img src={image4.data} alt="Image4" width={"850px"} height={"850px"}/>,)
             }
@@ -188,7 +189,10 @@ function DashboardPerson(props){
                     />
                     </Container>
                     :
-                    <Container style={{height:"250px",marginTop:"20px"}}></Container>
+                    <Container className="loading-photos">
+                        <Container className="loading-icon-photos"><BsFillDice6Fill size={60}/></Container>
+                        <Container className="loading-text-photos">Loading photos...</Container>
+                    </Container>
                 }
             </Card>
             <Container className="container-desc-compat">

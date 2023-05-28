@@ -14,7 +14,7 @@
 
 .conversations-component{
     max-width: 600px;
-    border: #198754 solid 5px;
+    border: #228C22 solid 5px;
     border-radius: 10px 0px 0px 10px;
     padding: 0px;
     background-color: #f1f7fb;
@@ -39,7 +39,7 @@
     width: 100%;
     height: 10%;
     gap:20px;
-    background-color: #198754;
+    background-color: #228C22;
     padding-bottom: 5px;
 }
 
@@ -58,8 +58,19 @@
     display: flex;
     justify-content: left;
     flex-direction: column;
+    overflow: auto;
+    scrollbar-color: grey;
+    scrollbar-width: thin;
     height: 90%;
     padding: 0px;
+}
+
+.conversation-row-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.conversation-row-container::-webkit-scrollbar-thumb {
+    background-color: grey
 }
 
 .conversation-row{
@@ -72,7 +83,7 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    border-bottom: #198754 3px solid;
+    border-bottom: #228C22 3px solid;
     cursor: pointer;
  
 }
@@ -84,17 +95,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
+    font-weight: 700;
+    font-size: 20px;
     border-radius: 20px;
-    background-color: blue;
-    color: aqua;
+    background-color:#d2d443;
+    color: #264E49;
     margin-top: 5px;
 }
 
 
 .delete-conversation-button{
-    background-color: rgb(184, 64, 64);
+    background-color: #f05951;
     display: flex;
     justify-content: center;
     align-items: center;

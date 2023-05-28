@@ -20,6 +20,10 @@ export class Message {
     return Message.remote.call("Message.deleteAllByConversationId", token, conversationId)
   }
 
+  static async deleteAllByUserId(token) {
+    return Message.remote.call("Message.deleteAllByUserId", token)
+  }
+
   static async updateSeen(token, messages) {
     return Message.remote.call("Message.updateSeen", token, messages)
   }

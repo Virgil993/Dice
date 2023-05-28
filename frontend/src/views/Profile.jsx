@@ -13,6 +13,7 @@ import imageCompression from 'browser-image-compression'
 import GameRegister from "../components/GameRegister";
 import { Conversation } from "../backend_sdk/conversation.sdk";
 import {BsFillDice6Fill} from 'react-icons/bs'
+import { Message } from "../backend_sdk/message.sdk";
 
 function Profile(props) {
 
@@ -139,6 +140,15 @@ function Profile(props) {
         console.log("error at delete all conversations")
         return
       }
+
+      const messagesRes = await Message.deleteAllByUserId(localStorage.getItem("apiToken"))
+      {
+        if(!messagesRes || !messagesRes.success){
+          console.log("error at delete all messages")
+          return;
+        }
+      }
+
       const res = await User.delete(localStorage.getItem("apiToken"))
       if(!res || !res.success){
         console.log(res)
@@ -170,7 +180,7 @@ function Profile(props) {
     let numberOfPhotos=0
     for(let i=0;i<state.length;i++)
     {
-      if(state[i].length >10){
+      if(state[i].length >100){
         numberOfPhotos=numberOfPhotos+1
       }
     }
@@ -398,7 +408,7 @@ function Profile(props) {
                         {
                           
                             updatedPhotos.map((element,index)=>{
-                              if(element.length >10 ){
+                              if(element.length >100 ){
                                 return (
                                   <FormGroup  key={element+index} className="single-photo-container">
                                     <img src={element} alt="N/A" />
@@ -463,7 +473,7 @@ function Profile(props) {
                             let numberOfPhotos=0
                             for(let i=0;i<updatedPhotos.length;i++)
                             {
-                              if(updatedPhotos[i].length >10){
+                              if(updatedPhotos[i].length >100){
                                 numberOfPhotos=numberOfPhotos+1
                               }
                             }
@@ -476,9 +486,9 @@ function Profile(props) {
                                   }
                                 }
                                 setPhotos([...newNormalPhotos])
+                                setInitialEditPhotos(null)
+                                setPhotosUpdateActive(false)
                             }
-                            setInitialEditPhotos(null)
-                            setPhotosUpdateActive(false)
                           }}>Save</Button>
                           <Button outline onClick={(e)=>{
                             e.preventDefault()

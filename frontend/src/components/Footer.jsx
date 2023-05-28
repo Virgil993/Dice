@@ -11,14 +11,11 @@ function Footer(){
                 <img src={diceLogo} alt="No photo here" className="footer-logo-img"/>
             </Container>
             <Container className="footer-description">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur vitae elit scelerisque, viverra leo et, eleifend justo. Aliquam semper risus diam, a aliquam
-            massa mollis at. Mauris in commodo orci. Nulla facilisis nisl blandit nulla viverra, sagittis porttitor lectus consectetur. Aliquam elementum nibh ut 
-            lobortis sagittis. Nunc pharetra consectetur rhoncus. Nullam rhoncus luctus arcu commodo eleifend. Vestibulum nec sodales tellus. Vestibulum dignissim porta dolor.
-            Phasellus quis pharetra elit. Nullam odio diam, vestibulum accumsan lacus vitae, fermentum dictum turpis.Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Quisque hendrerit consectetur dapibus. In a velit vitae ipsum eleifend rutrum in sed arcu. Cras vulputate, tellus nec dictum euismod, erat nisi tempus lacus, 
-            ac posuere arcu felis vitae leo. Ut congue erat aliquet congue maximus. Vivamus venenatis justo justo, id malesuada diam euismod eget. Suspendisse sollicitudin 
-            massa a nulla lobortis, non commodo ex feugiat. Suspendisse finibus felis nec magna efficitur, non vehicula lacus ultrices. Praesent hendrerit lacus et venenatis 
-            faucibus. Suspendisse posuere mauris non dolor malesuada interdum. Fusce eget dui congue, fringilla odio a, sollicitudin turpis. Curabitur non consectetur odio.
+            Welcome to Dice, our global board game matchmaking platform, where players from around the world can connect and find like-minded individuals to enjoy their favorite board games together. Our website offers a comprehensive chat system and a sophisticated sorting feature, allowing you to discover people who share your enthusiasm for specific games.
+            With our intuitive dashboard, you can effortlessly browse through profiles of other users and explore the games they love. Whether you're into strategy, card games, cooperative adventures, or classic board games, our sorting system ensures you'll find potential gaming partners with similar interests and preferences.
+            Once you've found a fellow player you'd like to engage with, you can express your interest and await their response. When both users mutually agree to play, a dedicated chat room is created, allowing you to coordinate and discuss the details of your gaming session.
+            Our website fosters a vibrant and diverse community of board game enthusiasts, breaking geographical boundaries and connecting players from different cultures and backgrounds. Whether you're seeking local opponents or craving international gaming experiences, our platform opens up a world of possibilities.
+            Join us today and experience the joy of connecting with fellow board game aficionados, sharing memorable gaming moments, and forging friendships that transcend borders.
             </Container>
         </footer>
     );

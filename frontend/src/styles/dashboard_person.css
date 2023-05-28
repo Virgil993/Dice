@@ -77,13 +77,12 @@
     border-radius: 10px;
     text-align: center;
     margin: 5px;
-    color: black;
+    color: white;
     font-size: 20px;
     width: auto;
-    cursor: pointer;
     border: 3px solid grey;
     display: inline-block;
-    background-color:rgb(98, 204, 137);
+    background-color:#198754;
 }
 
 

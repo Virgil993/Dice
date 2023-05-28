@@ -67,6 +67,17 @@ export class Message{
         return {success: true}
     }
 
+    async deleteAllByUserId(token){
+        const authObject = await reqAuth(token);
+        if (!authObject.success) {
+          return { success: false, msg: authObject.msg };
+        }
+        const userId = authObject.userId
+        await MessageModel.deleteMany({sender: userId})
+        await MessageModel.deleteMany({recevier: userId})
+        return {success: true}
+    }
+
     async updateSeen(token,messages){
         try{
             const authObject = await reqAuth(token);

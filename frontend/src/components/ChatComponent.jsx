@@ -28,6 +28,15 @@ function ChatComponent(props){
     const [modalUser,setModalUser] = React.useState(false)
     const toggleUser = ()=>setModalUser(!modalUser)
 
+
+    React.useEffect(()=>{
+        var localStorageMessages = JSON.parse(localStorage.getItem("messages"))
+        var localUpdateMessages = localStorageMessages.filter(elem => elem.conversationId == props.conversation._id)
+        if(!currentNotifications && localUpdateMessages.length != 0){
+            setCurrentNotifications([...localUpdateMessages])
+        }
+    },[currentNotifications])
+
     React.useEffect(()=>{
 
         async function updateSeenMessages(messages){
@@ -44,7 +53,6 @@ function ChatComponent(props){
 
         if(localStorageConv.includes(props.conversation._id)){
             var localUpdateMessages = localStorageMessages.filter(elem => elem.conversationId == props.conversation._id)
-            setCurrentNotifications([...localUpdateMessages])
             localStorageConv = localStorageConv.filter(elem => elem != props.conversation._id)
             localStorageMessages = localStorageMessages.filter(elem => elem.conversationId != props.conversation._id)
             localStorage.setItem("conversations",JSON.stringify(localStorageConv))
@@ -211,9 +219,9 @@ function ChatComponent(props){
                     }
                     else if(currentNotifications && currentNotifications.length != 0 &&  elem._id == currentNotifications[0]._id){
                         return (
-                            <Container key={currentDate} className='send-container' style={{justifyContent:"left"}}>
+                            <Container key={currentDate} className='send-container-unread' style={{justifyContent:"left"}}>
+                                <div className='unread-messages'>Unread messages</div>
                                 <div className='recevie-div'>
-                                    <div>Not read</div>
                                     <div>{elem.text}</div>
                                     <div style={{fontSize:"12px"}}>{ currentDate.getDate() +"/" + String(parseInt(currentDate.getMonth())+1)+"/"+ currentDate.getFullYear()} {
                                     currentDate.toLocaleTimeString('en-US', {hour: '2-digit',minute: '2-digit'})

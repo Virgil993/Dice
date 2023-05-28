@@ -413,11 +413,11 @@ export class User {
       }
 
       function compareCompatibility(a, b) {
-        if (elemCommon(gamesSelected,a.gamesSelected) < elemCommon(gamesSelected,b.gamesSelected)){
+        if (elemCommon(gamesSelected,a.gamesSelected).length < elemCommon(gamesSelected,b.gamesSelected).length){
           return 1;
         }
-        if (elemCommon(gamesSelected,a.gamesSelected) > elemCommon(gamesSelected,b.gamesSelected)){
-          return 2;
+        if (elemCommon(gamesSelected,a.gamesSelected).length > elemCommon(gamesSelected,b.gamesSelected).length){
+          return -1;
         }
         return 0;
       }

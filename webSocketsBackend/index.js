@@ -5,7 +5,7 @@ const io = require('socket.io')(3000, {
 
   
 io.on('connection', socket => {
-    console.log("user connected",socket.id)
+    console.log("user connected lesgo",socket.id)
     socket.on("send-chat-message", async message => {
         socket.broadcast.emit("chat-message",message)
     })

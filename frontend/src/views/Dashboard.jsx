@@ -16,6 +16,10 @@ function Dashboard(props) {
     const [indexInUsers,setIndexInUsers] = React.useState(0)
     const [navbarLoaded,setNavbarLoaded] = React.useState(false)
 
+    function commonElements(array1,array2){
+        const filterdArray = array1.filter(value => array2.includes(value))
+        return filterdArray
+    }
 
     React.useEffect(()=>{
         async function getUsers(){
@@ -33,9 +37,15 @@ function Dashboard(props) {
                 console.log("error at get users sorted");
                 return;
             }
+            // console.log(res.user.gamesSelected)
             if(resAllUsers.users.length !=0){
                 setAllUSers(resAllUsers.users)
-                console.log(resAllUsers)
+                // for(let i=0;i<resAllUsers.users.length;i++)
+                // {
+                //     console.log(resAllUsers.users[i].gamesSelected)
+                //     console.log(commonElements(resAllUsers.users[i].gamesSelected,res.user.gamesSelected))
+                //     console.log("\n")
+                // }
             }
             else{
                 setAllUSers([])

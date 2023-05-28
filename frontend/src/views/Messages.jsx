@@ -8,8 +8,8 @@ import { Message } from "../backend_sdk/message.sdk"
 import ChatComponent from "../components/ChatComponent"
 import { readImageFromS3WithNativeSdk } from "../components/ImageHandlingS3"
 import { useNavigate } from "react-router-dom"
-
 import {FaTrashAlt} from 'react-icons/fa'
+import {BsTrash3} from 'react-icons/bs'
 import { useSelector } from "react-redux"
 import {BsFillDice6Fill} from 'react-icons/bs'
 
@@ -76,7 +76,6 @@ function Messages(props){
                     convRes.elements[i].photos = newPhotos
                 }
             }
-
             setAllConversations(convRes.elements)
         }
         if(!connectedUser){
@@ -176,7 +175,7 @@ function Messages(props){
                                                 e.stopPropagation()
                                                 toggleDelete()
                                             }}>
-                                                <FaTrashAlt size={20}/>
+                                                <BsTrash3 size={20}/>
                                             </div>
                                             <Modal isOpen={modalDelete} toggle={toggleDelete} >
                                                 <ModalHeader toggle={toggleDelete}>Delete contact</ModalHeader>

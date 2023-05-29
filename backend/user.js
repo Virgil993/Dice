@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import Jwt, { decode } from "jsonwebtoken";
 import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
-import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, emailHtml, transporter, AWSConfig } from "./helper";
+import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, transporter, AWSConfig, emailHtmlResetPassword } from "./helper";
 import resetPasswordSession from "./models/resetPasswordSession";
 import AWS from 'aws-sdk';
 import conversations from "./models/conversations";
@@ -329,7 +329,7 @@ export class User {
         from: "No-reply-dice <dicedmn@gmail.com>",
         to:user.email,
         subject:"Dice password reset",
-        html: emailHtml(link,user.email),
+        html: emailHtmlResetPassword(link,user.email),
       })
       // console.log(info)
       return {success: true, msg:"email sent successfully"}

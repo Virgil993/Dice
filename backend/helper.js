@@ -44,7 +44,7 @@ export const MONGO_DB_URI =
 
 export const secret = "secretkey";
 
-export function emailHtml(link,email){
+export function emailHtmlResetPassword(link,email){
     const htmlText =     `<h1>Hello, ${email} </h1>
     <br>
     <div>Click the button to change your password.</div>

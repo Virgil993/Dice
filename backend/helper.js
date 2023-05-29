@@ -2,6 +2,7 @@ import { decode } from "jsonwebtoken";
 import activeSession from "./models/activeSession";
 import resetPasswordSession from "./models/resetPasswordSession";
 import nodemailer from 'nodemailer'
+import verifyAccountSession from "./models/verifyAccountSession";
 
 export async function reqAuth(token) {
   const session = await activeSession.find({ token: token });
@@ -35,6 +36,22 @@ export async function reqResetPassword(token) {
       success: false,
       msg: "User not authorized or session expired",
       userId: undefined,
+    };
+  }
+}
+
+export async function reqVerifyAccount(token){
+  const session = await verifyAccountSession.find({token: token});
+  const decodedToken = decode(token)
+  if (session.length === 1 && decodedToken.exp >= (new Date().getTime()+1) / 1000 ) {
+    return {
+      success: true,
+      msg: "token authorized",
+    };
+  } else {
+    return {
+      success: false,
+      msg: "User not authorized or session expired",
     };
   }
 }

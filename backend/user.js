@@ -5,8 +5,8 @@ import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
 import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, transporter, AWSConfig, emailHtmlResetPassword } from "./helper";
 import resetPasswordSession from "./models/resetPasswordSession";
-import AWS from 'aws-sdk';
-import conversations from "./models/conversations";
+import verifyAccountSession from "./models/verifyAccountSession";
+import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 
 export class User {
@@ -21,6 +21,31 @@ export class User {
       mongoose.connect(MONGO_DB_URI);
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  async SendVerificationEmail(name, email, password, birthday, gender, description, gamesSelected){
+    const newSecret = secret + email
+    const payload = {
+      name: name,
+      email: email,
+      password: password,
+      birthday:birthday,
+      gender: gender,
+      description:description,
+      gamesSelected: gamesSelected,
+    }
+
+    const token = Jwt.sign(payload,newSecret,{expiresIn:'15m'})
+    const link = `http://localhost:8080/auth/verifyEmail/${email}/${token}`
+    await verifyAccountSession.deleteMany({email:email})
+    await verifyAccountSession.create({token:token,email:email})
+
+    try{
+      // to be completed when i find out how to store the images in S3 bucket 
+    }
+    catch(err){
+      return {success:false, msg:"error at send mail", error:err}
     }
   }
 
@@ -267,7 +292,6 @@ export class User {
       if (!user) {
         return { success: false, msg: "user not found" };
       }
-      console.log(user._id)
       await UserModel.deleteMany({_id: user._id})
       await ActiveSession.deleteMany({ token: token });
       return { success: true };
@@ -278,35 +302,32 @@ export class User {
 
 
   async userExist(id,token){
-    const session = await reqResetPassword(token)
-    if(!session || !session.success){
-      return {success: false, msg: session.msg}
-    }
-    const decodedToken = decode(token)
-
-    const user = await UserModel.findById(id)
-    if (!user) {
-      return { success: false, msg: "user dosen't exist" };
-    }
-    if(user.email != decodedToken.email)
-    {
-      return {success: false, msg: "user email dosen't match token email"};
-    }
-    if(id!= decodedToken.id){
-      return {success: false, msg: "tokenId dosen't match user id"};
-    }
-
-    const newSecret = secret + user.password
-
     try{
-      const payload = Jwt.verify(token,newSecret)
+      const session = await reqResetPassword(token)
+      if(!session || !session.success){
+        return {success: false, msg: session.msg}
+      }
+
+      const user = await UserModel.findById(id)
+      if (!user) {
+        return { success: false, msg: "user dosen't exist" };
+      }
+      const newSecret = secret + user.password
+      const decodedToken = Jwt.verify(token,newSecret)
+      if(user.email != decodedToken.email)
+      {
+        return {success: false, msg: "user email dosen't match token email"};
+      }
+      if(id!= decodedToken.id){
+        return {success: false, msg: "tokenId dosen't match user id"};
+      }
+
+      user.password = null
+      return { success: true, user: user };
     }
     catch (err){
       return {success: false, msg: "error at verify token", error: err}
     }
-
-    user.password = null
-    return { success: true, user: user };
   }
 
   async forgotPassword(email){
@@ -461,81 +482,100 @@ export class User {
   }
 
   async UploadImageToS3(file,userId,fileName){
-    const S3_BUCKET = AWSConfig.S3_BUCKET;
-    const REGION = AWSConfig.REGION;
-
-    AWS.config.update({
+    const client = new S3Client({
+      region: AWSConfig.REGION,
+      credentials: {
         accessKeyId: AWSConfig.accessKeyId,
         secretAccessKey: AWSConfig.secretAccessKey
+      },
+    })
+    const command = new PutObjectCommand({
+      Body: file,
+      Bucket: AWSConfig.S3_BUCKET,
+      Key: userId+"/"+fileName
     })
 
-
-    const myBucket = new AWS.S3({
-      params: { Bucket: S3_BUCKET},
-      region: REGION,
-    })
-    return new Promise((resolve,reject) =>{
-      const params = {
-          Body: file,
-          Bucket: S3_BUCKET,
-          Key: userId+"/"+fileName
+    try {
+      const response = await client.send(command);
+      return  {
+        success: true,
+        msg: "Uploaded Image Successfully!",
+        data: response
       }
-      myBucket.putObject(params,function (err,data) {
-          if (err) {
-              console.log(err)
-              reject({
-                success: false,
-                msg: "Error at upload image to S3 bucket",
-                error: err
-              })
-          }
-          else {
-              resolve({
-                success: true,
-                msg: "Uploaded Image Successfully!",
-                data: data
-              })
-          }
-      })
-    })
+    }
+    catch(err){
+      return {
+        success: false,
+        msg: "Error at upload image to S3 bucket",
+        error: err
+      }
+    }
   }
 
   async readImageFromS3(userId,photoNumber){
-    const S3_BUCKET = AWSConfig.S3_BUCKET;
-    const REGION = AWSConfig.REGION;
-
-    AWS.config.update({
+    const client = new S3Client({
+      region: AWSConfig.REGION,
+      credentials: {
         accessKeyId: AWSConfig.accessKeyId,
         secretAccessKey: AWSConfig.secretAccessKey
+      },
+    })
+    const command = new GetObjectCommand({
+      Bucket: AWSConfig.S3_BUCKET,
+      Key: userId+"/Image"+photoNumber
     })
 
-    const myBucket = new AWS.S3({
-      params: { Bucket: S3_BUCKET},
-      region: REGION,
-    })
-    return new Promise((resolve,reject) =>{
-      const params = {
-          Bucket: S3_BUCKET,
-          Key: userId+"/Image"+photoNumber
+    try {
+      const response = await client.send(command);
+      const data = await response.Body.transformToString();
+      return  {
+        success: true,
+        msg: "Retrieved Image Successfully!",
+        data: data
       }
-      myBucket.getObject(params, function (err, data) {
-          if (err) {
-              reject({
-                success: false,
-                msg: "Error at read image from S3 bucket",
-                error: err
-              })
-          }
-          else {
-              let objectData = data.Body.toString('utf-8')
-              resolve({
-                success: true,
-                msg: "Retrieved Image Successfully!",
-                data: objectData
-              })
-          }
-      })
+    }
+    catch(err){
+      return {
+        success: false,
+        msg: "Error at read image from S3 bucket",
+        error: err
+      }
+    }
+  }
 
+  async deleteUserFromS3(token){
+    const activeSession = await reqAuth(token);
+    if (!activeSession.success) {
+      return { success: false, msg: activeSession.msg };
+    }
+    const userId = activeSession.userId
+    const client = new S3Client({
+      region: AWSConfig.REGION,
+      credentials: {
+        accessKeyId: AWSConfig.accessKeyId,
+        secretAccessKey: AWSConfig.secretAccessKey
+      },
     })
+    const command = new DeleteObjectsCommand({
+      Bucket: AWSConfig.S3_BUCKET,
+      Delete:{
+        Objects: [{Key: userId+"/Image1"},{Key: userId+"/Image2"},{Key: userId+"/Image3"},{Key: userId+"/Image4"}]
+      }
+    });
+    try{
+      const { Deleted } = await client.send(command);
+      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`)
+      return {
+        success: true,
+        msg: `Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`
+      }
+    }
+    catch(err){
+      return {
+        success: false,
+        msg: "Error at delete images from S3 bucket",
+        error: err
+      }
+    }
   }
 }

@@ -8,6 +8,10 @@ import { Remote } from "./remote.js"
 export class User {
   static remote = new Remote("http://127.0.0.1:8083/User")
 
+  static async SendVerificationEmail(name, email, password, birthday, gender, description, gamesSelected) {
+    return User.remote.call("User.SendVerificationEmail", name, email, password, birthday, gender, description, gamesSelected)
+  }
+
   static async create(name, email, password, birthday, gender, description, gamesSelected) {
     return User.remote.call("User.create", name, email, password, birthday, gender, description, gamesSelected)
   }
@@ -66,6 +70,10 @@ export class User {
 
   static async readImageFromS3(userId, photoNumber) {
     return User.remote.call("User.readImageFromS3", userId, photoNumber)
+  }
+
+  static async deleteUserFromS3(token) {
+    return User.remote.call("User.deleteUserFromS3", token)
   }
 
 }

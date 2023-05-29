@@ -8,8 +8,16 @@ import { Remote } from "./remote.js"
 export class User {
   static remote = new Remote("http://127.0.0.1:8083/User")
 
-  static async SendVerificationEmail(name, email, password, birthday, gender, description, gamesSelected) {
-    return User.remote.call("User.SendVerificationEmail", name, email, password, birthday, gender, description, gamesSelected)
+  static async SendVerificationEmail(email) {
+    return User.remote.call("User.SendVerificationEmail", email)
+  }
+
+  static async checkVerification(email, token) {
+    return User.remote.call("User.checkVerification", email, token)
+  }
+
+  static async updateVerifed(email) {
+    return User.remote.call("User.updateVerifed", email)
   }
 
   static async create(name, email, password, birthday, gender, description, gamesSelected) {

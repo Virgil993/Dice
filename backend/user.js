@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import Jwt, { decode } from "jsonwebtoken";
 import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
-import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, transporter, AWSConfig, emailHtmlResetPassword } from "./helper";
+import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, transporter, AWSConfig, emailHtmlResetPassword, emailHtmlVerifyAccount, reqVerifyAccount } from "./helper";
 import resetPasswordSession from "./models/resetPasswordSession";
 import verifyAccountSession from "./models/verifyAccountSession";
 import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
@@ -24,28 +24,65 @@ export class User {
     }
   }
 
-  async SendVerificationEmail(name, email, password, birthday, gender, description, gamesSelected){
+  async SendVerificationEmail(email){
     const newSecret = secret + email
     const payload = {
-      name: name,
       email: email,
-      password: password,
-      birthday:birthday,
-      gender: gender,
-      description:description,
-      gamesSelected: gamesSelected,
     }
 
-    const token = Jwt.sign(payload,newSecret,{expiresIn:'15m'})
+    const token = Jwt.sign(payload,newSecret,{expiresIn:'30m'})
     const link = `http://localhost:8080/auth/verifyEmail/${email}/${token}`
     await verifyAccountSession.deleteMany({email:email})
     await verifyAccountSession.create({token:token,email:email})
 
     try{
-      // to be completed when i find out how to store the images in S3 bucket 
+      const info = await transporter.sendMail({
+        from: "No-reply-dice <dicedmn@gmail.com>",
+        to:email,
+        subject:"Dice account verification",
+        html: emailHtmlVerifyAccount(link,email),
+      })
+      return {success: true, msg:"email sent successfully"}
     }
     catch(err){
       return {success:false, msg:"error at send mail", error:err}
+    }
+  }
+
+  async checkVerification(email,token){
+    try{
+      const session = await reqVerifyAccount(token)
+      if(!session || !session.success){
+        return {success: false, msg: session.msg}
+      }
+      const user = await UserModel.find({email:email})
+      if (!user) {
+        return { success: false, msg: "user dosen't exist" };
+      }
+      const newSecret = secret+email
+      const decodedToken = Jwt.verify(token,newSecret)
+      if(decodedToken.email != email){
+        return {success: false, msg: "user email dosen't match token email"};
+      }
+      user.password = null
+      return { success: true, user: user };
+    }
+    catch(err){
+      return {success: false, msg: "error at verify account", error: err}
+    }
+  }
+
+  async updateVerifed(email){
+    try{
+      const user = await UserModel.findOne({email:email})
+      if (!user) {
+        return { success: false, msg: "user dosen't exist" };
+      }
+      const updateRes = await UserModel.findByIdAndUpdate(user._id,{verified:true})
+      return {success:true,msg:"user verifed succesfully"}
+    }
+    catch(err){
+      return {success: false, msg: "error at update verify", error: err}
     }
   }
 
@@ -107,6 +144,9 @@ export class User {
     const user = await UserModel.findOne({ email: email });
     if (!user) {
       return { success: false, msg: "Wrong credentials" };
+    }
+    if(!user.verified){
+      return { success: false, msg: "User is not verifed"};
     }
     const promise = new Promise((resolve, reject) => {
       bcrypt.compare(password, user.password, async function (err, res) {
@@ -217,6 +257,10 @@ export class User {
 
     if (updatedUser.gamesSelected != null) {
         dataToSet.gamesSelected = updatedUser.gamesSelected;
+    }
+
+    if (updatedUser.verified != null){
+      dataToSet.verified = true
     }
 
     const newValues = { $set: dataToSet };

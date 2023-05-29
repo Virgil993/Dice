@@ -16,4 +16,9 @@ classes:
   - path: message.js
     type: jsonrpc
     methods: []
-  
+  - path: cron.js
+    type: jsonrpc
+    methods:
+      - name: "deleteUnverifiedUsers"
+        type: cron
+        cronString: "0 0 * * *"

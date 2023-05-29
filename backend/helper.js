@@ -76,6 +76,18 @@ export function emailHtmlResetPassword(link,email){
     return htmlText
 }
 
+export function emailHtmlVerifyAccount(link,email){
+  const htmlText = `<h1>Hello, ${email} </h1>
+  <br>
+  <div>Click the button to verify your email and access your account</div>
+  <br>
+  <a href=${link}><button>Verify email</button></a>
+  <br>
+  <br>
+  <footer>This email has been generated automatically. Please do not reply to it</footer>`
+  return htmlText
+}
+
 export const transporter = nodemailer.createTransport({
   host:"smtp.gmail.com",
   port: 465,

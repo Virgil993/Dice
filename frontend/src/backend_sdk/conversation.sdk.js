@@ -6,7 +6,7 @@
 import { Remote } from "./remote.js"
 
 export class Conversation {
-  static remote = new Remote("http://127.0.0.1:8083/Conversation")
+  static remote = new Remote("https://axrlidgxuqrr5nenmrvmcoklby0pditw.lambda-url.eu-north-1.on.aws/")
 
   static async create(token, users) {
     return Conversation.remote.call("Conversation.create", token, users)

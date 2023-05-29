@@ -35,6 +35,11 @@ const usersSchema = new mongoose.Schema({
   gamesSelected: {
     type: Array,
     required: true
+  },
+  verified:{
+    type: Boolean,
+    required: true,
+    default: true,
   }
 });
 

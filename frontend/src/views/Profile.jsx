@@ -149,12 +149,19 @@ function Profile(props) {
         }
       }
 
+      const images = await User.deleteUserFromS3(localStorage.getItem("apiToken"))
+      if(!images || !images.success){
+        console.log(images)
+        console.log("error at delete images from s3")
+      }
+
       const res = await User.delete(localStorage.getItem("apiToken"))
       if(!res || !res.success){
         console.log(res)
         console.log("error at delete user")
         return
       }
+
 
       localStorage.clear();
       navigate("/auth/home");

@@ -421,7 +421,6 @@ function Register() {
                                     }
                                     try{
                                         const compressedFile = await imageCompression(event.target.files[0],options)
-                                        console.log(compressedFile)
                                         setImage1File(compressedFile)
                                     }
                                     catch (error) {

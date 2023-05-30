@@ -1,6 +1,6 @@
 import React  from 'react'
 import './styles/App.css';
-import Home from './views/Home.jsx'
+import HomePage from './views/Home.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {} from "reactstrap"
 import Register from './views/Register';
@@ -63,7 +63,7 @@ function App() {
             <Route path='/auth/verifyEmail/:email/:token' element={<AuthLayout element={<VerifyAccount/>}/>} />
             <Route path='/auth/forgotPassword' element={<AuthLayout element={<ForgotPassword/>}/>} />
             <Route path='/auth/resetPassword/:id/:token' element={<AuthLayout element={<ResetPassword/>}/>} />
-            <Route path="/auth/home" element={<AuthLayout element={<Home />} />} />
+            <Route path="/auth/home" element={<AuthLayout element={<HomePage />} />} />
             <Route path="*" element={<Navigate to="/auth/home" />} />
           </Routes>
         </BrowserRouter>

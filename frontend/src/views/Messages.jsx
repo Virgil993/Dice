@@ -1,6 +1,5 @@
 import React from "react"
 import '../styles/messages.css'
-import NavbarMain from "../components/Navbar"
 import { Container,Modal,ModalBody,ModalHeader, ModalFooter,Button } from "reactstrap"
 import { User } from "../backend_sdk/user.sdk"
 import { Conversation } from "../backend_sdk/conversation.sdk"
@@ -12,6 +11,7 @@ import {FaTrashAlt} from 'react-icons/fa'
 import {BsTrash3} from 'react-icons/bs'
 import { useSelector } from "react-redux"
 import {BsFillDice6Fill} from 'react-icons/bs'
+import { Navbar } from "../components/Navbar"
 
 function Messages(props){
 
@@ -121,7 +121,7 @@ function Messages(props){
 
     return(
         <div className="messages-body">
-            <NavbarMain page="messages" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}></NavbarMain>
+            <Navbar page="messages" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}></Navbar>
             {
                 navbarLoaded ?
                 <Container className="body-container">

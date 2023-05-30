@@ -159,4 +159,4 @@ function NavbarMain(props) {
     )
 }
 
-export default NavbarMain
+export const Navbar = NavbarMain

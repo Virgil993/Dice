@@ -1,6 +1,6 @@
 import React from "react";
 import '../styles/dashboard.css'
-import NavbarMain from "../components/Navbar";
+import { Navbar } from "../components/Navbar";
 import { Container } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
@@ -68,7 +68,7 @@ function Dashboard(props) {
         {
             usersLoaded ?
             <div className="dashboard-body">
-                <NavbarMain page="dashboard" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
+                <Navbar page="dashboard" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
                 {
                     navbarLoaded ?
                     <div>
@@ -111,4 +111,4 @@ function Dashboard(props) {
     )
 }
 
-export default Dashboard
+export const DashboardMain = Dashboard

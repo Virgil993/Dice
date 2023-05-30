@@ -1,6 +1,6 @@
 import React from "react";
 import '../styles/profile.css'
-import NavbarMain from "../components/Navbar";
+import {Navbar} from "../components/Navbar";
 import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
@@ -242,7 +242,7 @@ function Profile(props) {
 
     return(
         <div className="profile-body">
-            <NavbarMain page="profile" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
+            <Navbar page="profile" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
             {
               user && photos && name && gender && games && (description !== null) && navbarLoaded?
               <Container className="profile-body-container">

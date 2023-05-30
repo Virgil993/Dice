@@ -137,4 +137,4 @@ function Login(){
 
 }
 
-export default Login;
+export const LoginMain = Login;

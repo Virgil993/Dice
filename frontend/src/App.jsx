@@ -1,5 +1,5 @@
 import React  from 'react'
-import './styles/App.css'
+import './styles/App.css';
 import Home from './views/Home.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {} from "reactstrap"

@@ -2,10 +2,11 @@ const io = require('socket.io')(3000, {
     cors: {origin: "http://localhost:8080"}
 })
 
+console.log("Hello we got here")
 
   
 io.on('connection', socket => {
-    console.log("user connected lesgo",socket.id)
+    console.log("user connected",socket.id)
     socket.on("send-chat-message", async message => {
         socket.broadcast.emit("chat-message",message)
     })

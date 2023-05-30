@@ -1,5 +1,11 @@
-const {Server} = require('socket.io')
-const io = new Server({
+const fs = require('fs')
+// const httpsServer = require('https').createServer({
+//   key: fs.readFileSync('keypath'),
+//   cert: fs.readFileSync('certpath') 
+// });
+const httpServer = require('http').createServer();
+
+const io = require("socket.io")(httpServer,{
   cors:{
     origin:"http://localhost:8080"
   }
@@ -24,6 +30,10 @@ io.on('connection', socket => {
 })
 
 
-io.listen(3000, ()=>{
+httpServer.listen(3000, ()=>{
   console.log("listening on port 3000")
 })
+
+// httpsServer.listen(8043,()=>{
+//   console.log("listening on port 8083")
+// })

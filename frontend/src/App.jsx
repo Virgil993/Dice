@@ -1,6 +1,6 @@
 import React  from 'react'
 import './styles/App.css';
-import Home from '../src/views/Home.jsx'
+import Home from '/views/Home.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {} from "reactstrap"
 import Register from './views/Register';

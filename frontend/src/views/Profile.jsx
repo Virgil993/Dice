@@ -2,7 +2,7 @@ import React from "react";
 import '../styles/profile.css'
 import {Navbar} from "../components/Navbar";
 import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
-import Footer from "../components/Footer";
+import  { FooterMain } from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
 import { useNavigate } from "react-router-dom";
 import { readImageFromS3WithNativeSdk, uploadImageToS3WithNativeSdk } from "../components/ImageHandlingS3";
@@ -622,7 +622,7 @@ function Profile(props) {
                   <Container className="loading-text">Loading...</Container>
                 </Container>
             }
-            <Footer/>  
+            <FooterMain/>  
         </div>
     )
 }

@@ -1,9 +1,9 @@
 import React from 'react';
 import "../styles/home.css"
-import Footer from '../components/Footer';
 import HeaderHero from '../components/HeaderHero';
 import { Button, Container } from 'reactstrap';
 import { useNavigate } from 'react-router-dom';
+import { FooterMain } from '../components/Footer';
 
 function Home(){
 
@@ -27,7 +27,7 @@ function Home(){
             </Container>
         </Container>
         </div>          
-        <Footer/>
+        <FooterMain/>
         </div>
     );
 }

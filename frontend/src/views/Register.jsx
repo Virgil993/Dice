@@ -1,6 +1,6 @@
 import React from 'react';
 import "../styles/register.css"
-import Footer from '../components/Footer';
+import { FooterMain } from '../components/Footer';
 import { Button, Container,Form,FormGroup,Label,Input,FormText,Alert } from 'reactstrap';
 import {acceptedFileTypesPhotos,availableGames} from '../constants/utils'
 import closeIconLogo from '../assets/closePhotoIcon.svg'
@@ -695,7 +695,7 @@ function Register() {
             submitDone ?
             <></>
             :
-            <Footer/>
+            <FooterMain/>
         }
         </div>
         

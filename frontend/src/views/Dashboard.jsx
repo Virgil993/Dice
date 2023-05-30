@@ -2,11 +2,11 @@ import React from "react";
 import '../styles/dashboard.css'
 import { Navbar } from "../components/Navbar";
 import { Container } from "reactstrap";
-import Footer from "../components/Footer";
 import { User } from "../backend_sdk/user.sdk";
-import DashboardPerson from "../components/DashboardPerson";
 import { useSelector } from "react-redux";
 import {BsFillDice6Fill} from 'react-icons/bs'
+import { DashboardPersonMain } from "../components/DashboardPerson";
+import { FooterMain } from "../components/Footer";
 
 function Dashboard(props) {
 
@@ -75,7 +75,7 @@ function Dashboard(props) {
                     <div className="dashboard-wrapper">
                         {
                             allUsers.length != 0 ?
-                            <DashboardPerson 
+                            <DashboardPersonMain
                                 connectedUser = {user}
                                 user={allUsers[indexInUsers]} 
                                 key={allUsers[indexInUsers]._id} 
@@ -92,7 +92,7 @@ function Dashboard(props) {
                         }
                         
                     </div>
-                    <Footer></Footer>
+                    <FooterMain></FooterMain>
                     </div>
                     :
                     <Container className="loading-dashboard">

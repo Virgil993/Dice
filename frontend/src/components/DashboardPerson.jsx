@@ -240,4 +240,4 @@ function DashboardPerson(props){
     )
 }
 
-export default DashboardPerson
+export const DashboardPersonMain = DashboardPerson

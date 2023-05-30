@@ -7,7 +7,7 @@ const httpServer = require('http').createServer();
 
 const io = require("socket.io")(httpServer,{
   cors:{
-    origin:"http://localhost:8080"
+    origin:"https://splendid-pithivier-237689.netlify.app/"
   }
 })
 

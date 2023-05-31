@@ -177,7 +177,7 @@ function DashboardPerson(props){
                     <Container className="photos-card-main">
                     {
                         photos.map((element,index)=>{
-                            return (<img src={element} key={element+index} alt="N/A" style={{width:"200px",margin:"10px",height:"230px",cursor:"pointer",borderRadius:"15px"}} onClick={()=>{
+                            return (<img src={element} key={element+index} alt="N/A" style={{width:"200px",margin:"10px",height:"230px",borderRadius:"15px"}} onClick={()=>{
                                 openLighboxOnSlide(index+1)
                             }}/>)
                         })

@@ -90,9 +90,11 @@ function NavbarMain(props) {
             photoLoaded && props.navbarLoaded?
             <div className="navbar-container">
             <span className="navbar-links">
-                <NavbarBrand href="/admin/dashboard" className="navbar-logo">
-                <img src={diceLogo} alt="No photo here" className="navbar-logo-img"/>
-                </NavbarBrand>
+                <Link to="/admin/dashboard">
+                    <NavbarBrand className="navbar-logo">
+                    <img src={diceLogo} alt="No photo here" className="navbar-logo-img"/>
+                    </NavbarBrand>
+                </Link>
                 <Link to="/admin/dashboard" className="navlink" style={
                     dashboardSelected ?
                     {borderBottom:"4px solid black"}

@@ -4,7 +4,7 @@ import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, C
 // import diceLogo from '../assets/diceLogoTest.webp'
 import diceLogo from '../assets/LOGO-3.webp'
 import { User } from "../backend_sdk/user.sdk";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {AiFillCheckCircle} from "react-icons/ai"
 
 
@@ -54,7 +54,7 @@ function ForgotPassword(){
             </header>
             <Container className='card-container'>
                 <div style={{width:"100%"}}>
-                <a href="/auth/login" style={{fontWeight:"bold",color:"green"}}>Back to sign in</a>
+                <Link to="/auth/login" style={{fontWeight:"bold",color:"green"}}>Back to sign in</Link>
                 </div>
                 {
                     emailSent ?

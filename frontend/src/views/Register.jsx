@@ -7,7 +7,7 @@ import closeIconLogo from '../assets/closePhotoIcon.svg'
 import addIconLogo from '../assets/addPhotoIcon.svg'
 import GameRegister from '../components/GameRegister';
 import { User } from '../backend_sdk/user.sdk';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression'
 import diceLogo from '../assets/LOGO-3.webp'
 import {AiFillCheckCircle} from "react-icons/ai"
@@ -686,7 +686,7 @@ function Register() {
                 </Container>
                 <Container className='login-link'>
                     Already have an account?
-                    <a href="/auth/login">Log in here</a>
+                    <Link to="/auth/login">Log in here</Link>
                 </Container>
 
             </Form>

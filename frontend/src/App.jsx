@@ -7,7 +7,7 @@ import Register from './views/Register';
 import {LoginMain} from './views/Login';
 import {DashboardMain} from './views/Dashboard';
 import Profile from './views/Profile';
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, HashRouter } from "react-router-dom";
 import AdminLayout from './layouts/Admin';
 import AuthLayout from './layouts/Auth';
 import Messages from './views/Messages';
@@ -53,7 +53,7 @@ function App() {
 
   return (
       <div className='app'>
-        <BrowserRouter>
+        <HashRouter>
           <Routes>
             <Route path="/admin/dashboard" element={<AdminLayout element={<DashboardMain/>}/>}/>
             <Route path="/admin/profile" element={<AdminLayout element={<Profile  />}  />} />
@@ -64,9 +64,9 @@ function App() {
             <Route path='/auth/forgotPassword/' element={<AuthLayout element={<ForgotPassword/>}/>} />
             <Route path='/auth/resetPassword/:id/:token' element={<AuthLayout element={<ResetPassword/>}/>} />
             <Route path="/auth/home" element={<AuthLayout element={<HomePage />} />} />
-            <Route path="/*" element={<AuthLayout element={<HomePage/>} />} />
+            <Route path="*" element={<Navigate to="/auth/home"/>} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </div>
   )
 }

@@ -1,10 +1,11 @@
-const fs = require('fs')
+const fs = require('fs');
 const passphrase = "D!ge#do%smainP2S34"
 const httpsServer = require('https').createServer({
-  key: fs.readFileSync('E:\\AWS Dice Server Configurations\\domain.key'),
-  cert: fs.readFileSync('E:\\AWS Dice Server Configurations\\domain.crt'),
+  key: fs.readFileSync('./domain/domain.key'),
+  cert: fs.readFileSync('./domain/domain.crt'),
   passphrase: passphrase
 });
+
 // const httpServer = require('http').createServer();
 
 const io = require("socket.io")(httpsServer,{
@@ -14,6 +15,7 @@ const io = require("socket.io")(httpsServer,{
 })
 
 console.log("Hello we got here")
+
 
   
 io.on('connection', socket => {

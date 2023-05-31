@@ -1,10 +1,16 @@
-const fs = require('fs');
-const passphrase = "D!ge#do%smainP2S34"
-const httpsServer = require('https').createServer({
-  key: fs.readFileSync('./domain/domain.key'),
-  cert: fs.readFileSync('./domain/domain.crt'),
-  passphrase: passphrase
-});
+const pem  = require("pem")
+
+const certProps = {
+  days: 365,
+  selfSigned: true,
+};
+
+pem.createCertificate(certProps, (error, keys) => {
+  if (error) {
+    throw error;
+  }
+const credentials = { key: keys.serviceKey, cert: keys.certificate }
+const httpsServer = require('https').createServer(credentials);
 
 // const httpServer = require('http').createServer();
 
@@ -15,6 +21,7 @@ const io = require("socket.io")(httpsServer,{
 })
 
 console.log("Hello we got here")
+
 
 
   
@@ -34,10 +41,10 @@ io.on('connection', socket => {
 })
 
 
-httpsServer.listen(3000, ()=>{
-  console.log("listening on port 3000")
+httpsServer.listen(443, ()=>{
+  console.log("listening on port 443")
 })
-
+})
 // httpsServer.listen(8043,()=>{
 //   console.log("listening on port 8083")
 // })

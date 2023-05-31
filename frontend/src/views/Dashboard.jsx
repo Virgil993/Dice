@@ -74,7 +74,7 @@ function Dashboard(props) {
                     <div>
                     <div className="dashboard-wrapper">
                         {
-                            allUsers.length != 0 && false ?
+                            allUsers.length != 0 ?
                             <DashboardPersonMain
                                 connectedUser = {user}
                                 user={allUsers[indexInUsers]} 

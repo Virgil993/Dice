@@ -182,11 +182,11 @@ function DashboardPerson(props){
                             }}/>)
                         })
                     }
-                    <FsLightbox
+                    {/* <FsLightbox
                         toggler={lightboxController.toggler}
                         sources={imagesLightbox}
                         slide={lightboxController.slide}
-                    />
+                    /> */}
                     </Container>
                     :
                     <Container className="loading-photos">

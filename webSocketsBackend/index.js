@@ -1,11 +1,13 @@
 const fs = require('fs')
-// const httpsServer = require('https').createServer({
-//   key: fs.readFileSync('keypath'),
-//   cert: fs.readFileSync('certpath') 
-// });
-const httpServer = require('http').createServer();
+const passphrase = "D!ge#do%smainP2S34"
+const httpsServer = require('https').createServer({
+  key: fs.readFileSync('E:\\AWS Dice Server Configurations\\domain.key'),
+  cert: fs.readFileSync('E:\\AWS Dice Server Configurations\\domain.crt'),
+  passphrase: passphrase
+});
+// const httpServer = require('http').createServer();
 
-const io = require("socket.io")(httpServer,{
+const io = require("socket.io")(httpsServer,{
   cors:{
     origin:"https://splendid-pithivier-237689.netlify.app/"
   }
@@ -30,7 +32,7 @@ io.on('connection', socket => {
 })
 
 
-httpServer.listen(3000, ()=>{
+httpsServer.listen(3000, ()=>{
   console.log("listening on port 3000")
 })
 

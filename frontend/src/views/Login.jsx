@@ -5,7 +5,7 @@ import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, C
 // import diceLogo from '../assets/logo-450x300.webp'
 import diceLogo from '../assets/LOGO-3.webp'
 import { User } from "../backend_sdk/user.sdk";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login(){
 
@@ -117,7 +117,7 @@ function Login(){
                                 </Alert>
                             </FormGroup>
                             <Container style={{marginTop:"20px",paddingLeft:"0px"}}>
-                                <a href="/auth/forgotPassword" style={{fontWeight:"bold",color:"green"}}>Forgot password?</a>
+                                <Link to="/auth/forgotPassword" style={{fontWeight:"bold",color:"green"}}>Forgot password?</Link>
                             </Container>
                         </CardBody>
                         <CardFooter style={{display:"flex",flexDirection:"column"}}>
@@ -126,7 +126,7 @@ function Login(){
                                 {errorGeneral}
                             </Alert>
                             <span>
-                                Don't have an account? <a href="/auth/register" style={{fontWeight:"bold",color:"green"}}>Register</a>
+                                Don't have an account? <Link to="/auth/register" style={{fontWeight:"bold",color:"green"}}>Register</Link>
                             </span>
                         </CardFooter>
                     </Form>

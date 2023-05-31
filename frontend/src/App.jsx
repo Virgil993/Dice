@@ -64,7 +64,7 @@ function App() {
             <Route path='/auth/forgotPassword/' element={<AuthLayout element={<ForgotPassword/>}/>} />
             <Route path='/auth/resetPassword/:id/:token' element={<AuthLayout element={<ResetPassword/>}/>} />
             <Route path="/auth/home" element={<AuthLayout element={<HomePage />} />} />
-            <Route path="*" element={<Navigate to="/auth/home" />} />
+            <Route path="/*" element={<Navigate to="/auth/home" />} />
           </Routes>
         </BrowserRouter>
       </div>

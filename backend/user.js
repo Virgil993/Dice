@@ -31,7 +31,7 @@ export class User {
     }
 
     const token = Jwt.sign(payload,newSecret,{expiresIn:'30m'})
-    const link = `http://localhost:8080/auth/verifyEmail/${email}/${token}`
+    const link = `https://prod--splendid-pithivier-237689.netlify.app/auth/verifyEmail/${email}/${token}`
     await verifyAccountSession.deleteMany({email:email})
     await verifyAccountSession.create({token:token,email:email})
 
@@ -385,7 +385,7 @@ export class User {
       id: user._id
     }
     const token = Jwt.sign(payload,newSecret,{expiresIn: '15m'})
-    const link = `http://localhost:8080/auth/resetPassword/${user._id}/${token}`
+    const link = `https://prod--splendid-pithivier-237689.netlify.app/auth/resetPassword/${user._id}/${token}`
     await resetPasswordSession.deleteMany({ userId: user._id });
     await resetPasswordSession.create({ token: token, userId: user._id });
 

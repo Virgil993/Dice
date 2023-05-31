@@ -61,7 +61,7 @@ function App() {
             <Route path="/auth/login" element={<AuthLayout element={<LoginMain />} />} />
             <Route path="/auth/register" element={<AuthLayout element={<Register />} />}/>
             <Route path='/auth/verifyEmail/:email/:token' element={<AuthLayout element={<VerifyAccount/>}/>} />
-            <Route path='/auth/forgotPassword' element={<AuthLayout element={<ForgotPassword/>}/>} />
+            <Route path='/auth/forgotPassword/' element={<AuthLayout element={<ForgotPassword/>}/>} />
             <Route path='/auth/resetPassword/:id/:token' element={<AuthLayout element={<ResetPassword/>}/>} />
             <Route path="/auth/home" element={<AuthLayout element={<HomePage />} />} />
             <Route path="*" element={<Navigate to="/auth/home" />} />

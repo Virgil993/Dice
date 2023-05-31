@@ -53,7 +53,7 @@ function App() {
 
   return (
       <div className='app'>
-        <HashRouter>
+        <BrowserRouter>
           <Routes>
             <Route path="/admin/dashboard" element={<AdminLayout element={<DashboardMain/>}/>}/>
             <Route path="/admin/profile" element={<AdminLayout element={<Profile  />}  />} />
@@ -66,7 +66,7 @@ function App() {
             <Route path="/auth/home" element={<AuthLayout element={<HomePage />} />} />
             <Route path="*" element={<Navigate to="/auth/home"/>} />
           </Routes>
-        </HashRouter>
+        </BrowserRouter>
       </div>
   )
 }

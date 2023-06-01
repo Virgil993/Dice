@@ -1,3 +1,11 @@
-1: Do email verification
-2: Do password recovery
-3: check if user already exists
+Intrebari Licenta:
+1: Cate pagini ar trebui sa aiba partea de cercetare
+2: Avand in vedere ca am folosit destul de multe tehnologii ar trebui sa vorbesc despre si ele si cat de in detaliu?
+3: Ar trebui sa ma axes mai mult pe procesul pe care l-am avut cand am construit aplicatia sau pe modul in care functioneaza aplicatia?
+4: E o limita de cuvinte pe care nu trebuie sa o depasesc?
+5: Pana pe 18 iunie trebuie trimisa partea de cercetare impreuna cu codul sau doar partea de cercetare?
+6: Daca pana pe 18 iunie trebuie trimisa partea de cercetare, asta inseamna ca la cod se mai poate lucra si dupa 18 iunie?
+7: E vreo problema daca am folosit chatGPT pentru a imi genera descrierea care se gaseste in partea inferioara a site-ului?
+8: Cand va avea loc prezentarea, cat va dura? si se presupune ca ar trebui sa fac un powerpoint sau doar fac un demo al aplicatiei mele?
+9: Daca trebuie sa fac un demo al aplicatiei mele atunci ar trebui sa il fac ca si cum as vrea sa prezint produsul unor sponsori
+   sau ca si cum as vrea sa prezint cate tehnologii am folosit? Adica mai mult pe marketing sau mai mult pe tech?

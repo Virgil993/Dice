@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/navbar.css"
-import { NavbarBrand,NavLink } from "reactstrap";
+import { Container, NavbarBrand,NavLink } from "reactstrap";
 import diceLogo from '../assets/LOGO-3.webp'
 import { Link, useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
@@ -91,9 +91,9 @@ function NavbarMain(props) {
             <div className="navbar-container">
             <span className="navbar-links">
                 <Link to="/admin/dashboard">
-                    <NavbarBrand className="navbar-logo">
+                    <Container className="navbar-logo">
                     <img src={diceLogo} alt="No photo here" className="navbar-logo-img"/>
-                    </NavbarBrand>
+                    </Container>
                 </Link>
                 <Link to="/admin/dashboard" className="navlink" style={
                     dashboardSelected ?

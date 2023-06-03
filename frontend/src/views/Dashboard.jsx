@@ -7,8 +7,12 @@ import { useSelector } from "react-redux";
 import {BsFillDice6Fill} from 'react-icons/bs'
 import { DashboardPersonMain } from "../components/DashboardPerson";
 import { FooterMain } from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard(props) {
+
+
+    const navigate = useNavigate()
 
     const [user,setUser] = React.useState(null)
     const [allUsers,setAllUSers] = React.useState(undefined)

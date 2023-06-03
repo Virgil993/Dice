@@ -9,4 +9,4 @@ import {io} from 'socket.io-client'
 //     console.log(err)
 // })
 
-export const socket = io('https://dicegames.ro')
+export const socket = io('https://dicebackws.work')

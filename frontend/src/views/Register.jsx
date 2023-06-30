@@ -113,7 +113,9 @@ function Register() {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result);
-            reader.onerror = reject("error at convert file to base 64");
+            reader.onerror = (err) => {
+                console.log(err)
+                reject("error at convert file to base 64")};
         })
     }
 

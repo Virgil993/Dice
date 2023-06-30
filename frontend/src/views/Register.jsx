@@ -103,15 +103,18 @@ function Register() {
     }
 
     async function uploadImageToS3(file,userId,fileName){
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function () {
-            const res1 = await User.UploadImageToS3(reader.result,userId,fileName)
-            console.log(res1)
-        };
-        reader.onerror = function (error) {
-          console.log('Error: ', error);
-        };
+        const result = await convertFromFileToBase64(file)
+        const res = await User.UploadImageToS3(result,userId,fileName)
+        console.log(res)
+    }
+
+    function convertFromFileToBase64(file){
+        return new Promise((resolve,reject)=>{
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject("error at convert file to base 64");
+        })
     }
 
 

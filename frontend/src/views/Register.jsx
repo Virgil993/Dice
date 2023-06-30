@@ -253,15 +253,10 @@ function Register() {
                 return;
             }
             else{
-                const res1 = await uploadImageToS3(image1DB,res.userId,"Image1")
-                const res2 = await uploadImageToS3(image2DB,res.userId,"Image2")
-                const res3 = await uploadImageToS3(image3DB,res.userId,"Image3")
-                const res4 = await uploadImageToS3(image4DB,res.userId,"Image4")
-
-                console.log(res1)
-                console.log(res2)
-                console.log(res3)
-                console.log(res4)
+                await uploadImageToS3(image1DB,res.userId,"Image1")
+                await uploadImageToS3(image2DB,res.userId,"Image2")
+                await uploadImageToS3(image3DB,res.userId,"Image3")
+                await uploadImageToS3(image4DB,res.userId,"Image4")
                 const resEmail = await User.SendVerificationEmail(email)
                 if(!resEmail || !resEmail.success){
                     console.log(resEmail)

@@ -107,6 +107,7 @@ function Register() {
         reader.readAsDataURL(file);
         reader.onload = async function () {
             const res1 = await User.UploadImageToS3(reader.result,userId,fileName)
+            console.log(res1)
         };
         reader.onerror = function (error) {
           console.log('Error: ', error);

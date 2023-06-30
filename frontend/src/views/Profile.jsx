@@ -234,10 +234,15 @@ function Profile(props) {
           }
         }
     }
-    await User.UploadImageToS3(image1DB,user._id,"Image1")
-    await User.UploadImageToS3(image2DB,user._id,"Image2")
-    await User.UploadImageToS3(image3DB,user._id,"Image3")
-    await User.UploadImageToS3(image4DB,user._id,"Image4")
+    const res1 = await User.UploadImageToS3(image1DB,user._id,"Image1")
+    const res2 = await User.UploadImageToS3(image2DB,user._id,"Image2")
+    const res3 = await User.UploadImageToS3(image3DB,user._id,"Image3")
+    const res4 = await User.UploadImageToS3(image4DB,user._id,"Image4")
+
+    console.log(res1)
+    console.log(res2)
+    console.log(res3)
+    console.log(res4)
   }
 
     return(

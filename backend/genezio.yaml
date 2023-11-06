@@ -1,6 +1,6 @@
-name: DiceBackend
+name: DiceBackendTest
 region: eu-north-1
-cloudProvider: aws
+cloudProvider: genezio
 sdk:
   language: js
   options:

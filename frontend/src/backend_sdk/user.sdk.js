@@ -1,12 +1,12 @@
 /**
-* This is an auto generated code. This code should not be modified since the file can be overwriten
+* This is an auto generated code. This code should not be modified since the file can be overwritten
 * if new genezio commands are executed.
 */
 
 import { Remote } from "./remote.js"
 
 export class User {
-  static remote = new Remote("https://srfxo37fkaudzkvygyugy6eehm0ylygh.lambda-url.eu-north-1.on.aws/")
+  static remote = new Remote("https://xwefu2mqeicyov7nzbaf45fs5i0fnxpy.lambda-url.eu-north-1.on.aws/User")
 
   static async SendVerificationEmail(email) {
     return User.remote.call("User.SendVerificationEmail", email)

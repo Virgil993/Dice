@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const verifyAccountSessionSchema = new mongoose.Schema({
+const verifyAccountSessionSchema = new Schema({
   token: {
     type: String,
     required: true,
@@ -16,6 +16,6 @@ const verifyAccountSessionSchema = new mongoose.Schema({
   },
 });
 
-const verifyAccountSession = mongoose.model("VerifyAccountSession", verifyAccountSessionSchema);
+const verifyAccountSession = model("VerifyAccountSession", verifyAccountSessionSchema);
 
-module.exports = verifyAccountSession;
+export default verifyAccountSession;

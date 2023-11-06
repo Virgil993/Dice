@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const resetPasswordSessionSchema = new mongoose.Schema({
+const resetPasswordSessionSchema = new Schema({
   token: {
     type: String,
     required: true,
@@ -16,6 +16,6 @@ const resetPasswordSessionSchema = new mongoose.Schema({
   },
 });
 
-const resetPasswordSession = mongoose.model("ResetPasswordSession", resetPasswordSessionSchema);
+const resetPasswordSession = model("ResetPasswordSession", resetPasswordSessionSchema);
 
-module.exports = resetPasswordSession;
+export default resetPasswordSession;

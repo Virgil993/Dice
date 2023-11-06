@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const messagesSchema = mongoose.Schema({
+import { Schema, model } from "mongoose";
+const messagesSchema = Schema({
     conversationId: {
         type:String,
         required: true
@@ -29,6 +29,6 @@ const messagesSchema = mongoose.Schema({
 
 })
 
-const messages = mongoose.model("Message",messagesSchema)
+const messages = model("Message",messagesSchema)
 
-module.exports = messages;
+export default messages;

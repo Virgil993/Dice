@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const conversationsSchema = mongoose.Schema({
+import { Schema, model } from "mongoose";
+const conversationsSchema = Schema({
     users: {
         type: [String],
         required: true
@@ -11,6 +11,6 @@ const conversationsSchema = mongoose.Schema({
 
 })
 
-const conversations = mongoose.model("Conversation",conversationsSchema)
+const conversations = model("Conversation",conversationsSchema)
 
-module.exports = conversations;
+export default conversations;

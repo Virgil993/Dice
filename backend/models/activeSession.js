@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import { Schema, model } from "mongoose";
 
-const activeSessionSchema = new mongoose.Schema({
+const activeSessionSchema = new Schema({
   token: {
     type: String,
     required: true,
@@ -16,6 +16,6 @@ const activeSessionSchema = new mongoose.Schema({
   },
 });
 
-const activeSession = mongoose.model("ActiveSession", activeSessionSchema);
+const activeSession = model("ActiveSession", activeSessionSchema);
 
-module.exports = activeSession;
+export default activeSession;

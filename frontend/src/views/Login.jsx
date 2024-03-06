@@ -4,7 +4,7 @@ import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, C
 // import diceLogo from '../assets/diceLogoTest.webp'
 // import diceLogo from '../assets/logo-450x300.webp'
 import diceLogo from '../assets/LOGO-3.webp'
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate } from "react-router-dom";
 
 function Login(){

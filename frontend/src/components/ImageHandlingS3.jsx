@@ -1,4 +1,4 @@
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 
 export const uploadImageToS3WithNativeSdk = async (file,userId) =>{
     return User.UploadImageToS3(file,userId)

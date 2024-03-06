@@ -18,4 +18,4 @@ const verifyAccountSessionSchema = new mongoose.Schema({
 
 const verifyAccountSession = mongoose.model("VerifyAccountSession", verifyAccountSessionSchema);
 
-module.exports = verifyAccountSession;
+export default verifyAccountSession

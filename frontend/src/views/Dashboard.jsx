@@ -3,7 +3,7 @@ import '../styles/dashboard.css'
 import NavbarMain from "../components/Navbar";
 import { Container } from "reactstrap";
 import Footer from "../components/Footer";
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import DashboardPerson from "../components/DashboardPerson";
 import { useSelector } from "react-redux";
 import {BsFillDice6Fill} from 'react-icons/bs'

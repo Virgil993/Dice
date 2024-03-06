@@ -45,4 +45,4 @@ const usersSchema = new mongoose.Schema({
 
 const users = mongoose.model("User", usersSchema);
 
-module.exports = users;
+export default users

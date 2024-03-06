@@ -1,14 +1,27 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import Jwt, { decode } from "jsonwebtoken";
+import Jwt from "jsonwebtoken";
 import UserModel from "./models/users";
 import ActiveSession from "./models/activeSession";
-import { MONGO_DB_URI, secret, reqAuth, reqResetPassword, transporter, AWSConfig, emailHtmlResetPassword } from "./helper";
+import {
+  MONGO_DB_URI,
+  secret,
+  reqAuth,
+  reqResetPassword,
+  AWSConfig,
+  emailHtmlResetPassword,
+} from "./helper";
 import resetPasswordSession from "./models/resetPasswordSession";
 import verifyAccountSession from "./models/verifyAccountSession";
-import { DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectsCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { GenezioDeploy } from "@genezio/types";
 
-
+@GenezioDeploy()
 export class User {
   constructor() {
     this.#connect();
@@ -24,33 +37,48 @@ export class User {
     }
   }
 
-  async SendVerificationEmail(name, email, password, birthday, gender, description, gamesSelected){
-    const newSecret = secret + email
+  async SendVerificationEmail(
+    name,
+    email,
+    password,
+    birthday,
+    gender,
+    description,
+    gamesSelected
+  ) {
+    const newSecret = secret + email;
     const payload = {
       name: name,
       email: email,
       password: password,
-      birthday:birthday,
+      birthday: birthday,
       gender: gender,
-      description:description,
+      description: description,
       gamesSelected: gamesSelected,
-    }
+    };
 
-    const token = Jwt.sign(payload,newSecret,{expiresIn:'15m'})
-    const link = `http://localhost:8080/auth/verifyEmail/${email}/${token}`
-    await verifyAccountSession.deleteMany({email:email})
-    await verifyAccountSession.create({token:token,email:email})
+    const token = Jwt.sign(payload, newSecret, { expiresIn: "15m" });
+    const link = `http://localhost:8080/auth/verifyEmail/${email}/${token}`;
+    await verifyAccountSession.deleteMany({ email: email });
+    await verifyAccountSession.create({ token: token, email: email });
 
-    try{
-      // to be completed when i find out how to store the images in S3 bucket 
-    }
-    catch(err){
-      return {success:false, msg:"error at send mail", error:err}
+    try {
+      // to be completed when i find out how to store the images in S3 bucket
+    } catch (err) {
+      return { success: false, msg: "error at send mail", error: err };
     }
   }
 
   // create a new user
-  async create(name, email, password, birthday, gender, description, gamesSelected) {
+  async create(
+    name,
+    email,
+    password,
+    birthday,
+    gender,
+    description,
+    gamesSelected
+  ) {
     if (!email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
       return { success: false, msg: "wrong email format" };
     }
@@ -75,9 +103,9 @@ export class User {
                   name: name,
                   email: email,
                   password: hash,
-                  birthday:birthday,
+                  birthday: birthday,
                   gender: gender,
-                  description:description,
+                  description: description,
                   gamesSelected: gamesSelected,
                 });
               if (err) {
@@ -130,7 +158,6 @@ export class User {
     return promise;
   }
 
-
   // get a user by his token
   async getUserByToken(token) {
     const activeSession = await reqAuth(token);
@@ -146,7 +173,7 @@ export class User {
     return { success: true, user: user };
   }
 
-  async getUserById(token,userId){
+  async getUserById(token, userId) {
     const activeSession = await reqAuth(token);
     if (!activeSession.success) {
       return { success: false, msg: activeSession.msg };
@@ -163,8 +190,8 @@ export class User {
   // logout
   async logout(token) {
     try {
-      await ActiveSession.deleteMany({ token: token }).catch((err)=>{
-        return { success: false, msg: "error at logout", error: err } 
+      await ActiveSession.deleteMany({ token: token }).catch((err) => {
+        return { success: false, msg: "error at logout", error: err };
       });
       return { success: true };
     } catch (err) {
@@ -195,8 +222,8 @@ export class User {
       dataToSet.email = updatedUser.email;
     }
 
-    if(updatedUser.birthday != null) {
-        dataToSet.birthday = updatedUser.birthday;
+    if (updatedUser.birthday != null) {
+      dataToSet.birthday = updatedUser.birthday;
     }
 
     if (updatedUser.gender != null) {
@@ -204,19 +231,19 @@ export class User {
     }
 
     if (updatedUser.description != null) {
-        dataToSet.description = updatedUser.description;
+      dataToSet.description = updatedUser.description;
     }
 
     if (updatedUser.saidYesTo != null) {
-        dataToSet.saidYesTo = updatedUser.saidYesTo;
+      dataToSet.saidYesTo = updatedUser.saidYesTo;
     }
 
     if (updatedUser.saidNoTo != null) {
-        dataToSet.saidNoTo = updatedUser.saidNoTo;
+      dataToSet.saidNoTo = updatedUser.saidNoTo;
     }
 
     if (updatedUser.gamesSelected != null) {
-        dataToSet.gamesSelected = updatedUser.gamesSelected;
+      dataToSet.gamesSelected = updatedUser.gamesSelected;
     }
 
     const newValues = { $set: dataToSet };
@@ -228,7 +255,7 @@ export class User {
     }
   }
 
-  async updateSaidTo(token, NewUserId, saidYes){
+  async updateSaidTo(token, NewUserId, saidYes) {
     const sessionStatus = await this.getUserByToken(token);
     if (!sessionStatus.success) {
       return { success: false, msg: sessionStatus.msg };
@@ -238,46 +265,42 @@ export class User {
       return { success: false, msg: "user not found" };
     }
 
-    if(!NewUserId) {
-      return {success: false, msg: "new userId not found"};
+    if (!NewUserId) {
+      return { success: false, msg: "new userId not found" };
     }
-     try {
-       if(saidYes){
-          if(user.saidYesTo){
-            await UserModel.findByIdAndUpdate(
-              {_id: user._id},
-              { "$push": {"saidYesTo": NewUserId.toString()} }, 
-              { "new": true, "upsert": true }
-              )
-              return { success: true, msg: "update completed" };
-          }
-          else{
-            await UserModel.findByIdAndUpdate(
-              {_id: user._id},
-              { "$set": {"saidYesTo": [NewUserId.toString()]} }, 
-              )
-              return { success: true, msg: "update completed" };
-          }        
-       }
-       else{
-          if(user.saidNoTo){
-            await UserModel.findByIdAndUpdate(
-              {_id: user._id},
-              { "$push": {"saidNoTo": NewUserId.toString()} }, 
-              { "new": true, "upsert": true }
-              )
-              return { success: true, msg: "update completed" };
-          }
-          else{
-            await UserModel.findByIdAndUpdate(
-              {_id: user._id},
-              { "$set": {"saidNoTo": [NewUserId.toString()]} }, 
-              )
-              return { success: true, msg: "update completed" };
-          }
-       }
-     }
-     catch (err) {
+    try {
+      if (saidYes) {
+        if (user.saidYesTo) {
+          await UserModel.findByIdAndUpdate(
+            { _id: user._id },
+            { $push: { saidYesTo: NewUserId.toString() } },
+            { new: true, upsert: true }
+          );
+          return { success: true, msg: "update completed" };
+        } else {
+          await UserModel.findByIdAndUpdate(
+            { _id: user._id },
+            { $set: { saidYesTo: [NewUserId.toString()] } }
+          );
+          return { success: true, msg: "update completed" };
+        }
+      } else {
+        if (user.saidNoTo) {
+          await UserModel.findByIdAndUpdate(
+            { _id: user._id },
+            { $push: { saidNoTo: NewUserId.toString() } },
+            { new: true, upsert: true }
+          );
+          return { success: true, msg: "update completed" };
+        } else {
+          await UserModel.findByIdAndUpdate(
+            { _id: user._id },
+            { $set: { saidNoTo: [NewUserId.toString()] } }
+          );
+          return { success: true, msg: "update completed" };
+        }
+      }
+    } catch (err) {
       return { success: false, msg: "error at update", error: err };
     }
   }
@@ -292,7 +315,7 @@ export class User {
       if (!user) {
         return { success: false, msg: "user not found" };
       }
-      await UserModel.deleteMany({_id: user._id})
+      await UserModel.deleteMany({ _id: user._id });
       await ActiveSession.deleteMany({ token: token });
       return { success: true };
     } catch (err) {
@@ -300,77 +323,42 @@ export class User {
     }
   }
 
-
-  async userExist(id,token){
-    try{
-      const session = await reqResetPassword(token)
-      if(!session || !session.success){
-        return {success: false, msg: session.msg}
+  async userExist(id, token) {
+    try {
+      const session = await reqResetPassword(token);
+      if (!session || !session.success) {
+        return { success: false, msg: session.msg };
       }
 
-      const user = await UserModel.findById(id)
+      const user = await UserModel.findById(id);
       if (!user) {
         return { success: false, msg: "user dosen't exist" };
       }
-      const newSecret = secret + user.password
-      const decodedToken = Jwt.verify(token,newSecret)
-      if(user.email != decodedToken.email)
-      {
-        return {success: false, msg: "user email dosen't match token email"};
+      const newSecret = secret + user.password;
+      const decodedToken = Jwt.verify(token, newSecret);
+      if (user.email != decodedToken.email) {
+        return { success: false, msg: "user email dosen't match token email" };
       }
-      if(id!= decodedToken.id){
-        return {success: false, msg: "tokenId dosen't match user id"};
+      if (id != decodedToken.id) {
+        return { success: false, msg: "tokenId dosen't match user id" };
       }
 
-      user.password = null
+      user.password = null;
       return { success: true, user: user };
-    }
-    catch (err){
-      return {success: false, msg: "error at verify token", error: err}
+    } catch (err) {
+      return { success: false, msg: "error at verify token", error: err };
     }
   }
 
-  async forgotPassword(email){
-    const user = await UserModel.findOne({ email: email });
+  async resetPassword(id, newPassword) {
+    const user = await UserModel.findById(id);
     if (!user) {
-      return { success: false, msg: "Wrong credentials" };
-    }
-    const newSecret = secret + user.password
-    const payload = {
-      email: user.email,
-      id: user._id
-    }
-    const token = Jwt.sign(payload,newSecret,{expiresIn: '15m'})
-    const link = `http://localhost:8080/auth/resetPassword/${user._id}/${token}`
-    await resetPasswordSession.deleteMany({ userId: user._id });
-    await resetPasswordSession.create({ token: token, userId: user._id });
-
-    try{
-      const info = await transporter.sendMail({
-        from: "No-reply-dice <dicedmn@gmail.com>",
-        to:user.email,
-        subject:"Dice password reset",
-        html: emailHtmlResetPassword(link,user.email),
-      })
-      // console.log(info)
-      return {success: true, msg:"email sent successfully"}
-    }
-    catch(err){
-      return {success:false, msg:"error at send mail", error:err}
-    }
-
-  }
-
-  async resetPassword(id,newPassword){
-    const user = await UserModel.findById(id)
-    if(!user){
-      return {success: false,msg:"user not found"}
+      return { success: false, msg: "user not found" };
     }
 
     if (newPassword.length < 10) {
       return { success: false, msg: "password is too short" };
     }
-
 
     const promise = new Promise((resolve, reject) => {
       bcrypt.genSalt(10, async function (err, salt) {
@@ -381,11 +369,11 @@ export class User {
             if (err) {
               reject({ success: false, msg: "Error at hash", error: err });
             } else {
-
-              const dataToSet = {}
-              dataToSet.password = hash
+              const dataToSet = {};
+              dataToSet.password = hash;
               const newValues = { $set: dataToSet };
-              var err,res = await UserModel.updateOne({_id:user._id},newValues)
+              var err,
+                res = await UserModel.updateOne({ _id: user._id }, newValues);
               await resetPasswordSession.deleteMany({ userId: user._id });
               if (err) {
                 reject({
@@ -403,13 +391,12 @@ export class User {
           });
         }
       });
-    })
+    });
 
-  return promise
-
+    return promise;
   }
 
-  async getAllUsersSorted(token,user) {
+  async getAllUsersSorted(token, user) {
     try {
       const sessionStatus = await this.getUserByToken(token);
       if (!sessionStatus.success) {
@@ -418,42 +405,53 @@ export class User {
       if (!user) {
         return { success: false, msg: "user not found" };
       }
-      var saidYesTo = user.saidYesTo
-      var saidNoTo = user.saidNoTo
-      var gamesSelected = user.gamesSelected
-      var allUsers = await UserModel.find({})
+      var saidYesTo = user.saidYesTo;
+      var saidNoTo = user.saidNoTo;
+      var gamesSelected = user.gamesSelected;
+      var allUsers = await UserModel.find({});
 
-      allUsers = allUsers.filter(element => element._id.toString() != user._id.toString() 
-      && (!saidYesTo || !(saidYesTo.includes(element._id.toString()))) 
-      && (!saidNoTo || !(saidNoTo.includes(element._id.toString()))))
-      
-      function elemCommon(a, b){
-        return a.filter((element)=>{
-          return b.includes(element)
-        })
+      allUsers = allUsers.filter(
+        (element) =>
+          element._id.toString() != user._id.toString() &&
+          (!saidYesTo || !saidYesTo.includes(element._id.toString())) &&
+          (!saidNoTo || !saidNoTo.includes(element._id.toString()))
+      );
+
+      function elemCommon(a, b) {
+        return a.filter((element) => {
+          return b.includes(element);
+        });
       }
 
       function compareCompatibility(a, b) {
-        if (elemCommon(gamesSelected,a.gamesSelected).length < elemCommon(gamesSelected,b.gamesSelected).length){
+        if (
+          elemCommon(gamesSelected, a.gamesSelected).length <
+          elemCommon(gamesSelected, b.gamesSelected).length
+        ) {
           return 1;
         }
-        if (elemCommon(gamesSelected,a.gamesSelected).length > elemCommon(gamesSelected,b.gamesSelected).length){
+        if (
+          elemCommon(gamesSelected, a.gamesSelected).length >
+          elemCommon(gamesSelected, b.gamesSelected).length
+        ) {
           return -1;
         }
         return 0;
       }
 
-      allUsers.sort( compareCompatibility );
-      return  { success: true, users: allUsers  };
-
-    }
-    catch (err) {
-      return { success: false, msg: "error at get all sorted users", error: err };
+      allUsers.sort(compareCompatibility);
+      return { success: true, users: allUsers };
+    } catch (err) {
+      return {
+        success: false,
+        msg: "error at get all sorted users",
+        error: err,
+      };
     }
   }
 
-  async shouldCreateConversation(token,userId){
-    try{
+  async shouldCreateConversation(token, userId) {
+    try {
       const sessionStatus = await this.getUserByToken(token);
       if (!sessionStatus.success) {
         return { success: false, msg: sessionStatus.msg };
@@ -463,119 +461,124 @@ export class User {
         return { success: false, msg: "user not found" };
       }
 
-      const user2 = await UserModel.findOne({_id:userId})
+      const user2 = await UserModel.findOne({ _id: userId });
       if (!user2) {
         return { success: false, msg: "user 2 not found" };
       }
 
-      if(user2.saidYesTo && user2.saidYesTo.includes(user._id.toString())){
-        return {success: true, shouldCreate: true}
+      if (user2.saidYesTo && user2.saidYesTo.includes(user._id.toString())) {
+        return { success: true, shouldCreate: true };
+      } else {
+        return { success: true, shouldCreate: false };
       }
-      else{
-        
-        return {success: true, shouldCreate: false}
-      }
-    }
-    catch(err){
-      return { success: false, msg: "error at should Create Conversation", error: err };
+    } catch (err) {
+      return {
+        success: false,
+        msg: "error at should Create Conversation",
+        error: err,
+      };
     }
   }
 
-  async UploadImageToS3(file,userId,fileName){
+  async uploadImageToS3(file, userId, fileName) {
     const client = new S3Client({
       region: AWSConfig.REGION,
       credentials: {
         accessKeyId: AWSConfig.accessKeyId,
-        secretAccessKey: AWSConfig.secretAccessKey
+        secretAccessKey: AWSConfig.secretAccessKey,
       },
-    })
+    });
     const command = new PutObjectCommand({
       Body: file,
       Bucket: AWSConfig.S3_BUCKET,
-      Key: userId+"/"+fileName
-    })
+      Key: userId + "/" + fileName,
+    });
 
     try {
       const response = await client.send(command);
-      return  {
+      return {
         success: true,
         msg: "Uploaded Image Successfully!",
-        data: response
-      }
-    }
-    catch(err){
+        data: response,
+      };
+    } catch (err) {
       return {
         success: false,
         msg: "Error at upload image to S3 bucket",
-        error: err
-      }
+        error: err,
+      };
     }
   }
 
-  async readImageFromS3(userId,photoNumber){
+  async readImageFromS3(userId, photoNumber) {
     const client = new S3Client({
       region: AWSConfig.REGION,
       credentials: {
         accessKeyId: AWSConfig.accessKeyId,
-        secretAccessKey: AWSConfig.secretAccessKey
+        secretAccessKey: AWSConfig.secretAccessKey,
       },
-    })
+    });
     const command = new GetObjectCommand({
       Bucket: AWSConfig.S3_BUCKET,
-      Key: userId+"/Image"+photoNumber
-    })
+      Key: userId + "/Image" + photoNumber,
+    });
 
     try {
       const response = await client.send(command);
       const data = await response.Body.transformToString();
-      return  {
+      return {
         success: true,
         msg: "Retrieved Image Successfully!",
-        data: data
-      }
-    }
-    catch(err){
+        data: data,
+      };
+    } catch (err) {
       return {
         success: false,
         msg: "Error at read image from S3 bucket",
-        error: err
-      }
+        error: err,
+      };
     }
   }
 
-  async deleteUserFromS3(token){
+  async deleteUserFromS3(token) {
     const activeSession = await reqAuth(token);
     if (!activeSession.success) {
       return { success: false, msg: activeSession.msg };
     }
-    const userId = activeSession.userId
+    const userId = activeSession.userId;
     const client = new S3Client({
       region: AWSConfig.REGION,
       credentials: {
         accessKeyId: AWSConfig.accessKeyId,
-        secretAccessKey: AWSConfig.secretAccessKey
+        secretAccessKey: AWSConfig.secretAccessKey,
       },
-    })
+    });
     const command = new DeleteObjectsCommand({
       Bucket: AWSConfig.S3_BUCKET,
-      Delete:{
-        Objects: [{Key: userId+"/Image1"},{Key: userId+"/Image2"},{Key: userId+"/Image3"},{Key: userId+"/Image4"}]
-      }
+      Delete: {
+        Objects: [
+          { Key: userId + "/Image1" },
+          { Key: userId + "/Image2" },
+          { Key: userId + "/Image3" },
+          { Key: userId + "/Image4" },
+        ],
+      },
     });
-    try{
+    try {
       const { Deleted } = await client.send(command);
-      console.log(`Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`)
+      console.log(
+        `Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`
+      );
       return {
         success: true,
-        msg: `Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`
-      }
-    }
-    catch(err){
+        msg: `Successfully deleted ${Deleted.length} objects from S3 bucket. Deleted objects:`,
+      };
+    } catch (err) {
       return {
         success: false,
         msg: "Error at delete images from S3 bucket",
-        error: err
-      }
+        error: err,
+      };
     }
   }
 }

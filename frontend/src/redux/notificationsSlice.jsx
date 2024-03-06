@@ -19,10 +19,9 @@ export const notificationsSlice = createSlice({
       var foundConversation = false
       for(let i=0; i< state.conversations.length;i++){
         if(state.conversations[i] == action.payload.conversationId){
-          console.log("we got here at least")
           state.conversations = [...state.conversations]
           state.messages = [...state.messages,action.payload.message]
-          foundConversation = true
+          foundConversation = true  
           break;
         }
       }

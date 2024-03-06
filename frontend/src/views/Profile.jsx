@@ -3,7 +3,7 @@ import '../styles/profile.css'
 import NavbarMain from "../components/Navbar";
 import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Footer from "../components/Footer";
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate } from "react-router-dom";
 import { readImageFromS3WithNativeSdk, uploadImageToS3WithNativeSdk } from "../components/ImageHandlingS3";
 import closeIconLogo from '../assets/closePhotoIcon.svg';
@@ -11,9 +11,9 @@ import addIconLogo from '../assets/addPhotoIcon.svg';
 import {acceptedFileTypesPhotos, availableGames} from '../constants/utils'
 import imageCompression from 'browser-image-compression'
 import GameRegister from "../components/GameRegister";
-import { Conversation } from "../backend_sdk/conversation.sdk";
+import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1";
 import {BsFillDice6Fill} from 'react-icons/bs'
-import { Message } from "../backend_sdk/message.sdk";
+import { Message } from "@genezio-sdk/DiceBackend_us-east-1";
 
 function Profile(props) {
 
@@ -234,10 +234,15 @@ function Profile(props) {
           }
         }
     }
-    await User.UploadImageToS3(image1DB,user._id,"Image1")
-    await User.UploadImageToS3(image2DB,user._id,"Image2")
-    await User.UploadImageToS3(image3DB,user._id,"Image3")
-    await User.UploadImageToS3(image4DB,user._id,"Image4")
+    console.log("we here 1")
+    await User.uploadImageToS3(image1DB,user._id,"Image1")
+    console.log("we here 2")
+    await User.uploadImageToS3(image2DB,user._id,"Image2")
+    console.log("we here 3")
+    await User.uploadImageToS3(image3DB,user._id,"Image3")
+    console.log("we here 4")
+    await User.uploadImageToS3(image4DB,user._id,"Image4")
+    console.log("we here 5")
   }
 
     return(

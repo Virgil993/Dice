@@ -5,7 +5,7 @@ import diceLogo from '../assets/LOGO-3.webp'
 import { Link, useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3";
 import { useSelector } from "react-redux";
 import {BsFillCircleFill } from 'react-icons/bs'

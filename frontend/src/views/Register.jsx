@@ -6,7 +6,7 @@ import {acceptedFileTypesPhotos,availableGames} from '../constants/utils'
 import closeIconLogo from '../assets/closePhotoIcon.svg'
 import addIconLogo from '../assets/addPhotoIcon.svg'
 import GameRegister from '../components/GameRegister';
-import { User } from '../backend_sdk/user.sdk';
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate } from 'react-router-dom';
 import imageCompression from 'browser-image-compression'
 
@@ -103,7 +103,7 @@ function Register() {
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async function () {
-            const res1 = await User.UploadImageToS3(reader.result,userId,fileName)
+            const res1 = await User.uploadImageToS3(reader.result,userId,fileName)
         };
         reader.onerror = function (error) {
           console.log('Error: ', error);

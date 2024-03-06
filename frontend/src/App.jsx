@@ -6,7 +6,7 @@ import {} from "reactstrap"
 import Register from './views/Register';
 import Login from './views/Login';
 import Dashboard from './views/Dashboard';
-import Profile from './views/Profile';
+import Profile from './views/Profile'; 
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from './layouts/Admin';
 import AuthLayout from './layouts/Auth';
@@ -16,12 +16,12 @@ import ResetPassword from './views/ResetPassword';
 import { socket } from './socket';
 
 function App() {
-
+  
     const [isConnected,setIsConnected] = React.useState(socket.connected)
 
 
     React.useEffect(()=>{
-      const handleTabClose = event =>{
+      const handleTabClose = event =>{ 
         event.preventDefault();
         console.log("before unload evenet triggered");
         localStorage.setItem("retrievedNotifications",JSON.stringify(false))

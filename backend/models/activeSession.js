@@ -18,4 +18,4 @@ const activeSessionSchema = new mongoose.Schema({
 
 const activeSession = mongoose.model("ActiveSession", activeSessionSchema);
 
-module.exports = activeSession;
+export default activeSession

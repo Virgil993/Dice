@@ -3,7 +3,7 @@ import '../styles/reset_password.css'
 import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, CardTitle, CardBody, CardFooter } from 'reactstrap';
 // import diceLogo from '../assets/diceLogoTest.webp'
 import diceLogo from '../assets/LOGO-3.webp'
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate, useParams } from "react-router-dom";
 import {AiFillCheckCircle} from "react-icons/ai"
 

@@ -4,8 +4,8 @@ import '../styles/dashboard_person.css'
 import FsLightbox from "fslightbox-react"
 import { availableGames } from "../constants/utils"
 import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3"
-import { User } from "../backend_sdk/user.sdk"
-import { Conversation } from "../backend_sdk/conversation.sdk"
+import { User } from "@genezio-sdk/DiceBackend_us-east-1"
+import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1"
 import { BsFillDice6Fill } from "react-icons/bs"
 
 

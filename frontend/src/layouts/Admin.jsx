@@ -1,10 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "../backend_sdk/user.sdk";
+import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { socket } from "../socket";
 import { useDispatch } from "react-redux";
 import { addNotification, setNotifications } from "../redux/notificationsSlice";
-import { Message } from "../backend_sdk/message.sdk";
+import { Message } from "@genezio-sdk/DiceBackend_us-east-1";
 
 function Admin(props) {
 

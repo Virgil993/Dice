@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Modal, ModalHeader, ModalBody } from "reactstrap"
-import { Message } from '../backend_sdk/message.sdk'
+import { Message } from "@genezio-sdk/DiceBackend_us-east-1"
 import '../styles/chat_component.css'
 import { availableGames  } from "../constants/utils"
 import {socket} from '../socket'

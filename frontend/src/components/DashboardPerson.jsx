@@ -1,24 +1,14 @@
 import React from "react"
-import { Container,Card,CardBody,CardTitle, Button, CardText } from "reactstrap"
+import { Container,Card,CardTitle, Button, CardText } from "reactstrap"
 import '../styles/dashboard_person.css'
-import FsLightbox from "fslightbox-react"
 import { availableGames } from "../constants/utils"
-import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3"
 import { User } from "@genezio-sdk/DiceBackend_us-east-1"
 import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1"
-import { BsFillDice6Fill } from "react-icons/bs"
 
 
 function DashboardPerson(props){
 
-    const [lightboxController, setLightboxController] = React.useState({
-        toggler: false,
-        slide: 1
-    });
 
-    const [photos,setPhotos] = React.useState([])
-    const [imagesLightbox,setImagesLightbox] = React.useState([])
-    const [photosLoaded,setPhotosLoaded] = React.useState(false)
     const [commonGames,setCommonGames] = React.useState(null)
     const [commonGamesLoaded,setCommonGamesLoaded] = React.useState(false)
     const [moreUsersAvailable,setMoreUsersAvailable] = React.useState(true)
@@ -29,50 +19,6 @@ function DashboardPerson(props){
         }
     },[moreUsersAvailable])
 
-    React.useEffect(()=>{
-        async function getImagesForUser(userId){
-            var newPhotos = []
-            var image1 = await readImageFromS3WithNativeSdk(userId,"1")
-            var image2 = await readImageFromS3WithNativeSdk(userId,"2")
-            var image3 = await readImageFromS3WithNativeSdk(userId,"3")
-            var image4 = await readImageFromS3WithNativeSdk(userId,"4")
-            
-            var imagesArray = []
-
-            newPhotos.push(image1.data)
-            newPhotos.push(image2.data)
-            imagesArray.push(
-                <img src={image1.data} alt="Image1" width={"850px"} height={"850px"}/>,
-                <img src={image2.data} alt="Image2" width={"850px"} height={"850px"}/>,
-                )
-            if(image3.data.length > 100 ){
-                newPhotos.push(image3.data)
-                imagesArray.push(<img src={image3.data} alt="Image3" width={"850px"} height={"850px"}/>,)
-            }
-            if(image4.data.length > 100){
-                newPhotos.push(image4.data)
-                imagesArray.push(<img src={image4.data} alt="Image4" width={"850px"} height={"850px"}/>,)
-            }
-            
-
-            
-
-            setImagesLightbox(imagesArray)
-            setPhotos(newPhotos)
-        }
-
-        if(photos.length==0){
-            getImagesForUser(props.user._id)
-        }
-
-    },[photos,imagesLightbox])
-
-
-    React.useEffect(()=>{
-        if(photos.length!=0){
-            setPhotosLoaded(true)
-        }
-    },[photos,photosLoaded])
 
     React.useEffect(()=>{
         function elemCommon(a, b){
@@ -91,12 +37,6 @@ function DashboardPerson(props){
         }
     },[commonGames,commonGamesLoaded])
 
-    function openLighboxOnSlide(number) {
-        setLightboxController({
-            toggler: !lightboxController.toggler,
-            slide: number
-        })
-    }
 
     function calculateAge(date){
         var newDate = new Date(date);
@@ -172,28 +112,6 @@ function DashboardPerson(props){
                         }}>PLAY</Button>
                     </Container>
                 </Container>
-                {
-                    photosLoaded ?
-                    <Container className="photos-card-main">
-                    {
-                        photos.map((element,index)=>{
-                            return (<img src={element} key={element+index} alt="N/A" style={{width:"200px",margin:"10px",height:"230px",cursor:"pointer",borderRadius:"15px"}} onClick={()=>{
-                                openLighboxOnSlide(index+1)
-                            }}/>)
-                        })
-                    }
-                    <FsLightbox
-                        toggler={lightboxController.toggler}
-                        sources={imagesLightbox}
-                        slide={lightboxController.slide}
-                    />
-                    </Container>
-                    :
-                    <Container className="loading-photos">
-                        <Container className="loading-icon-photos"><BsFillDice6Fill size={60}/></Container>
-                        <Container className="loading-text-photos">Loading photos...</Container>
-                    </Container>
-                }
             </Card>
             <Container className="container-desc-compat">
             <Card className="card-desc">

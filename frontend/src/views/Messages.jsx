@@ -6,9 +6,7 @@ import { User } from "@genezio-sdk/DiceBackend_us-east-1"
 import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1"
 import { Message } from "@genezio-sdk/DiceBackend_us-east-1"
 import ChatComponent from "../components/ChatComponent"
-import { readImageFromS3WithNativeSdk } from "../components/ImageHandlingS3"
 import { useNavigate } from "react-router-dom"
-import {FaTrashAlt} from 'react-icons/fa'
 import {BsTrash3} from 'react-icons/bs'
 import { useSelector } from "react-redux"
 import {BsFillDice6Fill} from 'react-icons/bs'
@@ -39,9 +37,6 @@ function Messages(props){
                 navigate("/auth/home");
                 return;
             }
-
-            var profilePicture = await readImageFromS3WithNativeSdk(res.user._id,"1")
-            res.user.profilePicture = profilePicture.data
             setConnectedUser(res.user)
 
             const convRes  = await Conversation.getByUserId(localStorage.getItem("apiToken"))
@@ -52,28 +47,14 @@ function Messages(props){
 
             for(let i=0;i<convRes.elements.length;i++){
                 if(convRes.elements[i].users[0]==res.user._id){
-                    var image1 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"1")
-                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"2")
-                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"3")
-                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[1],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[1])
-                    convRes.elements[i].profilePicture = image1.data
                     convRes.elements[i].name = currentUserInConv.user.name
                     convRes.elements[i].recevier = currentUserInConv.user
-                    var newPhotos = [image1.data,image2.data,image3.data,image4.data]
-                    convRes.elements[i].photos = newPhotos
                 }
                 else{
-                    var image1 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"1")
-                    var image2 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"2")
-                    var image3 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"3")
-                    var image4 = await readImageFromS3WithNativeSdk(convRes.elements[i].users[0],"4")
                     var currentUserInConv = await User.getUserById(localStorage.getItem("apiToken"),convRes.elements[i].users[0])
-                    convRes.elements[i].profilePicture = image1.data
                     convRes.elements[i].name = currentUserInConv.user.name
                     convRes.elements[i].recevier = currentUserInConv.user
-                    var newPhotos = [image1.data,image2.data,image3.data,image4.data]
-                    convRes.elements[i].photos = newPhotos
                 }
             }
             setAllConversations(convRes.elements)

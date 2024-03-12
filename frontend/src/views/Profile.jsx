@@ -1,15 +1,11 @@
 import React from "react";
 import '../styles/profile.css'
 import NavbarMain from "../components/Navbar";
-import { Alert, Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
+import {  Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Footer from "../components/Footer";
 import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate } from "react-router-dom";
-import { readImageFromS3WithNativeSdk, uploadImageToS3WithNativeSdk } from "../components/ImageHandlingS3";
-import closeIconLogo from '../assets/closePhotoIcon.svg';
-import addIconLogo from '../assets/addPhotoIcon.svg';
-import {acceptedFileTypesPhotos, availableGames} from '../constants/utils'
-import imageCompression from 'browser-image-compression'
+import { availableGames} from '../constants/utils'
 import GameRegister from "../components/GameRegister";
 import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1";
 import {BsFillDice6Fill} from 'react-icons/bs'
@@ -20,11 +16,6 @@ function Profile(props) {
     const navigate = useNavigate()
     const [error, setError] = React.useState(null)
     const [user,setUser] = React.useState(null)
-
-    const [photos,setPhotos] = React.useState(null)
-    const [updatedPhotos,setUpdatedPhotos] = React.useState(null)
-    const [photosUpdateActive,setPhotosUpdateActive] = React.useState(false)
-    const [initialEditPhotos,setInitialEditPhotos] = React.useState(null)
 
     const [updatedName,setUpdatedName] = React.useState("")
     const [name,setName] = React.useState(null)
@@ -58,47 +49,20 @@ function Profile(props) {
             return;
         }
 
-        var newPhotos = []
-        var filePhotos = []
-        var image1 = await readImageFromS3WithNativeSdk(res.user._id,"1")
-        var image2 = await readImageFromS3WithNativeSdk(res.user._id,"2")
-        var image3 = await readImageFromS3WithNativeSdk(res.user._id,"3")
-        var image4 = await readImageFromS3WithNativeSdk(res.user._id,"4")
-        
 
-        newPhotos.push(image1.data)
-        newPhotos.push(image2.data)
-        filePhotos.push(image1.data)
-        filePhotos.push(image2.data)
-        if(image3.data.length > 100){
-            newPhotos.push(image3.data)
-            filePhotos.push(image3.data)
-        }
-        else{
-          filePhotos.push("None")
-        }
-        if(image4.data.length >100){
-            newPhotos.push(image4.data)
-            filePhotos.push(image4.data)
-        }
-        else{
-          filePhotos.push("None")
-        }
-        setUpdatedPhotos(filePhotos)
 
         setDescription(res.user.description)
         setUser(res.user)
-        setPhotos(newPhotos)
         setName(res.user.name)
         setGender(res.user.gender)
         setGames(res.user.gamesSelected)
 
       }
 
-      if(!user &&  !photos && !updatedPhotos){
+      if(!user){
         loadUser()
       }
-    },[user,photos])
+    },[user])
 
     async function handleLogout(event) {
         event.preventDefault();
@@ -149,12 +113,6 @@ function Profile(props) {
         }
       }
 
-      const images = await User.deleteUserFromS3(localStorage.getItem("apiToken"))
-      if(!images || !images.success){
-        console.log(images)
-        console.log("error at delete images from s3")
-      }
-
       const res = await User.delete(localStorage.getItem("apiToken"))
       if(!res || !res.success){
         console.log(res)
@@ -183,20 +141,6 @@ function Profile(props) {
     return "secondary"
   }
 
-  function checkPhotosColor(state){
-    let numberOfPhotos=0
-    for(let i=0;i<state.length;i++)
-    {
-      if(state[i].length >100){
-        numberOfPhotos=numberOfPhotos+1
-      }
-    }
-    if(numberOfPhotos >= 2){
-      return "success"
-      
-    }
-    return "secondary"
-  }
 
   function checkGamesColor(state){
     if(state.length >= 5){
@@ -205,58 +149,15 @@ function Profile(props) {
     return "secondary"
   }
 
-
-  async function handlePhotosSave(updatedPhotosArray){
-    var image1DB = "None"
-    var image2DB = "None"
-    var image3DB = "None"
-    var image4DB = "None"
-
-
-    console.log(updatedPhotosArray)
-    for(let i=0;i<updatedPhotosArray.length;i++){
-        if(updatedPhotosArray[i].length > 10){
-          if(image1DB.length <= 100){
-            image1DB = updatedPhotosArray[i]
-          }
-          else{
-            if(image2DB.length <=100 ){
-              image2DB = updatedPhotosArray[i]
-            }
-            else{
-              if(image3DB.length <= 100){
-                image3DB = updatedPhotosArray[i]
-              }
-              else{
-                image4DB = updatedPhotosArray[i]
-              }
-            }
-          }
-        }
-    }
-    console.log("we here 1")
-    await User.uploadImageToS3(image1DB,user._id,"Image1")
-    console.log("we here 2")
-    await User.uploadImageToS3(image2DB,user._id,"Image2")
-    console.log("we here 3")
-    await User.uploadImageToS3(image3DB,user._id,"Image3")
-    console.log("we here 4")
-    await User.uploadImageToS3(image4DB,user._id,"Image4")
-    console.log("we here 5")
-  }
-
     return(
         <div className="profile-body">
             <NavbarMain page="profile" navbarLoaded={navbarLoaded} setNavbarLoaded={setNavbarLoaded}/>
             {
-              user && photos && name && gender && games && (description !== null) && navbarLoaded?
+              user  && name && gender && games && (description !== null) && navbarLoaded?
               <Container className="profile-body-container">
                 <Card className="profile-title-main">Your profile</Card>
                 <Card className="profile-picture-name">
-                <CardBody className="profile-picture-name-card-body">
-                <Container className="img-profile-picture">
-                  <img src={photos[0]} alt="N/A" />
-                </Container> 
+                <CardBody className="profile-picture-name-card-body"> 
                 <Container className="user-name-gender-age">
                 {
                   nameUpdateActive ? 
@@ -409,130 +310,6 @@ function Profile(props) {
                 
                 </CardBody>
                 </Card>
-
-                  <Card className="profile-photos-card">
-                    <CardBody className="profile-photos-card-body">
-                      <Container className="photos-card-title">Your photos</Container>
-                    {
-                      photosUpdateActive ?
-                      <Container className="photos-card-container">
-                        <Container className="photos-container">
-                        {
-                          
-                            updatedPhotos.map((element,index)=>{
-                              if(element.length >100 ){
-                                return (
-                                  <FormGroup  key={element+index} className="single-photo-container">
-                                    <img src={element} alt="N/A" />
-                                    <img src={closeIconLogo} className="remove-photo-icon-profile" onClick={(e)=>{
-                                      e.preventDefault()
-                                      let newUpdatedPhotos = updatedPhotos
-                                      newUpdatedPhotos[index] = "None"
-                                      setUpdatedPhotos([...newUpdatedPhotos])
-                                    }}/>
-                                  </FormGroup>
-                                )
-                              }
-                              return (
-                                <FormGroup  key={element+index} className="single-photo-container" style={{cursor:"pointer"}} onClick={(e)=>{
-                                  document.querySelector(".photo"+String(index+1)+"-upload-profile").click()
-                                }}>
-                                <Input 
-                                  type="file" 
-                                  accept='image/*' 
-                                  className={"photo"+String(index+1)+"-upload-profile"} 
-                                  hidden 
-                                  onChange={async (event)=>{
-                                      event.preventDefault()
-                                      if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
-                                        let newUpdatedPhotos = updatedPhotos
-                                        const options = {
-                                          maxSizeMB: 0.5,
-                                          maxWidthOrHeight: 1024
-                                        }
-                                        try{
-                                          const compressedFile = await imageCompression(event.target.files[0],options)
-                                          var reader = new FileReader();
-                                          reader.readAsDataURL(compressedFile);
-                                          reader.onload = function () {
-                                              newUpdatedPhotos[index] = reader.result
-                                              setUpdatedPhotos([...newUpdatedPhotos])
-                                              console.log(newUpdatedPhotos)
-                                          };
-                                          reader.onerror = function (error) {
-                                            console.log('Error: ', error);
-                                          };
-                                          
-                                        }
-                                        catch (error) {
-                                          console.log(error)
-                                        }
-                                      }
-                                      event.target.value=null
-                                  }}
-                                  />
-                                  <img src={addIconLogo} className="add-photo-icon-profile" cursor="pointer"/>
-                                </FormGroup>
-                              )
-                          })
-                  
-                        }
-                        </Container>
-                        <Container style={{textAlign:"center"}}>Please have at least two active photos to continue</Container>
-                        <Container className="photos-edit-buttons">
-                          <Button color={checkPhotosColor(updatedPhotos)} onClick={(e)=>{
-                            e.preventDefault()
-                            let numberOfPhotos=0
-                            for(let i=0;i<updatedPhotos.length;i++)
-                            {
-                              if(updatedPhotos[i].length >100){
-                                numberOfPhotos=numberOfPhotos+1
-                              }
-                            }
-                            if(numberOfPhotos >= 2){
-                                handlePhotosSave(updatedPhotos)
-                                var newNormalPhotos = []
-                                for(let i=0;i<updatedPhotos.length;i++){
-                                  if(updatedPhotos[i].length >10){
-                                     newNormalPhotos.push(updatedPhotos[i])
-                                  }
-                                }
-                                setPhotos([...newNormalPhotos])
-                                setInitialEditPhotos(null)
-                                setPhotosUpdateActive(false)
-                            }
-                          }}>Save</Button>
-                          <Button outline onClick={(e)=>{
-                            e.preventDefault()
-                            setPhotosUpdateActive(false)
-                            setUpdatedPhotos([...initialEditPhotos])
-                            setInitialEditPhotos(null)
-                          }}>Cancel</Button>
-                        </Container>
-                      </Container>
-                      :
-                      <Container className="photos-card-container">
-                        <Container className="photos-container">
-                        {
-                          
-                            photos.map((element,index)=>{
-                              return (<img src={element} key={element+index} alt="N/A" style={{width:"150px",margin:"10px",height:"180px",borderRadius:"15px",border:"solid"}}/>)
-                          })
-                  
-                        }
-                        </Container>
-                        <Container style={{textAlign:"center",color:"white",cursor:"default"}}>Please have at least two active photos to continue</Container>
-                        <Container className="photos-edit-buttons">
-                          <Button color="success" onClick={(e)=>{
-                            e.preventDefault()
-                            setPhotosUpdateActive(true)
-                            setInitialEditPhotos([...updatedPhotos])
-                          }}>Edit</Button>
-                        </Container>
-                      </Container>
-                    }
-                    </CardBody>
-                  </Card>
                   <Card className="games-profile-card">
                     <CardTitle tag="h2">Your games</CardTitle>
                     <CardBody className="profile-games-card-body">

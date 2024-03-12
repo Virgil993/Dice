@@ -1,14 +1,13 @@
 import React from "react";
 import "../styles/navbar.css"
-import { NavbarBrand,NavLink } from "reactstrap";
+import { NavbarBrand } from "reactstrap";
 import diceLogo from '../assets/LOGO-3.webp'
 import { Link, useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"
 import { User } from "@genezio-sdk/DiceBackend_us-east-1";
-import { readImageFromS3WithNativeSdk } from "./ImageHandlingS3";
 import { useSelector } from "react-redux";
-import {BsFillCircleFill } from 'react-icons/bs'
+import profileSVG from "../assets/addPhotoIcon"
 
 function NavbarMain(props) {
 
@@ -20,8 +19,6 @@ function NavbarMain(props) {
     const [mesagesSelected,setMesagesSelected] = React.useState(false)
     const [profileSelected,setProfileSelected] = React.useState(false)
     const [user,setUser] = React.useState(null)
-    const [profilePhoto,setProfilePhoto] = React.useState(null)
-    const [photoLoaded,setPhotoLoaded] = React.useState(false)
     const [notificationActive,setNotificationActive] = React.useState(false)
 
     
@@ -36,9 +33,6 @@ function NavbarMain(props) {
             }
 
             setUser(res.user)
-            var res1 = await readImageFromS3WithNativeSdk(res.user._id,"1")
-            var image1 = res1.data
-            setProfilePhoto(image1)
 
 
         }
@@ -46,7 +40,7 @@ function NavbarMain(props) {
             getUser()
             
         }
-    },[user,profilePhoto,conversations,messages])
+    },[user,conversations,messages])
 
     React.useEffect(()=>{
         if(conversations && conversations.length !=0){
@@ -57,12 +51,6 @@ function NavbarMain(props) {
         }
     },[conversations,messages])
 
-    React.useEffect(()=>{
-        if(profilePhoto && !photoLoaded){
-            setPhotoLoaded(true)
-            props.setNavbarLoaded(true)
-        }
-    },[profilePhoto])
 
 
     React.useEffect(()=>{
@@ -87,7 +75,7 @@ function NavbarMain(props) {
     return (
         <nav className="navbar-main">
         {
-            photoLoaded && props.navbarLoaded?
+            props.navbarLoaded?
             <div className="navbar-container">
             <span className="navbar-links">
                 <NavbarBrand href="/admin/dashboard" className="navbar-logo">
@@ -146,7 +134,7 @@ function NavbarMain(props) {
                     {paddingBottom:"4px"}
                     }>
                     <div className="navlink-img-container">
-                    <img className="navlink-icon-img" src={profilePhoto} alt="N/A" />
+                    <img className="navlink-icon-img" src={profileSVG} alt="N/A" />
                     </div>
                     <h1 className="navlink-text">Profile</h1>
                 </Link>

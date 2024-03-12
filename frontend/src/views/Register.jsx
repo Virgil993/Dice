@@ -2,35 +2,15 @@ import React from 'react';
 import "../styles/register.css"
 import Footer from '../components/Footer';
 import { Button, Container,Form,FormGroup,Label,Input,FormText,Alert } from 'reactstrap';
-import {acceptedFileTypesPhotos,availableGames} from '../constants/utils'
-import closeIconLogo from '../assets/closePhotoIcon.svg'
-import addIconLogo from '../assets/addPhotoIcon.svg'
+import {availableGames} from '../constants/utils'
 import GameRegister from '../components/GameRegister';
 import { User } from "@genezio-sdk/DiceBackend_us-east-1";
 import { useNavigate } from 'react-router-dom';
-import imageCompression from 'browser-image-compression'
 
 
 function Register() {
 
     const navigate = useNavigate();
-
-    const [image1,setImage1] = React.useState(null)
-    const [photo1Border,setPhoto1Border] = React.useState("2px dashed rgb(58, 58, 66)")
-
-    const [image2,setImage2] = React.useState(null)
-    const [photo2Border,setPhoto2Border] = React.useState("2px dashed rgb(58, 58, 66)")
-
-    const [image3,setImage3] = React.useState(null)
-    const [photo3Border,setPhoto3Border] = React.useState("2px dashed rgb(58, 58, 66)")
-    
-    const [image4,setImage4] = React.useState(null)
-    const [photo4Border,setPhoto4Border] = React.useState("2px dashed rgb(58, 58, 66)")
-
-    const [image1File,setImage1File] = React.useState(null)
-    const [image2File,setImage2File] = React.useState(null)
-    const [image3File,setImage3File] = React.useState(null)
-    const [image4File,setImage4File] = React.useState(null)
 
 
     const [gamesSelected,setGamesSelected] = React.useState([])
@@ -51,33 +31,18 @@ function Register() {
     const [errorGender,setErrorGender] = React.useState(null)
     const [errorGeneral,setErrorGeneral] = React.useState(null)
 
-    const [isSubmiting,setIsSubmiting] = React.useState(false)
-
     const [validContinue,setValidContinue]=React.useState(false)
 
 
 
     React.useEffect(()=>{
-        var numberOfImages=0
-        if(image1File){
-            numberOfImages=numberOfImages+1
-        }
-        if(image2File){
-            numberOfImages=numberOfImages+1
-        }
-        if(image3File){
-            numberOfImages=numberOfImages+1
-        }
-        if(image4File){
-            numberOfImages=numberOfImages+1
-        }
-        if(gamesSelected.length>=5 && numberOfImages>=2){
+        if(gamesSelected.length>=5){
             setValidContinue(true)
         }
         else{
             setValidContinue(false)
         }
-    },[image1File,image2File,image3File,image4File,gamesSelected,validContinue])
+    },[gamesSelected,validContinue])
 
 
     function isValidEmail(email){
@@ -91,25 +56,6 @@ function Register() {
         var ageDate = new Date(ageDifMs);
         return Math.abs(ageDate.getUTCFullYear() - 1970)-1;
     }
-
-    function convertFromBlobToFile(blob,ImageNr){
-        const file = new File([blob],"Image"+ImageNr,{
-            type: blob.type
-        })
-        return file
-    }
-
-    async function uploadImageToS3(file,userId,fileName){
-        var reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function () {
-            const res1 = await User.uploadImageToS3(reader.result,userId,fileName)
-        };
-        reader.onerror = function (error) {
-          console.log('Error: ', error);
-        };
-    }
-
 
     async function handleSubmit(event) {
         event.preventDefault();
@@ -174,57 +120,7 @@ function Register() {
             return
         }
 
-        var image1DB = new File([""],"Image1")
-        var image2DB = new File([""],"Image2")
-        var image3DB = new File([""],"Image3")
-        var image4DB = new File([""],"Image4")
 
-        if(image1 == null){
-            if(image2 == null){
-                image1DB =  convertFromBlobToFile(image3File,"1")
-                image2DB =  convertFromBlobToFile(image4File,"2")
-            }
-            else{
-                image1DB =  convertFromBlobToFile(image2File,"1")
-                if(image3 == null){
-                    image2DB =  convertFromBlobToFile(image4File,"2")
-                }
-                else{
-                    image2DB =  convertFromBlobToFile(image3File,"2")
-                    if(image4 != null){
-                        image3DB =  convertFromBlobToFile(image4File,"3")
-                    }
-                }
-            }
-        }
-        else{
-            image1DB =  convertFromBlobToFile(image1File,"1")
-            if(image2 == null){
-                if(image3 == null){
-                    image2DB =  convertFromBlobToFile(image4File,"2")
-                }
-                else{
-                    image2DB= convertFromBlobToFile(image3File,"2")
-                    if(image4 != null){
-                        image3DB =  convertFromBlobToFile(image4File,"3")
-                    }
-                }
-            }
-            else{
-                image2DB =  convertFromBlobToFile(image2File,"2")
-                if(image3 == null){
-                    if(image4 != null){
-                        image3DB =  convertFromBlobToFile(image4File,"3")
-                    }
-                }
-                else{
-                    image3DB = convertFromBlobToFile(image3File,"3")
-                    if(image4 != null){
-                        image4DB = convertFromBlobToFile(image4File,"4")
-                    }
-                }
-            }
-        }
         const res = await User.create(
             firstName,
             email,
@@ -249,10 +145,6 @@ function Register() {
                 return;
             }
             else{
-                await uploadImageToS3(image1DB,res.userId,"Image1")
-                await uploadImageToS3(image2DB,res.userId,"Image2")
-                await uploadImageToS3(image3DB,res.userId,"Image3")
-                await uploadImageToS3(image4DB,res.userId,"Image4")
                 navigate("/auth/login");
             }
             
@@ -396,238 +288,6 @@ function Register() {
                             Adding a description significantly improves your chances of being picked by other players to join their games
                         </FormText>
                     </FormGroup>
-                </Container>
-                <Container className='right-side-container'>
-                    <Label>Photos</Label>
-                    <Container className='photo-upload-container'>
-                    <FormGroup className='file-upload-form-group' style={{border:photo1Border}} onClick={()=>{
-                        if(!image1){
-                            document.querySelector(".photo1-upload-register").click()
-                        }
-                    }}>
-                        <Input 
-                            type="file" 
-                            accept='image/*' 
-                            className='photo1-upload-register' 
-                            hidden 
-                            onChange={async (event)=>{
-                                event.preventDefault()
-                                if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
-                                    setImage1(URL.createObjectURL(event.target.files[0]))
-                                    setPhoto1Border("hidden")
-                                    const options = {
-                                        maxSizeMB: 0.5,
-                                        maxWidthOrHeight: 1024
-                                    }
-                                    try{
-                                        const compressedFile = await imageCompression(event.target.files[0],options)
-                                        setImage1File(compressedFile)
-                                    }
-                                    catch (error) {
-                                        console.log(error)
-                                    }
-                                }
-                                event.target.value=null
-                                
-                            }}
-                        />
-                        {
-                            image1 ?
-                            <img src={image1} width={'100%'} height={'100%'} className="photo-register"/> : 
-                            <img
-                            src={addIconLogo}
-                            className= "add-photo-icon"
-                            curosor="pointer" 
-                            />
-                            
-                        }
-                        {
-                            image1 ?
-                            <img
-                            src={closeIconLogo}
-                            className='remove-photo-icon'  
-                            cursor='pointer' 
-                            onClick={()=>{
-                                setImage1File(null)
-                                setImage1(null)
-                                setPhoto1Border("2px dashed rgb(58, 58, 66)")
-                            }}
-                            /> : <></>
-                        }
-                    </FormGroup>
-
-                    <FormGroup className='file-upload-form-group' style={{border:photo2Border}} onClick={()=>{
-                        if(!image2){
-                            document.querySelector(".photo2-upload-register").click()
-                        }
-                    }}>
-                        <Input 
-                            type="file" 
-                            accept='image/*' 
-                            className='photo2-upload-register' 
-                            hidden 
-                            onChange={async (event)=>{
-                                event.preventDefault()
-                                if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
-                                    setImage2(URL.createObjectURL(event.target.files[0]))
-                                    setPhoto2Border("hidden")
-                                    const options = {
-                                        maxSizeMB: 0.5,
-                                        maxWidthOrHeight: 1024
-                                    }
-                                    try{
-                                        const compressedFile = await imageCompression(event.target.files[0],options)
-                                        setImage2File(compressedFile)
-                                    }
-                                    catch (error) {
-                                        console.log(error)
-                                    }
-                                }
-                                event.target.value=null
-                                
-                            }}
-                        />
-                        {
-                            image2 ?
-                            <img src={image2} width={'100%'} height={'100%'} className="photo-register"/> : 
-                            <img
-                            src={addIconLogo}
-                            className= "add-photo-icon"
-                            curosor="pointer" 
-                            />
-                            
-                        }
-                        {
-                            image2 ?
-                            <img
-                            src={closeIconLogo}
-                            className='remove-photo-icon'  
-                            cursor='pointer' 
-                            onClick={()=>{
-                                setImage2File(null)
-                                console.log(image2File)
-                                setImage2(null)
-                                setPhoto2Border("2px dashed rgb(58, 58, 66)")
-                            }}
-                            /> : <></>
-                        }
-                    </FormGroup>
-
-                    <FormGroup className='file-upload-form-group' style={{border:photo3Border}} onClick={()=>{
-                        if(!image3){
-                            document.querySelector(".photo3-upload-register").click()
-                        }
-                    }}>
-                        <Input 
-                            type="file" 
-                            accept='image/*' 
-                            className='photo3-upload-register' 
-                            hidden 
-                            onChange={async (event)=>{
-                                event.preventDefault()
-                                if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
-                                    setImage3(URL.createObjectURL(event.target.files[0]))
-                                    setPhoto3Border("hidden")
-                                    const options = {
-                                        maxSizeMB: 0.5,
-                                        maxWidthOrHeight: 1024
-                                    }
-                                    try{
-                                        const compressedFile = await imageCompression(event.target.files[0],options)
-                                        setImage3File(compressedFile)
-                                    }
-                                    catch (error) {
-                                        console.log(error)
-                                    }
-                                }
-                                event.target.value=null
-                                
-                            }}
-                        />
-                        {
-                            image3 ?
-                            <img src={image3} width={'100%'} height={'100%'} className="photo-register"/> : 
-                            <img
-                            src={addIconLogo}
-                            className= "add-photo-icon"
-                            curosor="pointer" 
-                            />
-                            
-                        }
-                        {
-                            image3 ?
-                            <img
-                            src={closeIconLogo}
-                            className='remove-photo-icon'  
-                            cursor='pointer' 
-                            onClick={()=>{
-                                setImage3File(null)
-                                setImage3(null)
-                                setPhoto3Border("2px dashed rgb(58, 58, 66)")
-                            }}
-                            /> : <></>
-                        }
-                    </FormGroup>
-
-                    <FormGroup className='file-upload-form-group' style={{border:photo4Border}} onClick={()=>{
-                        if(!image4){
-                            document.querySelector(".photo4-upload-register").click()
-                        }
-                    }}>
-                        <Input 
-                            type="file" 
-                            accept='image/*' 
-                            className='photo4-upload-register' 
-                            hidden 
-                            onChange={async (event)=>{
-                                event.preventDefault()
-                                if(event.target.files &&  acceptedFileTypesPhotos.includes(event.target.files[0].type)){
-                                    setImage4(URL.createObjectURL(event.target.files[0]))
-                                    setPhoto4Border("hidden")
-                                    const options = {
-                                        maxSizeMB: 0.5,
-                                        maxWidthOrHeight: 1024
-                                    }
-                                    try{
-                                        const compressedFile = await imageCompression(event.target.files[0],options)
-                                        setImage4File(compressedFile)
-                                    }
-                                    catch (error) {
-                                        console.log(error)
-                                    }
-                                }
-                                event.target.value=null
-                                
-                            }}
-                        />
-                        {
-                            image4 ?
-                            <img src={image4} width={'100%'} height={'100%'} className="photo-register"/> : 
-                            <img
-                            src={addIconLogo}
-                            className= "add-photo-icon"
-                            curosor="pointer" 
-                            />
-                            
-                        }
-                        {
-                            image4 ?
-                            <img
-                            src={closeIconLogo}
-                            className='remove-photo-icon'  
-                            cursor='pointer' 
-                            onClick={()=>{
-                                setImage4File(null)
-                                setImage4(null)
-                                setPhoto4Border("2px dashed rgb(58, 58, 66)")
-                            }}
-                            /> : <></>
-                        }
-                    </FormGroup>
-                    </Container>
-                    <Container style={{textAlign:"center"}}>
-                        Add at least 2 photos to continue
-                    </Container>
                 </Container>
             </Container>
             <Container style={{textAlign:"center",fontSize:"30px",marginBottom:"30px"}}>What games do you play?</Container>

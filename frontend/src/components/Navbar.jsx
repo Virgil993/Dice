@@ -5,9 +5,8 @@ import diceLogo from '../assets/LOGO-3.webp'
 import { Link, useNavigate } from "react-router-dom";
 import {BsPeopleFill }from "react-icons/bs"
 import {RiMessage2Fill} from "react-icons/ri"
-import { User } from "@genezio-sdk/DiceBackend_us-east-1";
+import { User } from "@genezio-sdk/DiceBackend";
 import { useSelector } from "react-redux";
-import profileSVG from "../assets/addPhotoIcon"
 
 function NavbarMain(props) {
 
@@ -51,7 +50,11 @@ function NavbarMain(props) {
         }
     },[conversations,messages])
 
-
+    React.useEffect(()=>{
+        if(user != null && !props.navbarLoaded){
+            props.setNavbarLoaded(true)
+        }
+    },[user])
 
     React.useEffect(()=>{
         if(props.page=="dashboard"){
@@ -134,7 +137,7 @@ function NavbarMain(props) {
                     {paddingBottom:"4px"}
                     }>
                     <div className="navlink-img-container">
-                    <img className="navlink-icon-img" src={profileSVG} alt="N/A" />
+                    <img className="navlink-icon-img" src="../assets/home_hero.jpg" alt="N/A" />
                     </div>
                     <h1 className="navlink-text">Profile</h1>
                 </Link>

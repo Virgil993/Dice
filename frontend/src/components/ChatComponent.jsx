@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Modal, ModalHeader, ModalBody } from "reactstrap"
-import { Message } from "@genezio-sdk/DiceBackend_us-east-1"
+import { Message } from "@genezio-sdk/DiceBackend"
 import '../styles/chat_component.css'
 import { availableGames  } from "../constants/utils"
 import {socket} from '../socket'
@@ -29,6 +29,11 @@ function ChatComponent(props){
     const toggleUser = ()=>setModalUser(!modalUser)
 
 
+    React.useEffect(()=>{
+        if(isConnected){
+            socket.emit("set-userId", props.connectedUser._id)
+        }
+    },[isConnected])
     React.useEffect(()=>{
         var localStorageMessages = JSON.parse(localStorage.getItem("messages"))
         var localUpdateMessages = localStorageMessages.filter(elem => elem.conversationId == props.conversation._id)

@@ -3,13 +3,13 @@ import '../styles/profile.css'
 import NavbarMain from "../components/Navbar";
 import {  Button, Card, CardBody, CardTitle, Container, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import Footer from "../components/Footer";
-import { User } from "@genezio-sdk/DiceBackend_us-east-1";
+import { User } from "@genezio-sdk/DiceBackend";
 import { useNavigate } from "react-router-dom";
 import { availableGames} from '../constants/utils'
 import GameRegister from "../components/GameRegister";
-import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1";
+import { Conversation } from "@genezio-sdk/DiceBackend";
 import {BsFillDice6Fill} from 'react-icons/bs'
-import { Message } from "@genezio-sdk/DiceBackend_us-east-1";
+import { Message } from "@genezio-sdk/DiceBackend";
 
 function Profile(props) {
 

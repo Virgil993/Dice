@@ -4,7 +4,7 @@ import { Button, Container,Form,FormGroup,Label,Input,Alert, Card, CardHeader, C
 // import diceLogo from '../assets/diceLogoTest.webp'
 // import diceLogo from '../assets/logo-450x300.webp'
 import diceLogo from '../assets/LOGO-3.webp'
-import { User } from "@genezio-sdk/DiceBackend_us-east-1";
+import { User } from "@genezio-sdk/DiceBackend";
 import { useNavigate } from "react-router-dom";
 
 function Login(){
@@ -116,9 +116,6 @@ function Login(){
                                     {errorPassword}
                                 </Alert>
                             </FormGroup>
-                            <Container style={{marginTop:"20px",paddingLeft:"0px"}}>
-                                <a href="/auth/forgotPassword" style={{fontWeight:"bold",color:"green"}}>Forgot password?</a>
-                            </Container>
                         </CardBody>
                         <CardFooter style={{display:"flex",flexDirection:"column"}}>
                             <Button className='continue-button' color="success"size='lg' style={{marginTop:"10px",marginBottom:"20px"}} onClick={(e)=>{handleSubmit(e)}}>Continue</Button>

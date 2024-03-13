@@ -2,8 +2,8 @@ import React from "react"
 import { Container,Card,CardTitle, Button, CardText } from "reactstrap"
 import '../styles/dashboard_person.css'
 import { availableGames } from "../constants/utils"
-import { User } from "@genezio-sdk/DiceBackend_us-east-1"
-import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1"
+import { User } from "@genezio-sdk/DiceBackend"
+import { Conversation } from "@genezio-sdk/DiceBackend"
 
 
 function DashboardPerson(props){

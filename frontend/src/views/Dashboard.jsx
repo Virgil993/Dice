@@ -3,9 +3,8 @@ import '../styles/dashboard.css'
 import NavbarMain from "../components/Navbar";
 import { Container } from "reactstrap";
 import Footer from "../components/Footer";
-import { User } from "@genezio-sdk/DiceBackend_us-east-1";
+import { User } from "@genezio-sdk/DiceBackend";
 import DashboardPerson from "../components/DashboardPerson";
-import { useSelector } from "react-redux";
 import {BsFillDice6Fill} from 'react-icons/bs'
 
 function Dashboard(props) {
@@ -37,6 +36,7 @@ function Dashboard(props) {
                 console.log("error at get users sorted");
                 return;
             }
+            console.log(resAllUsers)
             // console.log(res.user.gamesSelected)
             if(resAllUsers.users.length !=0){
                 setAllUSers(resAllUsers.users)
@@ -58,6 +58,7 @@ function Dashboard(props) {
 
     React.useEffect(()=>{
         if(allUsers && !usersLoaded){
+            
             setUsersLoaded(true)
         }
     },[allUsers])

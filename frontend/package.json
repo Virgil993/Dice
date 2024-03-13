@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@genezio/vite-plugin-genezio": "^1.0.4",
     "@reduxjs/toolkit": "^1.9.5",
     "aws-sdk": "^2.1363.0",
     "bootstrap": "^5.2.3",

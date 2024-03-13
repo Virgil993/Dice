@@ -1,15 +1,21 @@
 name: DiceBackend
 region: us-east-1
-language: ts
-cloudProvider: genezio
+yamlVersion: 2
+backend:
+  path: backend
+  language:
+    name: js
+    packageManager: npm
+  scripts:
+    deploy: npm install
+    local:
+      - npm install
+  cloudProvider: genezio
 frontend:
-  path: frontend\dist
-scripts:
-  preFrontendDeploy: npm install @genezio-sdk/DiceBackend_us-east-1 && npm
-    install && npm run build
-  preBackendDeploy: npm install
-  preStartLocal: cd backend && npm install
-workspace:
-  backend: backend
-  frontend: frontend
-packageManager: npm
+  path: frontend
+  publish: dist
+  scripts:
+    deploy:
+      - npm install @genezio-sdk/DiceBackend
+      - npm install
+      - npm run build

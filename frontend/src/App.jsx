@@ -11,8 +11,6 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import AdminLayout from './layouts/Admin';
 import AuthLayout from './layouts/Auth';
 import Messages from './views/Messages';
-import ForgotPassword from './views/ForgotPassword';
-import ResetPassword from './views/ResetPassword';
 import { socket } from './socket';
 
 function App() {
@@ -59,8 +57,6 @@ function App() {
             <Route path="/admin/messages" element={<AdminLayout element={<Messages />}/>} />
             <Route path="/auth/login" element={<AuthLayout element={<Login />} />} />
             <Route path="/auth/register" element={<AuthLayout element={<Register />} />}/>
-            <Route path='/auth/forgotPassword' element={<AuthLayout element={<ForgotPassword/>}/>} />
-            <Route path='/auth/resetPassword/:id/:token' element={<AuthLayout element={<ResetPassword/>}/>} />
             <Route path="/auth/home" element={<AuthLayout element={<Home />} />} />
             <Route path="*" element={<Navigate to="/auth/home" />} />
           </Routes>

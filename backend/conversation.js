@@ -1,5 +1,4 @@
-import mongoose, { Model } from "mongoose";
-import UserModel from "./models/users";
+import mongoose from "mongoose";
 import { MONGO_DB_URI, reqAuth } from "./helper";
 import ConversationModel from "./models/conversations";
 

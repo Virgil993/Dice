@@ -2,9 +2,9 @@ import React from "react"
 import '../styles/messages.css'
 import NavbarMain from "../components/Navbar"
 import { Container,Modal,ModalBody,ModalHeader, ModalFooter,Button } from "reactstrap"
-import { User } from "@genezio-sdk/DiceBackend_us-east-1"
-import { Conversation } from "@genezio-sdk/DiceBackend_us-east-1"
-import { Message } from "@genezio-sdk/DiceBackend_us-east-1"
+import { User } from "@genezio-sdk/DiceBackend"
+import { Conversation } from "@genezio-sdk/DiceBackend"
+import { Message } from "@genezio-sdk/DiceBackend"
 import ChatComponent from "../components/ChatComponent"
 import { useNavigate } from "react-router-dom"
 import {BsTrash3} from 'react-icons/bs'

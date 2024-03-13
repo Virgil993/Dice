@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import { Button, Container,Form,FormGroup,Label,Input,FormText,Alert } from 'reactstrap';
 import {availableGames} from '../constants/utils'
 import GameRegister from '../components/GameRegister';
-import { User } from "@genezio-sdk/DiceBackend_us-east-1";
+import { User } from "@genezio-sdk/DiceBackend";
 import { useNavigate } from 'react-router-dom';
 
 

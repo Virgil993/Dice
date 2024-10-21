@@ -1,38 +1,13 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./models/user";
-import { ActiveSession } from "./models/activeSession";
-import { saltedPassword, validatePassword } from "./authentication/session";
+// import { saltedPassword, validatePassword } from "./authentication/session";
+import { ActiveSessionModel } from "./models/activeSession";
+import { connectDb, syncDb } from "./db/connect";
+import { CreateUserResponse, SendVerificationEmailResponse } from "./dtos/user";
 import { GenezioDeploy } from "@genezio/types";
-
-const red_color = "\x1b[31m%s\x1b[0m";
-const missing_env_error =
-  "ERROR: Your MONGO_DB_URI environment variable is not properly set, go to https://genez.io/blog/how-to-add-a-mongodb-to-your-genezio-project/ to learn how to integrate your project with Mongo DB";
-
-export type CreateUserResponse = {
-  success: boolean;
-  msg?: string;
-  err?: string;
-};
-
-export type User = {
-  _id: string;
-  name: string;
-  email: string;
-};
-
-export type UserLoginResponse = {
-  success: boolean;
-  user?: User;
-  token?: string;
-  msg?: string;
-  err?: string;
-};
-
-export type CheckSessionResponse = {
-  success: boolean;
-  err?: string;
-};
+import { VerifyAccountSessionModel } from "./models/veryifyAccountSession";
+import { emailHtmlVerifyAccount, transporter } from "./authentication/email";
 
 /**
  * The User server class that will be deployed on the genezio infrastructure.
@@ -47,14 +22,58 @@ export class UserService {
    * Private method used to connect to the DB.
    */
   #connect() {
-    if (!process.env.MONGO_DB_URI) {
-      console.log(red_color, missing_env_error);
+    if (!process.env.POSTGRES_URL) {
+      console.error("Missing POSTGRES_URL environment variable");
       return;
     }
-    mongoose.connect(process.env.MONGO_DB_URI || "").catch((err) => {
-      console.log(err);
-      throw err;
+
+    try {
+      const db = connectDb();
+      syncDb(db).catch((error) => {
+        console.error("Error syncing DB:", error);
+        throw error;
+      });
+    } catch (error) {
+      console.error("Error connecting to DB:", error);
+      return;
+    }
+  }
+
+  // Send Verification email
+  async sendVerificationEmail(
+    email: string,
+    userId: string
+  ): Promise<SendVerificationEmailResponse> {
+    console.log(`Sending verification email to ${email}...`);
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    const secret = process.env.VERIFY_ACCOUNT_SESSION_SECRET;
+    if (!secret) {
+      return { success: false, err: "No secret provided" };
+    }
+
+    const token = jwt.sign({ userId: userId }, secret, {
+      expiresIn: 900,
     });
+
+    const link = `${frontendUrl}/auth/verify-email/${token}`;
+
+    try {
+      VerifyAccountSessionModel.destroy({ where: { userId: userId } });
+      VerifyAccountSessionModel.create({ token: token, userId: userId });
+
+      await transporter.sendMail({
+        from: '"Dice" <dicedmn@gmail.com>',
+        to: email,
+        subject: "Verify your email",
+        html: emailHtmlVerifyAccount(link, email),
+      });
+    } catch (error: any) {
+      console.error("Error creating verification session:", error);
+      return { success: false, err: error.toString() };
+    }
+
+    return { success: true, msg: "Email sent successfully" };
   }
 
   /**
@@ -73,10 +92,6 @@ export class UserService {
     email: string,
     password: string
   ): Promise<CreateUserResponse> {
-    if (!process.env.MONGO_DB_URI) {
-      console.log(red_color, missing_env_error);
-      return { success: false, err: missing_env_error };
-    }
     console.log(`Registering user with name ${name} and email ${email}...`);
 
     let user;

@@ -1,6 +1,6 @@
 import { Model } from "sequelize";
 
-export class VerifyAccountSessionModel extends Model {
+export class ResetPasswordSessionModel extends Model {
   userId!: number;
   token!: string;
 }

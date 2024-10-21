@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { reqAuth } from "./helper";
+import { reqAuth } from "./authentication/session";
 import { TaskModel } from "./models/task";
 import { GenezioDeploy } from "@genezio/types";
 

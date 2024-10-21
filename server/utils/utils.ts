@@ -1,11 +1,4 @@
-import { ActiveSession } from "./models/activeSession";
 import bcrypt from "bcryptjs";
-
-export type AuthResponse = {
-  success: boolean;
-  msg?: string;
-  err?: string;
-};
 
 export async function validatePassword(
   saltedPassword: string,
@@ -42,18 +35,4 @@ export async function saltedPassword(password: string): Promise<string> {
       });
     });
   });
-}
-
-export async function reqAuth(token: string): Promise<AuthResponse> {
-  let session;
-  try {
-    session = await ActiveSession.find({ token: token });
-  } catch (error: any) {
-    return { success: false, err: error.toString() };
-  }
-  if (session.length == 1) {
-    return { success: true };
-  } else {
-    return { success: false, msg: "User is not logged on" };
-  }
 }

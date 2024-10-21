@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./models/user";
 import { ActiveSession } from "./models/activeSession";
-import { saltedPassword, validatePassword } from "./helper";
+import { saltedPassword, validatePassword } from "./authentication/session";
 import { GenezioDeploy } from "@genezio/types";
 
 const red_color = "\x1b[31m%s\x1b[0m";

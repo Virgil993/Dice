@@ -19,7 +19,7 @@ export async function validatePassword(
   });
 }
 
-export async function saltedPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   return new Promise((resolve) => {
     bcrypt.genSalt(2, function (err, salt) {
       if (err) {

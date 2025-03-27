@@ -5,6 +5,8 @@ import { ActiveSessionModel } from "../models/activeSession";
 import { ResetPasswordSessionModel } from "../models/resetPasswordSession";
 import { VerifyAccountSessionModel } from "../models/veryifyAccountSession";
 import { UserPhotosModel } from "../models/userPhotos";
+import { UserGamesModel } from "../models/userGames";
+import { GameModel } from "../models/game";
 
 export function connectDb(): Sequelize {
   const sequelize = new Sequelize(process.env.POSTGRES_URL || "", {
@@ -112,6 +114,39 @@ export function initTables(db: Sequelize) {
       sequelize: db,
       modelName: "UserPhotosModel",
       tableName: "user_photos",
+    }
+  );
+
+  UserGamesModel.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      userId: DataTypes.UUID,
+      gameId: DataTypes.UUID,
+    },
+    {
+      sequelize: db,
+      modelName: "UserGamesModel",
+      tableName: "user_games",
+    }
+  );
+
+  GameModel.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      name: DataTypes.STRING(512),
+    },
+    {
+      sequelize: db,
+      modelName: "GameModel",
+      tableName: "games",
     }
   );
 }

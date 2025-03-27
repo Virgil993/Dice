@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./models/user";
-// import { saltedPassword, validatePassword } from "./authentication/session";
-import { ActiveSessionModel } from "./models/activeSession";
+// import { ActiveSessionModel } from "./models/activeSession";
 import { connectDb, syncDb } from "./db/connect";
 import { CreateUserResponse, SendVerificationEmailResponse } from "./dtos/user";
 import { GenezioDeploy } from "@genezio/types";
 import { VerifyAccountSessionModel } from "./models/veryifyAccountSession";
 import { emailHtmlVerifyAccount, transporter } from "./authentication/email";
+import { hashedPassword, hashPassword, saltedPassword } from "./utils/utils";
+import validator from "validator";
 
 /**
  * The User server class that will be deployed on the genezio infrastructure.
@@ -23,8 +23,7 @@ export class UserService {
    */
   #connect() {
     if (!process.env.POSTGRES_URL) {
-      console.error("Missing POSTGRES_URL environment variable");
-      return;
+      throw new Error("No POSTGRES_URL provided");
     }
 
     try {
@@ -49,6 +48,7 @@ export class UserService {
     const frontendUrl = process.env.FRONTEND_URL;
     const secret = process.env.VERIFY_ACCOUNT_SESSION_SECRET;
     if (!secret) {
+      console.error("No secret provided for verification email");
       return { success: false, err: "No secret provided" };
     }
 
@@ -76,46 +76,59 @@ export class UserService {
     return { success: true, msg: "Email sent successfully" };
   }
 
-  /**
-   * Method that can be used to create a new user.
-   *
-   * The method will be exported via SDK using genezio.
-   *
-   * @param {*} name The user's name.
-   * @param {*} email The user's email.
-   * @param {*} password The user's password.
-   * @returns An object containing a boolean property "success" which
-   * is true if the creation was successfull, false otherwise.
-   */
   async register(
     name: string,
     email: string,
-    password: string
+    password: string,
+    birthday: Date,
+    gender: string,
+    description: string,
+    gamesSelected: string[]
   ): Promise<CreateUserResponse> {
-    console.log(`Registering user with name ${name} and email ${email}...`);
+    if (validator.isEmail(email) === false) {
+      return { success: false, msg: "Invalid email" };
+    }
+
+    if (validator.isStrongPassword(password) === false) {
+      return {
+        success: false,
+        msg: "Password is not strong enough, The password should have lowercase, uppercase, numbers, symbols and should be at least 8 characters",
+      };
+    }
 
     let user;
     try {
-      user = await UserModel.findOne({ email: email });
+      user = await UserModel.findOne({ where: { email: email } });
     } catch (error: any) {
+      console.error("Error when searching for the user:", error);
       return { success: false, err: error.toString() };
     }
     if (user) {
-      return { success: false, msg: "User already exists" };
+      return {
+        success: false,
+        msg: "User with this email address already exists",
+      };
     } else {
-      const result = await saltedPassword(password);
-
       try {
+        const hashedPassword = await hashPassword(password);
         await UserModel.create({
           name: name,
           email: email,
-          password: result,
+          password: hashedPassword,
+          birthday: birthday,
+          gender: gender,
+          description: description,
+          gamesSelected: gamesSelected,
         });
       } catch (error: any) {
-        return { success: false, err: error.toString() };
+        console.error("Error creating user:", error);
+        return {
+          success: false,
+          err: "Something went wrong when trying to register the user, please try again later.",
+        };
       }
 
-      return { success: true };
+      return { success: true, msg: "User created successfully" };
     }
   }
 

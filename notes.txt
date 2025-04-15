@@ -1,0 +1,63 @@
+
+Notes regarding diseration aspects:
+
+Security notes:
+
+1. Configuring the VPC's:
+    - Create a VPC with appropriate CIDR block.
+    - A CIDR block is a method for allocating IP addresses in the VPC.
+
+2. Considerations when choosing a CIDR Block:
+    - Avoid public IP addresses in the CIDR block.
+    - Avoid using the same CIDR block as other VPCs.
+    - Ensure no overlap between public, private and isolated subnets.
+    - IP address: 10.0.0.0/16
+
+3. AWS RDS:
+    - Use MYSQL for the database.
+    - Use the latest version of MYSQL.
+    - Use Multi-AZ deployments for high availability.
+    - Use memory optimized instances because the application writes messages to the database frequently. This way, we take advantage of the in-memory caching.
+    - Create a master user with admin privileges.
+    - store the credentials in AWS Secrets Manager.
+    - Connect to the database using SSL.
+    - Create a new database user with limited privileges for the application.
+    - Store the new database credentials in AWS Secrets Manager.
+
+4. Choosing Between An application load balancer and an API Gateway:
+    - Use an application load balancer if you need to route traffic to multiple services or if you need to perform SSL termination.
+    - Use an API Gateway if you need to create a RESTful API or if you need to perform request/response transformations.
+    - Use an application load balancer if you need to support WebSockets or HTTP/2.
+    - Use an API Gateway if you need to support OAuth 2.0 or if you need to create a usage plan for your API.
+
+5. Steps to set up the architecthure:
+    - Create a VPC with a public, private and isolated subnets.
+    - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
+    - Create a security group for the EC2 instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the EC2 instances on port 3306.
+    - Create a security group for the S3 bucket that allows incoming traffic from the EC2 instances on port 80 and 443.
+    - Create the application load balancer and associate it with the public subnet.
+    - Create the EC2 instances and associate them with the private subnet.
+    - Create the RDS instance and associate it with the isolated subnet.
+    - Create the S3 bucket and make it so that it is accesible only from the EC2 instances.
+    - Create the IAM users and policies for access to S3, RDS and EC2.
+    - Use the IAM user for RDS to connect the database and create the tables.
+    - Use the IAM user for S3 for accesss to S3.
+    - Use the IAM user for EC2 to connect to the EC2 instance and deploy the application.
+    - Deploy the frontend to CloudFront and set up WAF rules to protect the application from common web exploits.
+
+6. Backend Considerations
+    - use cors
+    - use helmet
+    - use rate limiting for auth
+    - soft delete data to ensure that data is not lost.
+    - validate data before inserting it into the database.
+    - use PASETO tokens for authentication and authorization.
+
+7. What to hold in secrets manager:
+    - Database credentials
+    - SMTP server credentials
+    - Secret signing key for active_session, verify_email_session and password_reset_session.
+    - rotate the session signing keys every 30 days.
+
+

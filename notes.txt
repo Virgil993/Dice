@@ -23,6 +23,10 @@ Security notes:
     - Connect to the database using SSL.
     - Create a new database user with limited privileges for the application.
     - Store the new database credentials in AWS Secrets Manager.
+    - Use Database Insights Advanced Monitoring to monitor the database performance.
+    - Export Audit, Error, General and Slow Query logs to CloudWatch for analysis.
+    - Use Password and IAM database authentication for connecting to database.
+    - Use Dualstack (IPv4 and IPv6) for the database.
 
 4. Choosing Between An application load balancer and an API Gateway:
     - Use an application load balancer if you need to route traffic to multiple services or if you need to perform SSL termination.
@@ -40,10 +44,8 @@ Security notes:
     - Create the EC2 instances and associate them with the private subnet.
     - Create the RDS instance and associate it with the isolated subnet.
     - Create the S3 bucket and make it so that it is accesible only from the EC2 instances.
-    - Create the IAM users and policies for access to S3, RDS and EC2.
-    - Use the IAM user for RDS to connect the database and create the tables.
-    - Use the IAM user for S3 for accesss to S3.
-    - Use the IAM user for EC2 to connect to the EC2 instance and deploy the application.
+    - Create the IAM role for app management and policies for access to S3, RDS and secrets manager.
+    - Create Instance profiles for the EC2 instances to allow them to access the S3 bucket and RDS instance.
     - Deploy the frontend to CloudFront and set up WAF rules to protect the application from common web exploits.
 
 6. Backend Considerations
@@ -59,5 +61,15 @@ Security notes:
     - SMTP server credentials
     - Secret signing key for active_session, verify_email_session and password_reset_session.
     - rotate the session signing keys every 30 days.
+
+8. Secrets Manager Considerations:
+    - Create a custom key in KMS for the secrets manager for encryption
+    - Replicate the secrets manager to multiple regions for high availability.
+    - Use both IAM roles and policies to control access to the secrets manager and the Resource Permissions Manger from the Secrets manager to have a fine-grained access control.
+
+9. KMS (Key Management Service) Considerations:
+    - Use a custom key for the database credentials in the secrets manager.
+    - Use o custom key for the SMTP server credentials in the secrets manager.
+    - use a custom key for the secret signing keys in the secrets manager.
 
 

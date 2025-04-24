@@ -26,9 +26,13 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@aws-sdk/client-rds": "^3.787.0",
+    "@aws-sdk/rds-signer": "^3.787.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "mysql": "^2.18.1",
+    "typeorm": "^0.3.22"
   }
 }

@@ -11,3 +11,4 @@ export const DB_USER = process.env.DB_USER || "root";
 export const DB_NAME = process.env.DB_NAME || "";
 export const DB_SECRET_NAME = process.env.DB_SECRET_NAME || "";
 export const ENVIRONMENT = process.env.ENVIRONMENT || "dev";
+export const RDS_CERTIFICATE_PATH = process.env.RDS_CERTIFICATE_PATH || "";

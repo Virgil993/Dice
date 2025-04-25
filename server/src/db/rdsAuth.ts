@@ -7,16 +7,20 @@ import {
   DB_PORT,
   DB_USER,
   ENVIRONMENT,
+  RDS_CERTIFICATE_PATH,
 } from "@/config/envHandler";
 import { Signer } from "@aws-sdk/rds-signer";
 import { DataTypes, Sequelize } from "sequelize";
 import { User } from "./models/user";
-import mysql from "mysql2";
+import mysql, { authPlugins } from "mysql2";
+import { readFileSync } from "fs";
+import path from "path";
 
 export class RDSAuthManager {
   private sequelize: Sequelize | null = null;
   private refreshTimer: NodeJS.Timeout | null = null;
   private readonly TOKEN_REFRESH_INTERVAL = 10 * 60 * 1000; // 10 minutes (tokens expire after 15 minutes)
+  private certPath: string = ""; // Path to the SSL certificate if needed
 
   private readonly signer: Signer;
 
@@ -33,6 +37,8 @@ export class RDSAuthManager {
         secretAccessKey: AWS_SECRET_ACCESS_KEY,
       },
     });
+
+    this.certPath = path.resolve(__dirname, RDS_CERTIFICATE_PATH); // Path to the SSL certificate
   }
 
   private async generateRDSAuthToken(): Promise<string> {
@@ -59,12 +65,18 @@ export class RDSAuthManager {
         database: DB_NAME,
         dialectOptions: {
           ssl:
-            ENVIRONMENT === "dev"
+            ENVIRONMENT !== "dev"
               ? "Amazon RDS"
               : {
                   require: true,
-                  rejectUnauthorized: false,
+                  rejectUnauthorized: true,
+                  ca: [readFileSync(this.certPath)],
                 },
+          authPlugins: {
+            mysql_clear_password: () => () => {
+              return Buffer.from(token + "\0");
+            },
+          },
         },
         logging: false,
       });

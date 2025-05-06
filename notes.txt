@@ -72,4 +72,10 @@ Security notes:
     - Use o custom key for the SMTP server credentials in the secrets manager.
     - use a custom key for the secret signing keys in the secrets manager.
 
+10. For Local Development:
+    - Create an IAM user with limited privileges for local development.
+    - Add a principal to the IAM role trust policy to allow the IAM user to assume the role.
+    - Assign the IAM role to the IAM user.
+    - Use the IAM user credentials to access the AWS resources from local development.
+
 

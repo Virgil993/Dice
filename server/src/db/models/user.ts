@@ -1,8 +1,10 @@
 import {
   CreationOptional,
+  DataTypes,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  Sequelize,
 } from "sequelize";
 
 export enum Gender {
@@ -26,3 +28,78 @@ export class User extends Model<
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 }
+
+export const initUserModel = (db: Sequelize): void => {
+  User.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
+      name: {
+        type: DataTypes.STRING(512),
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING(512),
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING(512),
+        allowNull: false,
+      },
+      birthday: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      gender: {
+        type: DataTypes.ENUM("male", "female"),
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      verified: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      createdAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+      },
+    },
+    {
+      sequelize: db,
+      modelName: "User",
+      tableName: "users",
+      paranoid: true, // Enable soft deletes
+      underscored: true,
+      indexes: [
+        {
+          name: "idx_users_deleted_a",
+          fields: ["deleted_at"],
+        },
+        {
+          name: "idx_users_email_deleted_at",
+          fields: ["email", "deleted_at"],
+          unique: true,
+        },
+      ],
+    }
+  );
+};

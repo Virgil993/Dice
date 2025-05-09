@@ -9,9 +9,12 @@ import {
 } from "@/config/envHandler";
 import { Signer } from "@aws-sdk/rds-signer";
 import { DataTypes, Sequelize } from "sequelize";
-import { User } from "./models/user";
+import { initUserModel, User } from "./models/user";
 import mysql from "mysql2";
 import path from "path";
+import { initActiveSessionModel } from "./models/activeSession";
+import { initPasswordResetSessionModel } from "./models/passwordResetSession";
+import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";
 
 export class RDSAuthManager {
   private sequelize: Sequelize | null = null;
@@ -117,77 +120,9 @@ export class RDSAuthManager {
   }
 
   private initTables(db: Sequelize): void {
-    User.init(
-      {
-        id: {
-          type: DataTypes.UUID,
-          defaultValue: DataTypes.UUIDV4,
-          primaryKey: true,
-        },
-        name: {
-          type: DataTypes.STRING(512),
-          allowNull: false,
-        },
-        email: {
-          type: DataTypes.STRING(512),
-          allowNull: false,
-          unique: true,
-        },
-        password: {
-          type: DataTypes.STRING(512),
-          allowNull: false,
-        },
-        birthday: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        gender: {
-          type: DataTypes.ENUM("male", "female"),
-          allowNull: false,
-        },
-        description: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        verified: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
-        createdAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-          defaultValue: DataTypes.NOW,
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-          defaultValue: DataTypes.NOW,
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: null,
-          field: "deleted_at",
-        },
-      },
-      {
-        sequelize: db,
-        modelName: "User",
-        tableName: "users",
-        paranoid: true, // Enable soft deletes
-        indexes: [
-          {
-            name: "idx_users_deleted_a",
-            fields: ["deleted_at"],
-          },
-          {
-            name: "idx_users_email_deleted_at",
-            fields: ["email", "deleted_at"],
-            unique: true,
-          },
-        ],
-      }
-    );
+    initUserModel(db);
+    initActiveSessionModel(db);
+    initPasswordResetSessionModel(db);
+    initEmailVerificationSessionModel(db);
   }
 }

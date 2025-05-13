@@ -23,7 +23,7 @@ export class User extends Model<
   declare birthday: Date;
   declare gender: Gender;
   declare description: CreationOptional<string>;
-  declare verified: boolean;
+  declare verified: CreationOptional<boolean>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;

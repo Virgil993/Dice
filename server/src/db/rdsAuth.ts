@@ -8,10 +8,9 @@ import {
   DB_USER,
 } from "@/config/envHandler";
 import { Signer } from "@aws-sdk/rds-signer";
-import { DataTypes, Sequelize } from "sequelize";
-import { initUserModel, User } from "./models/user";
+import { Sequelize } from "sequelize";
+import { initUserModel } from "./models/user";
 import mysql from "mysql2";
-import path from "path";
 import { initActiveSessionModel } from "./models/activeSession";
 import { initPasswordResetSessionModel } from "./models/passwordResetSession";
 import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";

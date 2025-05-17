@@ -22,6 +22,9 @@ export class User extends Model<
   declare password: string;
   declare birthday: Date;
   declare gender: Gender;
+  declare totpSecret: CreationOptional<string>;
+  declare backupCodes: CreationOptional<string>;
+  declare totpEnabled: CreationOptional<boolean>;
   declare description: CreationOptional<string>;
   declare verified: CreationOptional<boolean>;
   declare createdAt: CreationOptional<Date>;
@@ -57,6 +60,21 @@ export const initUserModel = (db: Sequelize): void => {
       gender: {
         type: DataTypes.ENUM("male", "female"),
         allowNull: false,
+      },
+      totpSecret: {
+        type: DataTypes.STRING(512),
+        allowNull: true,
+        defaultValue: null,
+      },
+      backupCodes: {
+        type: DataTypes.STRING(512),
+        allowNull: true,
+        defaultValue: null,
+      },
+      totpEnabled: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       description: {
         type: DataTypes.TEXT,
@@ -95,7 +113,6 @@ export const initUserModel = (db: Sequelize): void => {
           fields: ["deleted_at"],
         },
         {
-          name: "idx_users_email_deleted_at",
           fields: ["email", "deleted_at"],
           unique: true,
         },

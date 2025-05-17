@@ -16,6 +16,29 @@ CREATE TABLE `dice-prod-db`.`users` (
   UNIQUE (`email`, `deleted_at`)
 );
 
+-- Add totp_secret column to users table
+ALTER TABLE `dice-prod-db`.`users`
+ADD COLUMN `totp_secret` VARCHAR(255) DEFAULT NULL,
+ADD COLUMN `totp_enabled` BOOLEAN DEFAULT FALSE,
+ADD COLUMN `backup_codes` TEXT DEFAULT NULL;
+
+CREATE TABLE `dice-prod-db`.`user_photos` (
+  id varchar(128) NOT NULL PRIMARY KEY,
+  user_id varchar(128) NOT NULL,
+  position INTEGER NOT NULL,
+  original_filename VARCHAR(255),
+  mime_type VARCHAR(100),
+  file_hash varchar(512),
+  size_bytes INTEGER,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  INDEX `idx_user_photos_deleted_at` (`deleted_at`),
+  FOREIGN KEY (user_id) REFERENCES `dice-prod-db`.`users`(id) ON DELETE CASCADE,
+  CONSTRAINT unique_user_position UNIQUE(user_id, position,deleted_at)
+);
+
+
 CREATE TABLE `dice-prod-db`.`active_sessions` (
   id VARCHAR(128) NOT NULL PRIMARY KEY,
   user_id VARCHAR(128) NOT NULL,

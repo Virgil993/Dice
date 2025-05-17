@@ -74,8 +74,12 @@ Security notes:
 
 10. For Local Development:
     - Create an IAM user with limited privileges for local development.
-    - Add a principal to the IAM role trust policy to allow the IAM user to assume the role.
-    - Assign the IAM role to the IAM user.
+    - Add all the policies from the IAM role for app usage to the IAM user.
     - Use the IAM user credentials to access the AWS resources from local development.
+
+11. S3 Considerations:
+    - Disable public access to the S3 bucket.
+    - Use server-side encryption for the S3 bucket.
+    - Use versioning for the S3 bucket.
 
 

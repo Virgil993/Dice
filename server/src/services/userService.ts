@@ -1,18 +1,53 @@
+import {
+  AWS_ACCESS_KEY_ID,
+  AWS_REGION,
+  AWS_SECRET_ACCESS_KEY,
+  BUCKET_NAME,
+} from "@/config/envHandler";
 import { Gender, User } from "@/db/models/user";
-import { UserDTO } from "@/dtos/user";
+import { UserPhoto } from "@/db/models/userPhoto";
+import { UserDTO, UserPhotoDTO } from "@/dtos/user";
+import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { hashPassword } from "@/utils/auth";
+import { hashFile } from "@/utils/hash";
 import { toUTCDate } from "@/utils/helper";
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 export class UserService {
+  private s3Client: S3Client;
+  private bucketName: string;
+
+  constructor() {
+    this.s3Client = new S3Client({
+      region: AWS_REGION,
+      // This part is required only for local development
+      credentials: {
+        accessKeyId: AWS_ACCESS_KEY_ID,
+        secretAccessKey: AWS_SECRET_ACCESS_KEY,
+      },
+    });
+    this.bucketName = BUCKET_NAME;
+  }
+
   public async createUser(
     name: string,
     email: string,
     password: string,
     birthday: string,
     gender: Gender,
-    description: string
+    description: string,
+    files: Express.Multer.File[]
   ): Promise<UserDTO> {
+    const existingUser = await UserRepository.getUserByEmail(email);
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
     const utcTime = toUTCDate(birthday);
     const hashedPassword = await hashPassword(password);
     const newUser = User.build({
@@ -38,6 +73,69 @@ export class UserService {
       deletedAt: result.deletedAt,
     };
 
+    await this.updateUserPhotos(files, result.id);
+
     return userDto;
+  }
+
+  private async updateUserPhotos(
+    files: Express.Multer.File[],
+    userId: string
+  ): Promise<UserPhotoDTO[]> {
+    const oldPhotos = await UserPhotoRepository.getUserPhotosByUserId(userId);
+    const newPhotosDTOS: UserPhotoDTO[] = [];
+    const newPhotos: UserPhoto[] = [];
+    files.forEach((file, index) => {
+      const fileHash = hashFile(file);
+
+      const newPhoto: UserPhoto = UserPhoto.build({
+        userId: userId,
+        position: index + 1,
+        originalFilename: file.originalname,
+        mimeType: file.mimetype,
+        sizeBytes: file.size,
+        fileHash: fileHash,
+      });
+
+      newPhotos.push(newPhoto);
+      newPhotosDTOS.push({
+        id: newPhoto.id,
+        userId: newPhoto.userId,
+        position: newPhoto.position,
+        originalFilename: newPhoto.originalFilename,
+        mimeType: newPhoto.mimeType,
+        sizeBytes: newPhoto.sizeBytes,
+        fileHash: newPhoto.fileHash,
+        createdAt: newPhoto.createdAt,
+        updatedAt: newPhoto.updatedAt,
+        deletedAt: newPhoto.deletedAt,
+      });
+    });
+
+    for (const newPhoto of newPhotos) {
+      const currentPhoto = await UserPhotoRepository.createUserPhoto(newPhoto);
+      const params = {
+        Bucket: this.bucketName,
+        Key: `user-photos/${userId}/${currentPhoto.id}`,
+        Body: files[currentPhoto.position - 1].buffer,
+        ContentType: files[currentPhoto.position - 1].mimetype,
+      };
+      await this.s3Client.send(new PutObjectCommand(params));
+    }
+
+    // Delete old photos from the database
+    const oldPhotosIDs = oldPhotos.map((photo) => photo.id);
+    await UserPhotoRepository.deleteUserPhotosByID(oldPhotosIDs);
+
+    // Delete old photos from S3
+    for (const oldPhoto of oldPhotos) {
+      const params = {
+        Bucket: this.bucketName,
+        Key: `user-photos/${userId}/${oldPhoto.id}`,
+      };
+      await this.s3Client.send(new DeleteObjectCommand(params));
+    }
+
+    return newPhotosDTOS;
   }
 }

@@ -12,3 +12,16 @@ export type UserDTO = {
   verified: boolean;
   deletedAt: Date | null;
 };
+
+export type UserPhotoDTO = {
+  id: string;
+  userId: string;
+  position: number;
+  originalFilename: string;
+  mimeType: string;
+  fileHash: string;
+  sizeBytes: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+};

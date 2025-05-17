@@ -14,6 +14,7 @@ import mysql from "mysql2";
 import { initActiveSessionModel } from "./models/activeSession";
 import { initPasswordResetSessionModel } from "./models/passwordResetSession";
 import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";
+import { initUserPhotoModel } from "./models/userPhoto";
 
 export class RDSAuthManager {
   private sequelize: Sequelize | null = null;
@@ -123,5 +124,6 @@ export class RDSAuthManager {
     initActiveSessionModel(db);
     initPasswordResetSessionModel(db);
     initEmailVerificationSessionModel(db);
+    initUserPhotoModel(db);
   }
 }

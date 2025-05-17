@@ -10,4 +10,14 @@ export class UserRepository {
       throw error;
     }
   }
+
+  public static async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      const user = await User.findOne({ where: { email: email } });
+      return user;
+    } catch (error) {
+      console.error("Error fetching user by email:", error);
+      throw error;
+    }
+  }
 }

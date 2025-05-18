@@ -13,6 +13,15 @@ export type UserDTO = {
   deletedAt: Date | null;
 };
 
+export type UserCreateDTO = {
+  name: string;
+  email: string;
+  password: string;
+  birthday: string;
+  gender: string;
+  description: string;
+};
+
 export type UserPhotoDTO = {
   id: string;
   userId: string;

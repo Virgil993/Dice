@@ -1,3 +1,4 @@
+import { Secrets } from "@/config/secrets";
 import { Gender } from "@/db/models/user";
 import { UserCreateDTO, UserDTO } from "@/dtos/user";
 import { UserService } from "@/services/userService";
@@ -7,7 +8,7 @@ import { Request, Response } from "express";
 export class UserController {
   private userService: UserService;
 
-  constructor() {
+  constructor(secrets: Secrets) {
     this.userService = new UserService();
   }
 

@@ -1,15 +1,19 @@
 import dotenv from "dotenv";
-import app from "./app";
+import { createApp } from "./app";
 import http from "http";
 import { RDSAuthManager } from "./db/rdsAuth";
+import { loadSecrets } from "./config/secrets";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
-const server = http.createServer(app);
-
 async function startServer() {
   // Initialize the database connection and models
+  const secrets = await loadSecrets();
+
+  const PORT = process.env.PORT || 3000;
+  const app = createApp(secrets);
+  const server = http.createServer(app);
+
   const rdsAuthManager = new RDSAuthManager();
   await rdsAuthManager.initialize();
 

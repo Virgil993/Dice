@@ -1,3 +1,4 @@
+import { Secrets } from "@/config/secrets";
 import { UserController } from "@/controllers/userController";
 import { fileFilter } from "@/utils/file";
 import { Router } from "express";
@@ -8,9 +9,9 @@ export class UserRoutes {
   private userController: UserController;
   private fileUpload: Multer;
 
-  constructor() {
+  constructor(secrets: Secrets) {
     this.router = Router();
-    this.userController = new UserController();
+    this.userController = new UserController(secrets);
 
     this.fileUpload = multer({
       storage: memoryStorage(),

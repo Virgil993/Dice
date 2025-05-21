@@ -80,11 +80,7 @@ export class UserController {
     res: Response,
     next: Function
   ): Promise<void> {
-    const userId = req.user?.userId;
-    if (!userId) {
-      res.status(401).json({ message: "Invalid user ID" });
-      return;
-    }
+    const userId = req.user!.userId;
     try {
       const user = await this.userService.getUserById(userId);
       res.status(200).json(user);

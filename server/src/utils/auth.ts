@@ -1,7 +1,7 @@
 import { compare, hash } from "bcrypt";
 import { V3 } from "paseto";
 import crypto from "crypto";
-import { ActiveSessionPayload } from "@/dtos/user";
+import { ActiveSessionPayload, EmailVerificationPayload } from "@/dtos/user";
 import { UserError } from "@/types/errors";
 
 export type BackupCode = {
@@ -9,7 +9,7 @@ export type BackupCode = {
   hash: string;
 };
 
-export async function hashPassword(password: string): Promise<string> {
+export async function hashString(password: string): Promise<string> {
   const SALT = 10;
 
   const hashedPassword = await hash(password, SALT);
@@ -17,11 +17,11 @@ export async function hashPassword(password: string): Promise<string> {
   return hashedPassword;
 }
 
-export async function comparePassword(
-  password: string,
-  hashedPassword: string
+export async function compareHashes(
+  text: string,
+  hashedText: string
 ): Promise<boolean> {
-  const isMatch = compare(password, hashedPassword);
+  const isMatch = compare(text, hashedText);
   return isMatch;
 }
 
@@ -33,13 +33,15 @@ export async function generateActiveSessionToken(
   verified: boolean,
   totpEnabled: boolean,
   secret: string
-): Promise<string> {
+): Promise<{ token: string; tokenUUID: string }> {
   const buffer = Buffer.from(secret, "base64");
   const localKey = crypto.createSecretKey(buffer);
+  const tokenUUID = crypto.randomUUID();
 
   const payload: ActiveSessionPayload = {
     userId: userId,
     userAgent: userAgent,
+    tokenUUID: tokenUUID,
     email: email,
     verified: verified,
     totpEnabled: totpEnabled,
@@ -49,7 +51,7 @@ export async function generateActiveSessionToken(
     expiresIn: "2 hours",
   });
 
-  return token;
+  return { token, tokenUUID };
 }
 
 export async function verifyActiveSessionToken(
@@ -60,8 +62,50 @@ export async function verifyActiveSessionToken(
   const localKey = crypto.createSecretKey(buffer);
 
   try {
-    const payload = await V3.decrypt(token, localKey);
-    return payload as ActiveSessionPayload;
+    const payload = (await V3.decrypt(token, localKey)) as ActiveSessionPayload;
+    return payload;
+  } catch (error) {
+    throw new UserError("Invalid token", 401);
+  }
+}
+
+compare;
+
+export async function generateEmailVerificationToken(
+  userId: string,
+  email: string,
+  secret: string
+): Promise<{ token: string; tokenUUID: string }> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+  const tokenUUID = crypto.randomUUID();
+
+  const payload: EmailVerificationPayload = {
+    userId: userId,
+    tokenUUID: tokenUUID,
+    email: email,
+  };
+
+  const token = await V3.encrypt(payload, localKey, {
+    expiresIn: "15 m",
+  });
+
+  return { token, tokenUUID };
+}
+
+export async function verifyEmailVerificationToken(
+  token: string,
+  secret: string
+): Promise<EmailVerificationPayload> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  try {
+    const payload = (await V3.decrypt(
+      token,
+      localKey
+    )) as EmailVerificationPayload;
+    return payload;
   } catch (error) {
     throw new UserError("Invalid token", 401);
   }
@@ -158,7 +202,7 @@ export async function generateBackupCodes(
       );
       code += charset[randomIndex];
     }
-    const hashCode = await hash(code, 10);
+    const hashCode = await hashString(code);
     codes.push({ code, hash: hashCode });
   }
 

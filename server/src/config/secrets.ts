@@ -11,9 +11,11 @@ import {
 export type Secrets = {
   email_verification_token_secret: string;
   email_verification_username: string;
-  email_verification_password: string;
   active_session_token_secret: string;
   password_reset_session_token_secret: string;
+  google_email_oauth_client_id: string;
+  google_email_oauth_client_secret: string;
+  google_email_refresh_token: string;
 };
 
 export async function loadSecrets(): Promise<Secrets> {

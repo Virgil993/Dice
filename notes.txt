@@ -87,4 +87,6 @@ Security notes:
     - decided to use local storage for the session tokens because we have cross origin requests which means we need to set the cookie SameSite=None and Secure=True. 
     However, this is still not enough because the cookie can still be stolen by a malicious site with https that makes a request to our backend.
 
-
+13. Nodemailer:
+    - use Nodemailer for sending emails.
+    - authenticate using OAuth2 with gmail.

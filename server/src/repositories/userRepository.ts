@@ -30,4 +30,19 @@ export class UserRepository {
       throw error;
     }
   }
+
+  public static async setUserVerified(userId: string): Promise<User> {
+    try {
+      const user = await User.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+      user.verified = true;
+      const updatedUser = await user.save();
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user verification status:", error);
+      throw error;
+    }
+  }
 }

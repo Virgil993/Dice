@@ -1,8 +1,10 @@
 import { Secrets } from "@/config/secrets";
 import { ActiveSessionPayload } from "@/dtos/user";
-import { verifyActiveSessionToken } from "@/utils/auth";
+import { compareHashes, verifyActiveSessionToken } from "@/utils/auth";
 import { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./errorHandler";
+import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
+import { UserError } from "@/types/errors";
 
 declare global {
   namespace Express {
@@ -39,6 +41,28 @@ export const createAuthMiddleware = (secrets: Secrets) => {
         token,
         secrets.active_session_token_secret
       );
+
+      const tokenUUID = payload.tokenUUID;
+      const session = await ActiveSessionRepository.getActiveSessionByTokenUUID(
+        tokenUUID
+      );
+
+      if (!session) {
+        res.status(401).json({
+          status: "error",
+          message: "Invalid or expired token",
+        });
+        return;
+      }
+
+      const isValidHash = compareHashes(token, session.token);
+      if (!isValidHash) {
+        res.status(401).json({
+          status: "error",
+          message: "Invalid or expired token",
+        });
+        return;
+      }
 
       req.user = payload;
       // If authenticated, proceed to the next middleware or route handler

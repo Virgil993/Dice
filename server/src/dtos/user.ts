@@ -10,16 +10,8 @@ export type UserDTO = {
   createdAt: Date;
   updatedAt: Date;
   verified: boolean;
+  totpEnabled: boolean;
   deletedAt: Date | null;
-};
-
-export type UserCreateDTO = {
-  name: string;
-  email: string;
-  password: string;
-  birthday: string;
-  gender: string;
-  description: string;
 };
 
 export type UserPhotoDTO = {
@@ -33,4 +25,31 @@ export type UserPhotoDTO = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+};
+
+export type UserCreateRequest = {
+  name: string;
+  email: string;
+  password: string;
+  birthday: string;
+  gender: string;
+  description: string;
+};
+
+export type UserLoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type UserLoginResponse = {
+  token: string;
+  user: UserDTO;
+};
+
+export type ActiveSessionPayload = {
+  userId: string;
+  userAgent: string;
+  verified: boolean;
+  totpEnabled: boolean;
+  email: string;
 };

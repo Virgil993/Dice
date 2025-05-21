@@ -1,17 +1,30 @@
 import { Secrets } from "@/config/secrets";
 import { UserController } from "@/controllers/userController";
 import { fileFilter } from "@/utils/file";
-import { Router } from "express";
-import multer, { FileFilterCallback, memoryStorage, Multer } from "multer";
+import { Request, Response, NextFunction, Router } from "express";
+import multer, { memoryStorage, Multer } from "multer";
 
 export class UserRoutes {
   private router: Router;
   private userController: UserController;
   private fileUpload: Multer;
+  private authenticationMiddleware: (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => Promise<void>;
 
-  constructor(secrets: Secrets) {
+  constructor(
+    secrets: Secrets,
+    authenticationMiddleware: (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => Promise<void>
+  ) {
     this.router = Router();
     this.userController = new UserController(secrets);
+    this.authenticationMiddleware = authenticationMiddleware;
 
     this.fileUpload = multer({
       storage: memoryStorage(),
@@ -43,6 +56,16 @@ export class UserRoutes {
         }
       },
       this.userController.createUser.bind(this.userController)
+    );
+
+    this.router.post(
+      "/login",
+      this.userController.loginUser.bind(this.userController)
+    );
+    this.router.get(
+      "/user",
+      this.authenticationMiddleware,
+      this.userController.getUser.bind(this.userController)
     );
   }
 

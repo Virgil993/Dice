@@ -1,3 +1,6 @@
+import { User } from "@/db/models/user";
+import { UserDTO } from "@/dtos/user";
+
 export function toUTCDate(dateString: string): Date {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) {
@@ -14,4 +17,20 @@ export function toUTCDate(dateString: string): Date {
       date.getMilliseconds()
     )
   );
+}
+
+export function userToDTO(user: User): UserDTO {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    birthday: user.birthday,
+    description: user.description,
+    gender: user.gender,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    verified: user.verified,
+    totpEnabled: user.totpEnabled,
+    deletedAt: user.deletedAt,
+  };
 }

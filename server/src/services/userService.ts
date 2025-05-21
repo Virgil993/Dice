@@ -4,14 +4,22 @@ import {
   AWS_SECRET_ACCESS_KEY,
   BUCKET_NAME,
 } from "@/config/envHandler";
+import { Secrets } from "@/config/secrets";
+import { ActiveSession } from "@/db/models/activeSession";
 import { Gender, User } from "@/db/models/user";
 import { UserPhoto } from "@/db/models/userPhoto";
-import { UserDTO, UserPhotoDTO } from "@/dtos/user";
+import { UserDTO, UserLoginResponse, UserPhotoDTO } from "@/dtos/user";
+import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
-import { hashPassword } from "@/utils/auth";
+import { UserError } from "@/types/errors";
+import {
+  comparePassword,
+  generateActiveSessionToken,
+  hashPassword,
+} from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
-import { toUTCDate } from "@/utils/helper";
+import { toUTCDate, userToDTO } from "@/utils/helper";
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -21,8 +29,10 @@ import {
 export class UserService {
   private s3Client: S3Client;
   private bucketName: string;
+  private secrets: Secrets;
 
-  constructor() {
+  constructor(secrets: Secrets) {
+    this.secrets = secrets;
     this.s3Client = new S3Client({
       region: AWS_REGION,
       // This part is required only for local development
@@ -45,7 +55,7 @@ export class UserService {
   ): Promise<UserDTO> {
     const existingUser = await UserRepository.getUserByEmail(email);
     if (existingUser) {
-      throw new Error("User with this email already exists");
+      throw new UserError("User with this email already exists", 409);
     }
 
     const utcTime = toUTCDate(birthday);
@@ -60,22 +70,58 @@ export class UserService {
     });
     const result = await UserRepository.createUser(newUser);
 
-    const userDto: UserDTO = {
-      id: result.id,
-      email: result.email,
-      name: result.name,
-      birthday: result.birthday,
-      description: result.description,
-      gender: result.gender,
-      createdAt: result.createdAt,
-      updatedAt: result.updatedAt,
-      verified: result.verified,
-      deletedAt: result.deletedAt,
-    };
+    const userDto = userToDTO(result);
 
     await this.updateUserPhotos(files, result.id);
 
     return userDto;
+  }
+
+  public async loginUser(
+    email: string,
+    password: string,
+    userAgent: string
+  ): Promise<UserLoginResponse> {
+    const user = await UserRepository.getUserByEmail(email);
+    if (!user) {
+      throw new UserError("Invalid username or password", 401);
+    }
+
+    const isPasswordValid = comparePassword(password, user.password);
+    if (!isPasswordValid) {
+      throw new UserError("Invalid username or password", 401);
+    }
+
+    const token = await generateActiveSessionToken(
+      user.id,
+      userAgent,
+      user.email,
+      user.verified,
+      user.totpEnabled,
+      this.secrets.active_session_token_secret
+    );
+
+    const acctiveSession = ActiveSession.build({
+      userId: user.id,
+      token: token,
+      userAgent: userAgent,
+      lastUsedAt: new Date(),
+    });
+
+    await ActiveSessionRepository.createActiveSession(acctiveSession);
+
+    return {
+      token: token,
+      user: userToDTO(user),
+    };
+  }
+
+  public async getUserById(userId: string): Promise<UserDTO> {
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    return userToDTO(user);
   }
 
   private async updateUserPhotos(

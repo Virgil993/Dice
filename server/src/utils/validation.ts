@@ -1,4 +1,4 @@
-import { UserCreateDTO } from "@/dtos/user";
+import { UserCreateRequest } from "@/dtos/user";
 import { loadEsm } from "load-esm";
 
 export function validateEmail(email: string): boolean {
@@ -122,7 +122,7 @@ export async function validateFiles(
 }
 
 export async function validateUserCreateInput(
-  userInfo: UserCreateDTO,
+  userInfo: UserCreateRequest,
   files: Express.Multer.File[]
 ): Promise<boolean> {
   validateEmail(userInfo.email);

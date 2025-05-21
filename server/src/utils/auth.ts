@@ -1,4 +1,8 @@
-import { hash } from "bcrypt";
+import { compare, hash } from "bcrypt";
+import { V3 } from "paseto";
+import crypto from "crypto";
+import { ActiveSessionPayload } from "@/dtos/user";
+import { UserError } from "@/types/errors";
 
 export type BackupCode = {
   code: string;
@@ -12,6 +16,57 @@ export async function hashPassword(password: string): Promise<string> {
 
   return hashedPassword;
 }
+
+export async function comparePassword(
+  password: string,
+  hashedPassword: string
+): Promise<boolean> {
+  const isMatch = compare(password, hashedPassword);
+  return isMatch;
+}
+
+// Generate an active session token with expiration to 2 hours
+export async function generateActiveSessionToken(
+  userId: string,
+  userAgent: string,
+  email: string,
+  verified: boolean,
+  totpEnabled: boolean,
+  secret: string
+): Promise<string> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  const payload: ActiveSessionPayload = {
+    userId: userId,
+    userAgent: userAgent,
+    email: email,
+    verified: verified,
+    totpEnabled: totpEnabled,
+  };
+
+  const token = await V3.encrypt(payload, localKey, {
+    expiresIn: "2 hours",
+  });
+
+  return token;
+}
+
+export async function verifyActiveSessionToken(
+  token: string,
+  secret: string
+): Promise<ActiveSessionPayload> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  try {
+    const payload = await V3.decrypt(token, localKey);
+    return payload as ActiveSessionPayload;
+  } catch (error) {
+    throw new UserError("Invalid token", 401);
+  }
+}
+
 export function generateTOTPSecret(secretLength: number = 20, email: string) {
   // Generate cryptographically secure random bytes
   const randomBytes = new Uint8Array(secretLength);

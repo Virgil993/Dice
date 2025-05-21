@@ -1,6 +1,6 @@
 import { Secrets } from "@/config/secrets";
 import { Gender } from "@/db/models/user";
-import { UserCreateDTO, UserDTO } from "@/dtos/user";
+import { UserCreateRequest, UserDTO } from "@/dtos/user";
 import { UserService } from "@/services/userService";
 import { validateUserCreateInput } from "@/utils/validation";
 import { Request, Response } from "express";
@@ -9,11 +9,15 @@ export class UserController {
   private userService: UserService;
 
   constructor(secrets: Secrets) {
-    this.userService = new UserService();
+    this.userService = new UserService(secrets);
   }
 
-  public async createUser(req: Request, res: Response) {
-    const userInfo = req.body.user as UserCreateDTO;
+  public async createUser(
+    req: Request,
+    res: Response,
+    next: Function
+  ): Promise<void> {
+    const userInfo = req.body.user as UserCreateRequest;
     const files = req.files as Express.Multer.File[];
     if (!userInfo) {
       res.status(400).json({ message: "User info is required" });
@@ -45,10 +49,49 @@ export class UserController {
         user: user,
       });
       return;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating user:", error);
-      res.status(500).json({ message: "Internal server error" });
+      next(error);
+    }
+  }
+
+  public async loginUser(
+    req: Request,
+    res: Response,
+    next: Function
+  ): Promise<void> {
+    const { email, password } = req.body;
+    const userAgent = req.headers["user-agent"] || "";
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required" });
       return;
+    }
+    try {
+      const user = await this.userService.loginUser(email, password, userAgent);
+      res.status(200).json(user);
+    } catch (error: any) {
+      console.error("Error logging in user:", error);
+      next(error);
+    }
+  }
+
+  public async getUser(
+    req: Request,
+    res: Response,
+    next: Function
+  ): Promise<void> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Invalid user ID" });
+      return;
+    }
+    try {
+      const user = await this.userService.getUserById(userId);
+      res.status(200).json(user);
+      return;
+    } catch (error: any) {
+      console.error("Error fetching user by ID:", error);
+      next(error);
     }
   }
 }

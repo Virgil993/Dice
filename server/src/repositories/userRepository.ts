@@ -20,4 +20,14 @@ export class UserRepository {
       throw error;
     }
   }
+
+  public static async getUserById(userId: string): Promise<User | null> {
+    try {
+      const user = await User.findOne({ where: { id: userId } });
+      return user;
+    } catch (error) {
+      console.error("Error fetching user by ID:", error);
+      throw error;
+    }
+  }
 }

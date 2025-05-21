@@ -14,6 +14,7 @@ export class ActiveSession extends Model<
   declare id: CreationOptional<string>;
   declare userId: string;
   declare token: string;
+  declare tokenUuid: CreationOptional<string>;
   declare userAgent: string;
   declare lastUsedAt: Date;
   declare createdAt: CreationOptional<Date>;
@@ -41,6 +42,11 @@ export const initActiveSessionModel = (db: Sequelize): void => {
       userAgent: {
         type: DataTypes.STRING(512),
         allowNull: false,
+      },
+      tokenUuid: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        defaultValue: null,
       },
       lastUsedAt: {
         type: DataTypes.DATE,

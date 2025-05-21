@@ -14,9 +14,9 @@ import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { UserError } from "@/types/errors";
 import {
-  comparePassword,
+  compareHashes,
   generateActiveSessionToken,
-  hashPassword,
+  hashString,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
 import { toUTCDate, userToDTO } from "@/utils/helper";
@@ -59,7 +59,7 @@ export class UserService {
     }
 
     const utcTime = toUTCDate(birthday);
-    const hashedPassword = await hashPassword(password);
+    const hashedPassword = await hashString(password);
     const newUser = User.build({
       name: name,
       email: email,
@@ -87,7 +87,7 @@ export class UserService {
       throw new UserError("Invalid username or password", 401);
     }
 
-    const isPasswordValid = comparePassword(password, user.password);
+    const isPasswordValid = compareHashes(password, user.password);
     if (!isPasswordValid) {
       throw new UserError("Invalid username or password", 401);
     }
@@ -101,9 +101,12 @@ export class UserService {
       this.secrets.active_session_token_secret
     );
 
+    const hashedToken = await hashString(token.token);
+
     const acctiveSession = ActiveSession.build({
       userId: user.id,
-      token: token,
+      token: hashedToken,
+      tokenUuid: token.tokenUUID,
       userAgent: userAgent,
       lastUsedAt: new Date(),
     });
@@ -111,7 +114,7 @@ export class UserService {
     await ActiveSessionRepository.createActiveSession(acctiveSession);
 
     return {
-      token: token,
+      token: token.token,
       user: userToDTO(user),
     };
   }

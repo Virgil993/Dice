@@ -13,11 +13,13 @@ export class ActiveSessionRepository {
     }
   }
 
-  public static async getActiveSessionByToken(
-    token: string
+  public static async getActiveSessionByTokenUUID(
+    tokenUUID: string
   ): Promise<ActiveSession | null> {
     try {
-      const session = await ActiveSession.findOne({ where: { token: token } });
+      const session = await ActiveSession.findOne({
+        where: { tokenUuid: tokenUUID },
+      });
       return session;
     } catch (error) {
       console.error("Error fetching active session by ID:", error);

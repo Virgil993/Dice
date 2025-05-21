@@ -14,6 +14,7 @@ export class EmailVerificationSession extends Model<
   declare id: CreationOptional<string>;
   declare userId: string;
   declare token: string;
+  declare tokenUuid: CreationOptional<string>;
   declare verifiedAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -36,6 +37,11 @@ export const initEmailVerificationSessionModel = (db: Sequelize): void => {
         type: DataTypes.STRING(512),
         allowNull: false,
         unique: true,
+      },
+      tokenUuid: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        defaultValue: null,
       },
       verifiedAt: {
         type: DataTypes.DATE,

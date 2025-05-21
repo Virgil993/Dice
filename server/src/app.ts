@@ -6,10 +6,12 @@ import { Secrets } from "./config/secrets";
 import { errorHandler } from "./middlewares/errorHandler";
 import { API_URL } from "./config/envHandler";
 import { createAuthMiddleware } from "./middlewares/auth";
+import { EmailRoutes } from "./routes/emailRoute";
 
 export function createApp(secrets: Secrets): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
   const userRoutes = new UserRoutes(secrets, authenticationMiddleware);
+  const emailRoutes = new EmailRoutes(secrets, authenticationMiddleware);
 
   const app: Express = express();
 
@@ -40,6 +42,7 @@ export function createApp(secrets: Secrets): Express {
 
   // Routes
   app.use("/api/users", userRoutes.getRouter());
+  app.use("/api/email", emailRoutes.getRouter());
 
   // 404 handler
   app.use((_: Request, res: Response) => {

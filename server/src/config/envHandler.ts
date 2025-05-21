@@ -12,3 +12,4 @@ export const DB_NAME = process.env.DB_NAME || "";
 export const ENVIRONMENT = process.env.ENVIRONMENT || "dev";
 export const BUCKET_NAME = process.env.BUCKET_NAME || "";
 export const API_URL = process.env.API_URL || "";
+export const APP_URL = process.env.APP_URL || "";

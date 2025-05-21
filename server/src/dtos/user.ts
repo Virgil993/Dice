@@ -50,6 +50,13 @@ export type ActiveSessionPayload = {
   userId: string;
   userAgent: string;
   verified: boolean;
+  tokenUUID: string;
   totpEnabled: boolean;
+  email: string;
+};
+
+export type EmailVerificationPayload = {
+  userId: string;
+  tokenUUID: string;
   email: string;
 };

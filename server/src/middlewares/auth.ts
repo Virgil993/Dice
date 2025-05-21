@@ -4,7 +4,6 @@ import { compareHashes, verifyActiveSessionToken } from "@/utils/auth";
 import { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./errorHandler";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
-import { UserError } from "@/types/errors";
 
 declare global {
   namespace Express {

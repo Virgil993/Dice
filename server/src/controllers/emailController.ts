@@ -47,9 +47,9 @@ export class EmailController {
       return;
     }
     if (userInfo.userId !== userId) {
-      res.status(403).json({
+      res.status(400).json({
         status: "error",
-        message: "Forbidden",
+        message: "UserId does not match",
       });
       return;
     }

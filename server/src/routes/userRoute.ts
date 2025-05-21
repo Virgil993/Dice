@@ -1,5 +1,6 @@
 import { Secrets } from "@/config/secrets";
 import { UserController } from "@/controllers/userController";
+import { checkVerification } from "@/middlewares/verification";
 import { fileFilter } from "@/utils/file";
 import { Request, Response, NextFunction, Router } from "express";
 import multer, { memoryStorage, Multer } from "multer";
@@ -65,6 +66,7 @@ export class UserRoutes {
     this.router.get(
       "/user",
       this.authenticationMiddleware,
+      checkVerification,
       this.userController.getUser.bind(this.userController)
     );
   }

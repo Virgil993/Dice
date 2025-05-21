@@ -76,11 +76,11 @@ export class EmailService {
     }
 
     if (emailVerificationSession.userId !== userId) {
-      throw new UserError("Invalid verification token", 403);
+      throw new UserError("Invalid verification token", 401);
     }
 
     if (emailVerificationSession.verifiedAt) {
-      throw new UserError("Token already used", 403);
+      throw new UserError("Token already used", 409);
     }
 
     const isTokenValid = compareHashes(token, emailVerificationSession.token);

@@ -2,7 +2,7 @@ import { Secrets } from "@/config/secrets";
 import { Gender } from "@/db/models/user";
 import { UserCreateRequest, UserDTO } from "@/dtos/user";
 import { UserService } from "@/services/userService";
-import { validateUserCreateInput } from "@/utils/validation";
+import { validatePassword, validateUserCreateInput } from "@/utils/validation";
 import { Request, Response } from "express";
 
 export class UserController {
@@ -87,6 +87,34 @@ export class UserController {
       return;
     } catch (error: any) {
       console.error("Error fetching user by ID:", error);
+      next(error);
+    }
+  }
+
+  public async resetPassword(
+    req: Request,
+    res: Response,
+    next: Function
+  ): Promise<void> {
+    const newPassword = req.body.password;
+    const { userId, token } = req.query;
+    if (!token || !newPassword || !userId) {
+      res
+        .status(400)
+        .json({ message: "Token, userId and newPassword are required" });
+      return;
+    }
+    try {
+      validatePassword(newPassword);
+      await this.userService.resetPassword(
+        userId.toString(),
+        token.toString(),
+        newPassword
+      );
+      res.status(200).json({ message: "Password reset successfully" });
+      return;
+    } catch (error: any) {
+      console.error("Error resetting password:", error);
       next(error);
     }
   }

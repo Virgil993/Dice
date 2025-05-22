@@ -54,7 +54,7 @@ export const createAuthMiddleware = (secrets: Secrets) => {
         return;
       }
 
-      const isValidHash = compareHashes(token, session.token);
+      const isValidHash = await compareHashes(token, session.token);
       if (!isValidHash) {
         res.status(401).json({
           status: "error",

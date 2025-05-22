@@ -15,6 +15,7 @@ import {
   UserPhotoDTO,
 } from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
+import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { UserError } from "@/types/errors";
@@ -23,6 +24,8 @@ import {
   generateActiveSessionToken,
   generateTotpTempToken,
   hashString,
+  verifyPasswordResetToken,
+  verifyTotpTempToken,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
 import { toUTCDate, userToDTO } from "@/utils/helper";
@@ -93,7 +96,7 @@ export class UserService {
       throw new UserError("Invalid username or password", 401);
     }
 
-    const isPasswordValid = compareHashes(password, user.password);
+    const isPasswordValid = await compareHashes(password, user.password);
     if (!isPasswordValid) {
       throw new UserError("Invalid username or password", 401);
     }
@@ -143,6 +146,43 @@ export class UserService {
       throw new Error(`User with ID ${userId} not found`);
     }
     return userToDTO(user);
+  }
+
+  public async resetPassword(
+    userId: string,
+    token: string,
+    newPassword: string
+  ): Promise<void> {
+    const payload = await verifyPasswordResetToken(
+      token,
+      this.secrets.password_reset_session_token_secret
+    );
+
+    if (payload.userId !== userId) {
+      throw new UserError("Invalid token", 401);
+    }
+
+    const session =
+      await PasswordResetSessionRepository.getPasswordResetSessionByTokenUUID(
+        payload.tokenUUID
+      );
+
+    if (!session || session.userId !== userId) {
+      throw new UserError("Invalid or expired password reset token", 401);
+    }
+
+    const isTokenValid = compareHashes(token, session.token);
+    if (!isTokenValid) {
+      throw new UserError("Invalid password reset token", 401);
+    }
+
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new UserError("User not found", 404);
+    }
+
+    const hashedPassword = await hashString(newPassword);
+    await UserRepository.setUserPassword(userId, hashedPassword);
   }
 
   private async updateUserPhotos(

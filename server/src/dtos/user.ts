@@ -67,6 +67,12 @@ export type EmailVerificationPayload = {
   email: string;
 };
 
+export type PasswordResetPayload = {
+  userId: string;
+  tokenUUID: string;
+  email: string;
+};
+
 export type TotpTempPayload = {
   userId: string;
   email: string;

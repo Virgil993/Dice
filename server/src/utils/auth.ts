@@ -4,6 +4,7 @@ import crypto from "crypto";
 import {
   ActiveSessionPayload,
   EmailVerificationPayload,
+  PasswordResetPayload,
   TotpTempPayload,
 } from "@/dtos/user";
 import { UserError } from "@/types/errors";
@@ -75,8 +76,6 @@ export async function verifyActiveSessionToken(
   }
 }
 
-compare;
-
 export async function generateEmailVerificationToken(
   userId: string,
   email: string,
@@ -111,6 +110,42 @@ export async function verifyEmailVerificationToken(
       token,
       localKey
     )) as EmailVerificationPayload;
+    return payload;
+  } catch (error) {
+    throw new UserError("Invalid token", 401);
+  }
+}
+
+export async function generatePasswordResetToken(
+  userId: string,
+  email: string,
+  secret: string
+): Promise<{ token: string; tokenUUID: string }> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+  const tokenUUID = crypto.randomUUID();
+  const payload: PasswordResetPayload = {
+    userId: userId,
+    tokenUUID: tokenUUID,
+    email: email,
+  };
+
+  const token = await V3.encrypt(payload, localKey, {
+    expiresIn: "15 m",
+  });
+
+  return { token, tokenUUID };
+}
+
+export async function verifyPasswordResetToken(
+  token: string,
+  secret: string
+): Promise<PasswordResetPayload> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  try {
+    const payload = (await V3.decrypt(token, localKey)) as PasswordResetPayload;
     return payload;
   } catch (error) {
     throw new UserError("Invalid token", 401);

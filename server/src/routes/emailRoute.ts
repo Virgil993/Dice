@@ -38,6 +38,11 @@ export class EmailRoutes {
       this.authenticationMiddleware,
       this.emailController.verifyEmail.bind(this.emailController)
     );
+
+    this.router.post(
+      "/send-reset-password-email",
+      this.emailController.sendPasswordResetEmail.bind(this.emailController)
+    );
   }
 
   public getRouter(): Router {

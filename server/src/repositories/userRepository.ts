@@ -46,6 +46,24 @@ export class UserRepository {
     }
   }
 
+  public static async setUserPassword(
+    userId: string,
+    password: string
+  ): Promise<User> {
+    try {
+      const user = await User.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+      user.password = password;
+      const updatedUser = await user.save();
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      throw error;
+    }
+  }
+
   public static async updateUserTotpSecret(
     userId: string,
     totpSecret: string | null

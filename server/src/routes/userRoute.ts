@@ -69,6 +69,10 @@ export class UserRoutes {
       checkVerification,
       this.userController.getUser.bind(this.userController)
     );
+    this.router.put(
+      "/reset-password",
+      this.userController.resetPassword.bind(this.userController)
+    );
   }
 
   public getRouter(): Router {

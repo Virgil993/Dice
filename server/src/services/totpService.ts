@@ -1,11 +1,15 @@
 import { Secrets } from "@/config/secrets";
 import { ActiveSession } from "@/db/models/activeSession";
-import { UserLoginResponse } from "@/dtos/user";
+import {
+  EnableTotpResponse,
+  GenerateTotpResponse,
+  Status,
+  UserLoginResponse,
+} from "@/dtos/request";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { UserError } from "@/types/errors";
 import {
-  BackupCode,
   compareHashes,
   decryptTotpSecret,
   encryptTotpSecret,
@@ -24,7 +28,7 @@ export class TotpService {
     this.secrets = secrets;
   }
 
-  public async generateSecret(userId: string): Promise<string> {
+  public async generateSecret(userId: string): Promise<GenerateTotpResponse> {
     // Check if the user exists in the database
     const user = await UserRepository.getUserById(userId);
     if (!user) {
@@ -45,7 +49,10 @@ export class TotpService {
     );
     await UserRepository.updateUserTotpSecret(userId, encryptedSecret);
 
-    return totpSecret.otpauthUrl;
+    return {
+      status: Status.SUCCESS,
+      otpauthUrl: totpSecret.otpauthUrl,
+    };
   }
 
   public async verifyTotpCode(
@@ -94,6 +101,7 @@ export class TotpService {
 
     await ActiveSessionRepository.createActiveSession(acctiveSession);
     return {
+      status: Status.SUCCESS,
       token: token.token,
       user: userToDTO(user),
     };
@@ -103,7 +111,7 @@ export class TotpService {
     userId: string,
     code: string,
     userAgent: string
-  ): Promise<string[]> {
+  ): Promise<EnableTotpResponse> {
     // Check if the user exists in the database
     const user = await UserRepository.getUserById(userId);
     if (!user) {
@@ -124,7 +132,10 @@ export class TotpService {
     await UserRepository.setBackupCodes(userId, hashedCodes);
     await UserRepository.setUserTotp(userId, true);
 
-    return plainCodes;
+    return {
+      status: Status.SUCCESS,
+      codes: plainCodes,
+    };
   }
 
   public async disableTotp(userId: string): Promise<void> {
@@ -205,6 +216,7 @@ export class TotpService {
 
     await ActiveSessionRepository.createActiveSession(acctiveSession);
     return {
+      status: Status.SUCCESS,
       token: token.token,
       user: userToDTO(user),
     };

@@ -1,9 +1,21 @@
 import { Secrets } from "@/config/secrets";
 import { Gender } from "@/db/models/user";
-import { UserCreateRequest, UserDTO } from "@/dtos/user";
+import {
+  Status,
+  UserCreateRequest,
+  UserLoginRequest,
+  UserUpdateRequest,
+} from "@/dtos/request";
 import { UserService } from "@/services/userService";
-import { validatePassword, validateUserCreateInput } from "@/utils/validation";
-import { Request, Response } from "express";
+import { messageToErrorResponse } from "@/utils/helper";
+import {
+  validateDescription,
+  validateGender,
+  validateName,
+  validatePassword,
+  validateUserCreateInput,
+} from "@/utils/validation";
+import { NextFunction, Request, Response } from "express";
 
 export class UserController {
   private userService: UserService;
@@ -15,27 +27,21 @@ export class UserController {
   public async createUser(
     req: Request,
     res: Response,
-    next: Function
+    next: NextFunction
   ): Promise<void> {
     const userInfo = req.body.user as UserCreateRequest;
     const files = req.files as Express.Multer.File[];
     if (!userInfo) {
-      res.status(400).json({ message: "User info is required" });
+      res.status(400).json(messageToErrorResponse("User info is required"));
       return;
     }
     if (!files) {
-      res.status(400).json({ message: "Files are required" });
+      res.status(400).json(messageToErrorResponse("Files are required"));
       return;
     }
     try {
       await validateUserCreateInput(userInfo, files);
-    } catch (error: any) {
-      console.error("Validation error:", error);
-      res.status(400).json({ message: error.message });
-      return;
-    }
-    try {
-      const user: UserDTO = await this.userService.createUser(
+      const user = await this.userService.createUser(
         userInfo.name,
         userInfo.email,
         userInfo.password,
@@ -45,9 +51,7 @@ export class UserController {
         files
       );
 
-      res.status(201).json({
-        user: user,
-      });
+      res.status(201).json(user);
       return;
     } catch (error: any) {
       console.error("Error creating user:", error);
@@ -55,15 +59,52 @@ export class UserController {
     }
   }
 
+  public async updateUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const userId = req.user!.userId;
+    const userInfo = req.body.user as UserUpdateRequest;
+    const files = req.files as Express.Multer.File[];
+    if (!userInfo) {
+      res.status(400).json(messageToErrorResponse("User info is required"));
+      return;
+    }
+    if (!files) {
+      res.status(400).json(messageToErrorResponse("Files are required"));
+      return;
+    }
+    try {
+      if (userInfo.description) {
+        validateDescription(userInfo.description);
+      }
+      if (userInfo.gender) {
+        validateGender(userInfo.gender);
+      }
+      if (userInfo.name) {
+        validateName(userInfo.name);
+      }
+      const user = await this.userService.updateUser(userId, userInfo, files);
+      res.status(200).json(user);
+      return;
+    } catch (error: any) {
+      console.error("Error updating user:", error);
+      next(error);
+    }
+  }
+
   public async loginUser(
     req: Request,
     res: Response,
-    next: Function
+    next: NextFunction
   ): Promise<void> {
-    const { email, password } = req.body;
+    const { email, password } = req.body as UserLoginRequest;
     const userAgent = req.headers["user-agent"] || "";
     if (!email || !password) {
-      res.status(400).json({ message: "Email and password are required" });
+      res
+        .status(400)
+        .json(messageToErrorResponse("Email and password are required"));
       return;
     }
     try {
@@ -78,11 +119,12 @@ export class UserController {
   public async getUser(
     req: Request,
     res: Response,
-    next: Function
+    next: NextFunction
   ): Promise<void> {
     const userId = req.user!.userId;
     try {
       const user = await this.userService.getUserById(userId);
+
       res.status(200).json(user);
       return;
     } catch (error: any) {
@@ -94,14 +136,16 @@ export class UserController {
   public async resetPassword(
     req: Request,
     res: Response,
-    next: Function
+    next: NextFunction
   ): Promise<void> {
     const newPassword = req.body.password;
     const { userId, token } = req.query;
     if (!token || !newPassword || !userId) {
       res
         .status(400)
-        .json({ message: "Token, userId and newPassword are required" });
+        .json(
+          messageToErrorResponse("Token, userId and newPassword are required")
+        );
       return;
     }
     try {
@@ -111,7 +155,9 @@ export class UserController {
         token.toString(),
         newPassword
       );
-      res.status(200).json({ message: "Password reset successfully" });
+      res.status(200).json({
+        status: Status.SUCCESS,
+      });
       return;
     } catch (error: any) {
       console.error("Error resetting password:", error);

@@ -11,6 +11,16 @@ export class UserRepository {
     }
   }
 
+  public static async updateUser(user: User): Promise<User> {
+    try {
+      const updatedUser = await user.save();
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
+    }
+  }
+
   public static async getUserByEmail(email: string): Promise<User | null> {
     try {
       const user = await User.findOne({ where: { email: email } });

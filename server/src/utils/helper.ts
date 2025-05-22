@@ -1,5 +1,6 @@
 import { User } from "@/db/models/user";
 import { UserDTO } from "@/dtos/user";
+import { ErrorResponse, Status } from "@/dtos/request";
 
 export function toUTCDate(dateString: string): Date {
   const date = new Date(dateString);
@@ -32,5 +33,12 @@ export function userToDTO(user: User): UserDTO {
     verified: user.verified,
     totpEnabled: user.totpEnabled,
     deletedAt: user.deletedAt,
+  };
+}
+
+export function messageToErrorResponse(message: string): ErrorResponse {
+  return {
+    status: Status.ERROR,
+    message: message,
   };
 }

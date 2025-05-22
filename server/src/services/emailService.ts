@@ -29,7 +29,10 @@ export class EmailService {
     this.transporter = getTransporter(secrets);
   }
 
-  public async sendVerificationEmail(email: string, userId: string) {
+  public async sendVerificationEmail(
+    email: string,
+    userId: string
+  ): Promise<void> {
     const user = await UserRepository.getUserById(userId);
     if (!user) {
       throw new Error("User not found");
@@ -105,7 +108,7 @@ export class EmailService {
     await UserRepository.setUserVerified(userId);
   }
 
-  public async sendPasswordResetEmail(email: string) {
+  public async sendPasswordResetEmail(email: string): Promise<void> {
     const user = await UserRepository.getUserByEmail(email);
     if (!user) {
       return; // Do not disclose if the email is registered

@@ -1,4 +1,5 @@
 import { Secrets } from "@/config/secrets";
+import { Status } from "@/dtos/request";
 import { TotpService } from "@/services/totpService";
 import { Request, Response, NextFunction } from "express";
 
@@ -17,9 +18,7 @@ export class TotpController {
     try {
       const userId = req.user!.userId;
       const totp = await this.totpService.generateSecret(userId);
-      res.status(200).json({
-        otpauthUrl: totp,
-      });
+      res.status(200).json(totp);
     } catch (error) {
       console.error("Error generating TOTP:", error);
       next(error);
@@ -61,9 +60,7 @@ export class TotpController {
         code,
         userAgent
       );
-      res.status(200).json({
-        codes: response,
-      });
+      res.status(200).json(response);
     } catch (error) {
       console.error("Error enabling TOTP:", error);
       next(error);
@@ -78,7 +75,9 @@ export class TotpController {
     try {
       const userId = req.user!.userId;
       await this.totpService.disableTotp(userId);
-      res.status(200).json({ message: "TOTP disabled successfully" });
+      res.status(200).json({
+        status: Status.SUCCESS,
+      });
     } catch (error) {
       console.error("Error disabling TOTP:", error);
       next(error);

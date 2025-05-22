@@ -27,31 +27,6 @@ export type UserPhotoDTO = {
   deletedAt: Date | null;
 };
 
-export type UserCreateRequest = {
-  name: string;
-  email: string;
-  password: string;
-  birthday: string;
-  gender: string;
-  description: string;
-};
-
-export type UserLoginRequest = {
-  email: string;
-  password: string;
-};
-
-export type UserLoginResponse = {
-  token: string;
-  user?: UserDTO;
-  totpRequired?: boolean;
-};
-
-export type UserLoginTotpResponse = {
-  totpRequired: boolean;
-  tempToken: string;
-};
-
 export type ActiveSessionPayload = {
   userId: string;
   userAgent: string;

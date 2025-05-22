@@ -9,11 +9,14 @@ import { ActiveSession } from "@/db/models/activeSession";
 import { Gender, User } from "@/db/models/user";
 import { UserPhoto } from "@/db/models/userPhoto";
 import {
-  UserDTO,
+  GetUserResponse,
+  Status,
+  UserCreateResponse,
   UserLoginResponse,
-  UserLoginTotpResponse,
-  UserPhotoDTO,
-} from "@/dtos/user";
+  UserUpdateRequest,
+  UserUpdateResponse,
+} from "@/dtos/request";
+import { UserPhotoDTO } from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
@@ -25,15 +28,16 @@ import {
   generateTotpTempToken,
   hashString,
   verifyPasswordResetToken,
-  verifyTotpTempToken,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
 import { toUTCDate, userToDTO } from "@/utils/helper";
 import {
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export class UserService {
   private s3Client: S3Client;
@@ -61,7 +65,7 @@ export class UserService {
     gender: Gender,
     description: string,
     files: Express.Multer.File[]
-  ): Promise<UserDTO> {
+  ): Promise<UserCreateResponse> {
     const existingUser = await UserRepository.getUserByEmail(email);
     if (existingUser) {
       throw new UserError("User with this email already exists", 409);
@@ -83,7 +87,41 @@ export class UserService {
 
     await this.updateUserPhotos(files, result.id);
 
-    return userDto;
+    return {
+      status: Status.SUCCESS,
+      user: userDto,
+    };
+  }
+
+  public async updateUser(
+    userId: string,
+    newUser: UserUpdateRequest,
+    files: Express.Multer.File[]
+  ): Promise<UserUpdateResponse> {
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new UserError("User not found", 404);
+    }
+
+    if (newUser.name) {
+      user.name = newUser.name;
+    }
+    if (newUser.gender) {
+      user.gender = newUser.gender as Gender;
+    }
+    if (newUser.description) {
+      user.description = newUser.description;
+    }
+
+    const updatedUser = await UserRepository.updateUser(user);
+
+    await this.updateUserPhotos(files, userId);
+    const urls = await this.getUserPhotosUrls(userId);
+    return {
+      status: Status.SUCCESS,
+      user: userToDTO(updatedUser),
+      photosUrls: urls,
+    };
   }
 
   public async loginUser(
@@ -108,6 +146,7 @@ export class UserService {
         this.secrets.totp_temp_token_secret
       );
       return {
+        status: Status.SUCCESS,
         totpRequired: true,
         token: tempToken,
       };
@@ -135,17 +174,23 @@ export class UserService {
     await ActiveSessionRepository.createActiveSession(acctiveSession);
 
     return {
+      status: Status.SUCCESS,
       token: token.token,
       user: userToDTO(user),
     };
   }
 
-  public async getUserById(userId: string): Promise<UserDTO> {
+  public async getUserById(userId: string): Promise<GetUserResponse> {
     const user = await UserRepository.getUserById(userId);
     if (!user) {
       throw new Error(`User with ID ${userId} not found`);
     }
-    return userToDTO(user);
+    const photosUrls = await this.getUserPhotosUrls(userId);
+    return {
+      status: Status.SUCCESS,
+      user: userToDTO(user),
+      photosUrls: photosUrls,
+    };
   }
 
   public async resetPassword(
@@ -244,5 +289,23 @@ export class UserService {
     }
 
     return newPhotosDTOS;
+  }
+
+  private async getUserPhotosUrls(userId: string): Promise<string[]> {
+    const urls: string[] = [];
+    const photos = await UserPhotoRepository.getUserPhotosByUserId(userId);
+    for (const photo of photos) {
+      const params = {
+        Bucket: this.bucketName,
+        Key: `user-photos/${userId}/${photo.id}`,
+      };
+      const url = await getSignedUrl(
+        this.s3Client,
+        new GetObjectCommand(params),
+        { expiresIn: 3600 } // URL expires in 1 hour
+      );
+      urls.push(url);
+    }
+    return urls;
   }
 }

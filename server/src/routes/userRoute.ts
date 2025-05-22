@@ -2,6 +2,7 @@ import { Secrets } from "@/config/secrets";
 import { UserController } from "@/controllers/userController";
 import { checkVerification } from "@/middlewares/verification";
 import { fileFilter } from "@/utils/file";
+import { messageToErrorResponse } from "@/utils/helper";
 import { Request, Response, NextFunction, Router } from "express";
 import multer, { memoryStorage, Multer } from "multer";
 
@@ -49,11 +50,13 @@ export class UserRoutes {
             req.body.user = JSON.parse(req.body.user);
             next();
           } else {
-            res.status(400).json({ message: "User info is required" });
+            res
+              .status(400)
+              .json(messageToErrorResponse("User info is required"));
           }
         } catch (error) {
           console.error("Error parsing user info:", error);
-          res.status(400).json({ message: "Invalid user info" });
+          res.status(400).json(messageToErrorResponse("Invalid user info"));
         }
       },
       this.userController.createUser.bind(this.userController)
@@ -68,6 +71,28 @@ export class UserRoutes {
       this.authenticationMiddleware,
       checkVerification,
       this.userController.getUser.bind(this.userController)
+    );
+    this.router.put(
+      "/user",
+      this.authenticationMiddleware,
+      checkVerification,
+      this.fileUpload.array("files", 6),
+      (req, res, next) => {
+        try {
+          if (req.body.user) {
+            req.body.user = JSON.parse(req.body.user);
+            next();
+          } else {
+            res
+              .status(400)
+              .json(messageToErrorResponse("User info is required"));
+          }
+        } catch (error) {
+          console.error("Error parsing user info:", error);
+          res.status(400).json(messageToErrorResponse("Invalid user info"));
+        }
+      },
+      this.userController.updateUser.bind(this.userController)
     );
     this.router.put(
       "/reset-password",

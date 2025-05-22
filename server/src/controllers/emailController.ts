@@ -1,5 +1,7 @@
 import { Secrets } from "@/config/secrets";
+import { SendPasswordResetEmailRequest, Status } from "@/dtos/request";
 import { EmailService } from "@/services/emailService";
+import { messageToErrorResponse } from "@/utils/helper";
 import { Request, Response, NextFunction } from "express";
 
 export class EmailController {
@@ -21,8 +23,7 @@ export class EmailController {
         userInfo.userId
       );
       res.status(200).json({
-        status: "success",
-        message: "Verification email sent",
+        status: Status.SUCCESS,
       });
       return;
     } catch (error: any) {
@@ -40,25 +41,20 @@ export class EmailController {
     const userInfo = req.user!;
     const { userId, token } = req.query;
     if (!token || !userId) {
-      res.status(400).json({
-        status: "error",
-        message: "Token and userId are required",
-      });
+      res
+        .status(400)
+        .json(messageToErrorResponse("Token and userId are required"));
       return;
     }
     if (userInfo.userId !== userId) {
-      res.status(400).json({
-        status: "error",
-        message: "UserId does not match",
-      });
+      res.status(400).json(messageToErrorResponse("UserId does not match"));
       return;
     }
 
     try {
       await this.emailService.verifyEmail(token.toString(), userId);
       res.status(200).json({
-        status: "success",
-        message: "Email verified successfully",
+        status: Status.SUCCESS,
       });
       return;
     } catch (error: any) {
@@ -73,19 +69,15 @@ export class EmailController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const email = req.body.email;
+    const { email } = req.body as SendPasswordResetEmailRequest;
     if (!email) {
-      res.status(400).json({
-        status: "error",
-        message: "Email is required",
-      });
+      res.status(400).json(messageToErrorResponse("Email is required"));
       return;
     }
     try {
       await this.emailService.sendPasswordResetEmail(email);
       res.status(200).json({
-        status: "success",
-        message: "Password reset email sent",
+        status: Status.SUCCESS,
       });
       return;
     } catch (error: any) {

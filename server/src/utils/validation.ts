@@ -1,4 +1,4 @@
-import { UserCreateRequest } from "@/dtos/user";
+import { UserCreateRequest } from "@/dtos/request";
 import { loadEsm } from "load-esm";
 
 export function validateEmail(email: string): boolean {

@@ -1,13 +1,19 @@
 import { compare, hash } from "bcrypt";
 import { V3 } from "paseto";
 import crypto from "crypto";
-import { ActiveSessionPayload, EmailVerificationPayload } from "@/dtos/user";
+import {
+  ActiveSessionPayload,
+  EmailVerificationPayload,
+  TotpTempPayload,
+} from "@/dtos/user";
 import { UserError } from "@/types/errors";
-
+import { authenticator } from "otplib";
 export type BackupCode = {
   code: string;
   hash: string;
 };
+
+const ENCRYPTION_ALGORITHM = "aes-256-gcm";
 
 export async function hashString(password: string): Promise<string> {
   const SALT = 10;
@@ -111,6 +117,41 @@ export async function verifyEmailVerificationToken(
   }
 }
 
+export async function generateTotpTempToken(
+  userId: string,
+  email: string,
+  secret: string
+): Promise<string> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  const payload: TotpTempPayload = {
+    userId: userId,
+    email: email,
+  };
+
+  const token = await V3.encrypt(payload, localKey, {
+    expiresIn: "15 m",
+  });
+
+  return token;
+}
+
+export async function verifyTotpTempToken(
+  token: string,
+  secret: string
+): Promise<TotpTempPayload> {
+  const buffer = Buffer.from(secret, "base64");
+  const localKey = crypto.createSecretKey(buffer);
+
+  try {
+    const payload = (await V3.decrypt(token, localKey)) as TotpTempPayload;
+    return payload;
+  } catch (error) {
+    throw new UserError("Invalid token", 401);
+  }
+}
+
 export function generateTOTPSecret(secretLength: number = 20, email: string) {
   // Generate cryptographically secure random bytes
   const randomBytes = new Uint8Array(secretLength);
@@ -125,9 +166,6 @@ export function generateTOTPSecret(secretLength: number = 20, email: string) {
   return {
     secretKey: base32Secret, // Store this encrypted in your database
     otpauthUrl: otpauthUrl, // Use this in QR code for easy setup
-    qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(
-      otpauthUrl
-    )}&size=200x200`, // Example QR code API (replace with your own implementation)
   };
 }
 
@@ -163,10 +201,6 @@ export function generateOTPAuthURL(
   email: string,
   issuer: string
 ): string {
-  const digits = 6,
-    period = 30,
-    algorithm = "SHA1";
-
   // Ensure issuer and account are URL-encoded
   const encodedIssuer = encodeURIComponent(issuer);
   const encodedAccount = encodeURIComponent(email);
@@ -177,12 +211,69 @@ export function generateOTPAuthURL(
   // Add issuer again as a parameter (recommended practice)
   url += `&issuer=${encodedIssuer}`;
 
-  // Add optional parameters if non-default
-  if (digits !== 6) url += `&digits=${digits}`;
-  if (period !== 30) url += `&period=${period}`;
-  if (algorithm !== "SHA1") url += `&algorithm=${algorithm}`;
-
   return url;
+}
+
+export function encryptTotpSecret(
+  secret: string,
+  encryptionKey: string
+): string {
+  const key = crypto.createHash("sha256").update(encryptionKey).digest();
+
+  // Generate random IV (initialization vector)
+  const iv = crypto.randomBytes(16);
+
+  // Create cipher
+  const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, key, iv);
+
+  // Encrypt the text
+  let encrypted = cipher.update(secret, "utf8", "hex");
+  encrypted += cipher.final("hex");
+
+  // Get the authentication tag
+  const tag = cipher.getAuthTag();
+
+  // Combine IV, tag, and encrypted data
+  return iv.toString("hex") + ":" + tag.toString("hex") + ":" + encrypted;
+}
+
+export function decryptTotpSecret(
+  encryptedData: string,
+  decryptionKey: string
+): string {
+  // Create a hash of the secret key to ensure it's 32 bytes
+  const key = crypto.createHash("sha256").update(decryptionKey).digest();
+
+  // Split the encrypted data
+  const parts = encryptedData.split(":");
+  if (parts.length !== 3) {
+    throw new Error("Invalid encrypted data format");
+  }
+
+  const iv = Buffer.from(parts[0], "hex");
+  const tag = Buffer.from(parts[1], "hex");
+  const encrypted = parts[2];
+
+  // Create decipher
+  const decipher = crypto.createDecipheriv(ENCRYPTION_ALGORITHM, key, iv);
+  decipher.setAuthTag(tag);
+
+  // Decrypt
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+
+  return decrypted;
+}
+
+export function verifyTOTPCode(userSecret: string, userCode: string): boolean {
+  authenticator.options = {
+    window: 1, // Allow a 1-time window for time-based codes
+    step: 30, // Time step in seconds
+    digits: 6, // Number of digits in the code
+  };
+
+  const isValid = authenticator.check(userCode, userSecret);
+  return isValid;
 }
 
 export async function generateBackupCodes(

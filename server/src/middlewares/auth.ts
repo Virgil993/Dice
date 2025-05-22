@@ -1,5 +1,5 @@
 import { Secrets } from "@/config/secrets";
-import { ActiveSessionPayload } from "@/dtos/user";
+import { ActiveSessionPayload, TotpTempPayload } from "@/dtos/user";
 import { compareHashes, verifyActiveSessionToken } from "@/utils/auth";
 import { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./errorHandler";
@@ -8,7 +8,7 @@ import { ActiveSessionRepository } from "@/repositories/activeSessionRepository"
 declare global {
   namespace Express {
     interface Request {
-      user?: ActiveSessionPayload;
+      user?: ActiveSessionPayload | TotpTempPayload;
     }
   }
 }

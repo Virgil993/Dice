@@ -43,7 +43,13 @@ export type UserLoginRequest = {
 
 export type UserLoginResponse = {
   token: string;
-  user: UserDTO;
+  user?: UserDTO;
+  totpRequired?: boolean;
+};
+
+export type UserLoginTotpResponse = {
+  totpRequired: boolean;
+  tempToken: string;
 };
 
 export type ActiveSessionPayload = {
@@ -58,5 +64,10 @@ export type ActiveSessionPayload = {
 export type EmailVerificationPayload = {
   userId: string;
   tokenUUID: string;
+  email: string;
+};
+
+export type TotpTempPayload = {
+  userId: string;
   email: string;
 };

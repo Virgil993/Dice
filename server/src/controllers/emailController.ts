@@ -67,4 +67,31 @@ export class EmailController {
       return;
     }
   }
+
+  public async sendPasswordResetEmail(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const email = req.body.email;
+    if (!email) {
+      res.status(400).json({
+        status: "error",
+        message: "Email is required",
+      });
+      return;
+    }
+    try {
+      await this.emailService.sendPasswordResetEmail(email);
+      res.status(200).json({
+        status: "success",
+        message: "Password reset email sent",
+      });
+      return;
+    } catch (error: any) {
+      console.error("Error sending password reset email:", error);
+      next(error);
+      return;
+    }
+  }
 }

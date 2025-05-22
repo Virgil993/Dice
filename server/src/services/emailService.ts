@@ -1,16 +1,23 @@
 import { APP_URL } from "@/config/envHandler";
 import { Secrets } from "@/config/secrets";
 import { EmailVerificationSession } from "@/db/models/emailVerificationSession";
+import { PasswordResetSession } from "@/db/models/passwordResetSession";
 import { EmailVerificationSessionRepository } from "@/repositories/emailVerificationSessionRepository";
+import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { UserError } from "@/types/errors";
 import {
   compareHashes,
   generateEmailVerificationToken,
+  generatePasswordResetToken,
   hashString,
   verifyEmailVerificationToken,
 } from "@/utils/auth";
-import { getTransporter, getVerificationEmail } from "@/utils/email";
+import {
+  getPasswordResetEmail,
+  getTransporter,
+  getVerificationEmail,
+} from "@/utils/email";
 import { Transporter } from "nodemailer";
 
 export class EmailService {
@@ -83,7 +90,10 @@ export class EmailService {
       throw new UserError("Token already used", 409);
     }
 
-    const isTokenValid = compareHashes(token, emailVerificationSession.token);
+    const isTokenValid = await compareHashes(
+      token,
+      emailVerificationSession.token
+    );
     if (!isTokenValid) {
       throw new UserError("Invalid verification token", 401);
     }
@@ -93,5 +103,41 @@ export class EmailService {
     );
 
     await UserRepository.setUserVerified(userId);
+  }
+
+  public async sendPasswordResetEmail(email: string) {
+    const user = await UserRepository.getUserByEmail(email);
+    if (!user) {
+      return; // Do not disclose if the email is registered
+    }
+
+    const token = await generatePasswordResetToken(
+      user.id,
+      email,
+      this.secrets.password_reset_session_token_secret
+    );
+
+    const hashedToken = await hashString(token.token);
+    const passwordResetSession = PasswordResetSession.build({
+      userId: user.id,
+      token: hashedToken,
+      tokenUuid: token.tokenUUID,
+    });
+
+    await PasswordResetSessionRepository.createPasswordResetSession(
+      passwordResetSession
+    );
+
+    const safeToken = encodeURIComponent(token.token);
+    const emailContent = getPasswordResetEmail(user.id, safeToken, APP_URL);
+
+    const mailOptions = {
+      from: this.secrets.email_verification_username,
+      to: email,
+      subject: "Password Reset Dice",
+      html: emailContent,
+    };
+
+    await this.transporter.sendMail(mailOptions);
   }
 }

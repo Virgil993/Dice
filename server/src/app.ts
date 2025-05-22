@@ -7,11 +7,19 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { API_URL } from "./config/envHandler";
 import { createAuthMiddleware } from "./middlewares/auth";
 import { EmailRoutes } from "./routes/emailRoute";
+import { TotpRoutes } from "./routes/totpRoute";
+import { createTotpTokenMiddleware } from "./middlewares/totp";
 
 export function createApp(secrets: Secrets): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
+  const totpTokenMiddleware = createTotpTokenMiddleware(secrets);
   const userRoutes = new UserRoutes(secrets, authenticationMiddleware);
   const emailRoutes = new EmailRoutes(secrets, authenticationMiddleware);
+  const totpRoutes = new TotpRoutes(
+    secrets,
+    authenticationMiddleware,
+    totpTokenMiddleware
+  );
 
   const app: Express = express();
 
@@ -43,6 +51,7 @@ export function createApp(secrets: Secrets): Express {
   // Routes
   app.use("/api/users", userRoutes.getRouter());
   app.use("/api/email", emailRoutes.getRouter());
+  app.use("/api/totp", totpRoutes.getRouter());
 
   // 404 handler
   app.use((_: Request, res: Response) => {

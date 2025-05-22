@@ -22,8 +22,8 @@ export class User extends Model<
   declare password: string;
   declare birthday: Date;
   declare gender: Gender;
-  declare totpSecret: CreationOptional<string>;
-  declare backupCodes: CreationOptional<string>;
+  declare totpSecret: CreationOptional<string | null>;
+  declare backupCodes: CreationOptional<string | null>;
   declare totpEnabled: CreationOptional<boolean>;
   declare description: CreationOptional<string>;
   declare verified: CreationOptional<boolean>;

@@ -16,6 +16,8 @@ export type Secrets = {
   google_email_oauth_client_id: string;
   google_email_oauth_client_secret: string;
   google_email_refresh_token: string;
+  totp_secret_encryption_key: string;
+  totp_temp_token_secret: string;
 };
 
 export async function loadSecrets(): Promise<Secrets> {

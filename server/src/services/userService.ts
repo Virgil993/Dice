@@ -8,7 +8,12 @@ import { Secrets } from "@/config/secrets";
 import { ActiveSession } from "@/db/models/activeSession";
 import { Gender, User } from "@/db/models/user";
 import { UserPhoto } from "@/db/models/userPhoto";
-import { UserDTO, UserLoginResponse, UserPhotoDTO } from "@/dtos/user";
+import {
+  UserDTO,
+  UserLoginResponse,
+  UserLoginTotpResponse,
+  UserPhotoDTO,
+} from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
@@ -16,6 +21,7 @@ import { UserError } from "@/types/errors";
 import {
   compareHashes,
   generateActiveSessionToken,
+  generateTotpTempToken,
   hashString,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
@@ -90,6 +96,18 @@ export class UserService {
     const isPasswordValid = compareHashes(password, user.password);
     if (!isPasswordValid) {
       throw new UserError("Invalid username or password", 401);
+    }
+
+    if (user.totpEnabled) {
+      const tempToken = await generateTotpTempToken(
+        user.id,
+        email,
+        this.secrets.totp_temp_token_secret
+      );
+      return {
+        totpRequired: true,
+        token: tempToken,
+      };
     }
 
     const token = await generateActiveSessionToken(

@@ -82,15 +82,15 @@ export class EmailService {
       );
 
     if (!emailVerificationSession) {
-      throw new UserError("Invalid or expired verification token", 401);
+      throw new UserError("Invalid token", 401);
     }
 
     if (emailVerificationSession.userId !== userId) {
-      throw new UserError("Invalid verification token", 401);
+      throw new UserError("Invalid token", 401);
     }
 
     if (emailVerificationSession.verifiedAt) {
-      throw new UserError("Token already used", 409);
+      throw new UserError("Invalid token", 401);
     }
 
     const isTokenValid = await compareHashes(
@@ -98,7 +98,7 @@ export class EmailService {
       emailVerificationSession.token
     );
     if (!isTokenValid) {
-      throw new UserError("Invalid verification token", 401);
+      throw new UserError("Invalid token", 401);
     }
 
     await EmailVerificationSessionRepository.setEmailVerificationSessionUsed(

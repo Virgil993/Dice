@@ -67,7 +67,7 @@ class RateLimiter {
 
           res.status(429).json({
             status: "error",
-            error: message,
+            message: message,
             retryAfter: ttl > 0 ? ttl : windowMs / 1000,
           });
           return;
@@ -206,7 +206,7 @@ class RateLimiter {
           const ttl = await this.redis.ttl(key);
           res.status(429).json({
             status: "error",
-            error:
+            message:
               otherOptions.message ||
               "Too many requests, please try again later",
             retryAfter:
@@ -287,7 +287,7 @@ export function createRateLimiters(redisClient: Redis): RateLimitMiddlewares {
     // Registration - IP based
     register: limiter.createMiddleware({
       windowMs: 60 * 60 * 1000, // 1 hour
-      maxRequests: 5,
+      maxRequests: 25,
       keyGenerator: "ip",
       route: "register",
       message: "Too many registration attempts from this IP",
@@ -296,7 +296,7 @@ export function createRateLimiters(redisClient: Redis): RateLimitMiddlewares {
     // Email sending - User based
     sendEmail: limiter.createMiddleware({
       windowMs: 60 * 60 * 1000, // 1 hour
-      maxRequests: 5,
+      maxRequests: 10,
       keyGenerator: "hybrid", // Use user email if available, otherwise IP
       route: "send_email",
       message: "Too many emails sent. Please wait before requesting another.",

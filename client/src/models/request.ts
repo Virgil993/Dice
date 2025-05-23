@@ -1,15 +1,18 @@
-import { UserDTO } from "./user";
+import type { User } from "./user";
 
-export type ErrorResponse = {
-  status: Status;
+export enum ResponseStatus {
+  SUCCESS = "success",
+  ERROR = "error",
+}
+
+export type StatusError = {
+  status: ResponseStatus.ERROR;
   message: string;
   retryAfter?: number;
 };
 
-export enum Status {
-  SUCCESS = "success",
-  ERROR = "error",
-}
+export type StatusOk<T = object> = { status: ResponseStatus.SUCCESS } & T;
+export type Status<T = object> = StatusOk<T> | StatusError;
 
 // USER
 
@@ -23,8 +26,7 @@ export type UserCreateRequest = {
 };
 
 export type UserCreateResponse = {
-  status: Status;
-  user: UserDTO;
+  user: User;
 };
 
 export type UserUpdateRequest = {
@@ -34,8 +36,7 @@ export type UserUpdateRequest = {
 };
 
 export type UserUpdateResponse = {
-  status: Status;
-  user: UserDTO;
+  user: User;
   photosUrls: string[];
 };
 
@@ -45,19 +46,18 @@ export type UserLoginRequest = {
 };
 
 export type UserLoginResponse = {
-  status: Status;
   token: string;
-  user?: UserDTO;
+  user?: User;
   totpRequired?: boolean;
 };
 
 export type GetUserResponse = {
-  status: Status;
-  user: UserDTO;
+  user: User;
   photosUrls: string[];
 };
 
 // TOTP
+
 export type VerifyTotpRequest = {
   code: string;
 };
@@ -71,17 +71,14 @@ export type UseBackupCodeRequest = {
 };
 
 export type GenerateTotpResponse = {
-  status: Status;
   otpauthUrl: string;
 };
 
 export type EnableTotpResponse = {
-  status: Status;
   codes: string[];
 };
 
 // EMAIL
-
 export type SendPasswordResetEmailRequest = {
   email: string;
 };

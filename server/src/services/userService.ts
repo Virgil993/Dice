@@ -212,13 +212,13 @@ export class UserService {
         payload.tokenUUID
       );
 
-    if (!session || session.userId !== userId) {
-      throw new UserError("Invalid or expired password reset token", 401);
+    if (!session || session.userId !== userId || session.usedAt) {
+      throw new UserError("Invalid token", 401);
     }
 
     const isTokenValid = compareHashes(token, session.token);
     if (!isTokenValid) {
-      throw new UserError("Invalid password reset token", 401);
+      throw new UserError("Invalid token", 401);
     }
 
     const user = await UserRepository.getUserById(userId);
@@ -228,6 +228,9 @@ export class UserService {
 
     const hashedPassword = await hashString(newPassword);
     await UserRepository.setUserPassword(userId, hashedPassword);
+    await PasswordResetSessionRepository.setPasswordResetSessionUsed(
+      payload.tokenUUID
+    );
   }
 
   private async updateUserPhotos(

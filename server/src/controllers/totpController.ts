@@ -1,5 +1,10 @@
 import { Secrets } from "@/config/secrets";
-import { Status } from "@/dtos/request";
+import {
+  EnableTotpRequest,
+  Status,
+  UseBackupCodeRequest,
+  VerifyTotpRequest,
+} from "@/dtos/request";
 import { TotpService } from "@/services/totpService";
 import { Request, Response, NextFunction } from "express";
 
@@ -32,7 +37,7 @@ export class TotpController {
   ): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const code = req.body.code;
+      const { code } = req.body as VerifyTotpRequest;
       const userAgent = req.headers["user-agent"] as string;
       const response = await this.totpService.verifyTotpCode(
         userId,
@@ -53,7 +58,7 @@ export class TotpController {
   ): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const code = req.body.code;
+      const { code } = req.body as EnableTotpRequest;
       const userAgent = req.headers["user-agent"] as string;
       const response = await this.totpService.enableTotp(
         userId,
@@ -91,7 +96,7 @@ export class TotpController {
   ): Promise<void> {
     try {
       const userId = req.user!.userId;
-      const code = req.body.code;
+      const { code } = req.body as UseBackupCodeRequest;
       const userAgent = req.headers["user-agent"] as string;
       const response = await this.totpService.useBackupCode(
         userId,

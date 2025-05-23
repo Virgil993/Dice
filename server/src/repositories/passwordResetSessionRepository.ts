@@ -26,4 +26,21 @@ export class PasswordResetSessionRepository {
       throw error;
     }
   }
+
+  public static async setPasswordResetSessionUsed(
+    tokenUUID: string
+  ): Promise<void> {
+    try {
+      const session = await PasswordResetSession.findOne({
+        where: { tokenUuid: tokenUUID },
+      });
+      if (session) {
+        session.usedAt = new Date();
+        await session.save();
+      }
+    } catch (error) {
+      console.error("Error setting password reset session as used:", error);
+      throw error;
+    }
+  }
 }

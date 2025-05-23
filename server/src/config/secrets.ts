@@ -18,6 +18,7 @@ export type Secrets = {
   google_email_refresh_token: string;
   totp_secret_encryption_key: string;
   totp_temp_token_secret: string;
+  redis_connection_url: string;
 };
 
 export async function loadSecrets(): Promise<Secrets> {

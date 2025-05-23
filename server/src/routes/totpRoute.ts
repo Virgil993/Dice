@@ -1,5 +1,6 @@
 import { Secrets } from "@/config/secrets";
 import { TotpController } from "@/controllers/totpController";
+import { RateLimitMiddlewares } from "@/middlewares/rateLimit";
 import { checkTotpEnabled } from "@/middlewares/totp";
 import { checkVerification } from "@/middlewares/verification";
 import { NextFunction, Router, Request, Response } from "express";
@@ -17,6 +18,7 @@ export class TotpRoutes {
     res: Response,
     next: NextFunction
   ) => Promise<void>;
+  private rateLimiters: RateLimitMiddlewares;
 
   constructor(
     secrets: Secrets,
@@ -29,10 +31,12 @@ export class TotpRoutes {
       req: Request,
       res: Response,
       next: NextFunction
-    ) => Promise<void>
+    ) => Promise<void>,
+    rateLimiters: RateLimitMiddlewares
   ) {
     this.router = Router();
     this.totpController = new TotpController(secrets);
+    this.rateLimiters = rateLimiters;
     this.authenticationMiddleware = authenticationMiddleware;
     this.totpTokenMiddleware = totpTokenMiddleware;
     this.setupRoutes();
@@ -42,6 +46,7 @@ export class TotpRoutes {
     this.router.post(
       "/generate-secret",
       this.authenticationMiddleware,
+      this.rateLimiters.api,
       checkVerification,
       this.totpController.generateTotp.bind(this.totpController)
     );
@@ -49,6 +54,7 @@ export class TotpRoutes {
     this.router.post(
       "/verify",
       this.totpTokenMiddleware,
+      this.rateLimiters.totpVerify,
       checkVerification,
       checkTotpEnabled,
       this.totpController.verifyTotp.bind(this.totpController)
@@ -57,6 +63,7 @@ export class TotpRoutes {
     this.router.post(
       "/enable",
       this.authenticationMiddleware,
+      this.rateLimiters.api,
       checkVerification,
       this.totpController.enableTotp.bind(this.totpController)
     );
@@ -64,6 +71,7 @@ export class TotpRoutes {
     this.router.post(
       "/disable",
       this.authenticationMiddleware,
+      this.rateLimiters.api,
       checkVerification,
       checkTotpEnabled,
       this.totpController.disableTotp.bind(this.totpController)
@@ -72,6 +80,7 @@ export class TotpRoutes {
     this.router.post(
       "/backup",
       this.totpTokenMiddleware,
+      this.rateLimiters.totpVerify,
       checkVerification,
       checkTotpEnabled,
       this.totpController.useBackupCode.bind(this.totpController)

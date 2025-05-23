@@ -1,5 +1,6 @@
 import { Secrets } from "@/config/secrets";
 import { EmailController } from "@/controllers/emailController";
+import { RateLimitMiddlewares } from "@/middlewares/rateLimit";
 import { NextFunction, Request, Response, Router } from "express";
 
 export class EmailRoutes {
@@ -10,6 +11,7 @@ export class EmailRoutes {
     res: Response,
     next: NextFunction
   ) => Promise<void>;
+  private rateLimiters: RateLimitMiddlewares;
 
   constructor(
     secrets: Secrets,
@@ -17,12 +19,13 @@ export class EmailRoutes {
       req: Request,
       res: Response,
       next: NextFunction
-    ) => Promise<void>
+    ) => Promise<void>,
+    rateLimiters: RateLimitMiddlewares
   ) {
     this.router = Router();
     this.emailController = new EmailController(secrets);
     this.authenticationMiddleware = authenticationMiddleware;
-
+    this.rateLimiters = rateLimiters;
     this.setupRoutes();
   }
 
@@ -30,17 +33,20 @@ export class EmailRoutes {
     this.router.post(
       "/send-verify-email",
       this.authenticationMiddleware,
+      this.rateLimiters.sendEmail,
       this.emailController.sendVerificationEmail.bind(this.emailController)
     );
 
     this.router.post(
       "/verify-email",
       this.authenticationMiddleware,
+      this.rateLimiters.sendEmail,
       this.emailController.verifyEmail.bind(this.emailController)
     );
 
     this.router.post(
       "/send-reset-password-email",
+      this.rateLimiters.sendEmail,
       this.emailController.sendPasswordResetEmail.bind(this.emailController)
     );
   }

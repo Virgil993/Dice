@@ -90,3 +90,9 @@ Security notes:
 13. Nodemailer:
     - use Nodemailer for sending emails.
     - authenticate using OAuth2 with gmail.
+
+14. RateLimiting:
+    - use rate limiting for the auth endpoints to prevent brute force attacks.
+    - use a sliding window algorithm for rate limiting.
+    - use Redis for storing the rate limiting data.
+    - Use AWS ElastiCache for Redis for high availability and scalability.

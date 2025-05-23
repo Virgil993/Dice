@@ -5,10 +5,18 @@ import { Request, Response, NextFunction } from "express";
 import { errorHandler } from "./errorHandler";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 
+export type LoginAttempt = {
+  count: number;
+  lockoutLevel: number;
+  lastAttempt: number | null;
+};
+
 declare global {
   namespace Express {
     interface Request {
       user?: ActiveSessionPayload | TotpTempPayload;
+      loginAttempts?: LoginAttempt;
+      loginAttemptsKey?: string;
     }
   }
 }

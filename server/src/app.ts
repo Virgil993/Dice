@@ -9,16 +9,29 @@ import { createAuthMiddleware } from "./middlewares/auth";
 import { EmailRoutes } from "./routes/emailRoute";
 import { TotpRoutes } from "./routes/totpRoute";
 import { createTotpTokenMiddleware } from "./middlewares/totp";
+import { RedisInstance } from "./config/redis";
+import { createRateLimiters } from "./middlewares/rateLimit";
 
 export function createApp(secrets: Secrets): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
   const totpTokenMiddleware = createTotpTokenMiddleware(secrets);
-  const userRoutes = new UserRoutes(secrets, authenticationMiddleware);
-  const emailRoutes = new EmailRoutes(secrets, authenticationMiddleware);
+  const redisClient = new RedisInstance(secrets).getClient();
+  const rateLimiters = createRateLimiters(redisClient);
+  const userRoutes = new UserRoutes(
+    secrets,
+    authenticationMiddleware,
+    rateLimiters
+  );
+  const emailRoutes = new EmailRoutes(
+    secrets,
+    authenticationMiddleware,
+    rateLimiters
+  );
   const totpRoutes = new TotpRoutes(
     secrets,
     authenticationMiddleware,
-    totpTokenMiddleware
+    totpTokenMiddleware,
+    rateLimiters
   );
 
   const app: Express = express();

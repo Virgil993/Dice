@@ -6,6 +6,7 @@ import {
   UserLoginRequest,
   UserUpdateRequest,
 } from "@/dtos/request";
+import { RateLimitMiddlewares } from "@/middlewares/rateLimit";
 import { UserService } from "@/services/userService";
 import { messageToErrorResponse } from "@/utils/helper";
 import {
@@ -19,9 +20,11 @@ import { NextFunction, Request, Response } from "express";
 
 export class UserController {
   private userService: UserService;
+  private rateLimiters: RateLimitMiddlewares;
 
-  constructor(secrets: Secrets) {
+  constructor(secrets: Secrets, rateLimiters: RateLimitMiddlewares) {
     this.userService = new UserService(secrets);
+    this.rateLimiters = rateLimiters;
   }
 
   public async createUser(
@@ -102,6 +105,7 @@ export class UserController {
     const { email, password } = req.body as UserLoginRequest;
     const userAgent = req.headers["user-agent"] || "";
     if (!email || !password) {
+      await this.rateLimiters.recordFailedLogin(req);
       res
         .status(400)
         .json(messageToErrorResponse("Email and password are required"));
@@ -109,9 +113,11 @@ export class UserController {
     }
     try {
       const user = await this.userService.loginUser(email, password, userAgent);
+      await this.rateLimiters.clearLoginAttempts(req);
       res.status(200).json(user);
     } catch (error: any) {
       console.error("Error logging in user:", error);
+      await this.rateLimiters.recordFailedLogin(req);
       next(error);
     }
   }

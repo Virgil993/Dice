@@ -11,6 +11,7 @@ import { UserService } from "@/services/userService";
 import { messageToErrorResponse } from "@/utils/helper";
 import {
   validateDescription,
+  validateGames,
   validateGender,
   validateName,
   validatePassword,
@@ -51,6 +52,7 @@ export class UserController {
         userInfo.birthday,
         userInfo.gender as Gender,
         userInfo.description,
+        userInfo.gameIds,
         files
       );
 
@@ -87,6 +89,17 @@ export class UserController {
       }
       if (userInfo.name) {
         validateName(userInfo.name);
+      }
+      if (userInfo.gameIds) {
+        if (!Array.isArray(userInfo.gameIds)) {
+          res
+            .status(400)
+            .json(
+              messageToErrorResponse("gameIds must be an array of strings")
+            );
+          return;
+        }
+        validateGames(userInfo.gameIds);
       }
       const user = await this.userService.updateUser(userId, userInfo, files);
       res.status(200).json(user);
@@ -131,6 +144,26 @@ export class UserController {
     try {
       const user = await this.userService.getUserById(userId);
 
+      res.status(200).json(user);
+      return;
+    } catch (error: any) {
+      console.error("Error fetching user by ID:", error);
+      next(error);
+    }
+  }
+
+  public async getUserById(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const userId = req.params.userId;
+    if (!userId) {
+      res.status(400).json(messageToErrorResponse("User ID is required"));
+      return;
+    }
+    try {
+      const user = await this.userService.getUserById(userId);
       res.status(200).json(user);
       return;
     } catch (error: any) {

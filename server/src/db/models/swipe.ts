@@ -8,31 +8,33 @@ import {
 } from "sequelize";
 import { User } from "./user";
 
-export class UserPhoto extends Model<
-  InferAttributes<UserPhoto>,
-  InferCreationAttributes<UserPhoto>
+export class Swipe extends Model<
+  InferAttributes<Swipe>,
+  InferCreationAttributes<Swipe>
 > {
   declare id: CreationOptional<string>;
-  declare userId: string;
-  declare position: number;
-  declare originalFilename: string;
-  declare mimeType: string;
-  declare sizeBytes: number;
-  declare fileHash: string;
+  declare swiperId: string;
+  declare swipedId: string;
+  declare action: "like" | "dislike";
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 }
 
-export const initUserPhotoModel = (db: Sequelize): void => {
-  UserPhoto.init(
+export const initSwipeModel = (db: Sequelize): void => {
+  Swipe.init(
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      userId: {
+
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      swiperId: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -40,31 +42,20 @@ export const initUserPhotoModel = (db: Sequelize): void => {
           key: "id",
         },
       },
-      position: {
-        type: DataTypes.INTEGER,
+      swipedId: {
+        type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: User,
+          key: "id",
+        },
       },
-      originalFilename: {
-        type: DataTypes.STRING(255),
-      },
-      mimeType: {
-        type: DataTypes.STRING(100),
-      },
-      sizeBytes: {
-        type: DataTypes.INTEGER,
-      },
-      fileHash: {
-        type: DataTypes.STRING(512),
+      action: {
+        type: DataTypes.ENUM("like", "dislike"),
         allowNull: false,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW,
       },
       deletedAt: {
@@ -75,18 +66,14 @@ export const initUserPhotoModel = (db: Sequelize): void => {
     },
     {
       sequelize: db,
-      modelName: "UserPhoto",
-      tableName: "user_photos",
+      modelName: "Swipe",
+      tableName: "swipes",
       paranoid: true,
       underscored: true,
       indexes: [
         {
-          name: "idx_user_photos_deleted_at",
+          name: "idx_swipes_deleted_at",
           fields: ["deleted_at"],
-        },
-        {
-          fields: ["user_id", "position", "deleted_at"],
-          unique: true,
         },
       ],
     }

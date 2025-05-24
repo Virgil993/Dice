@@ -6,6 +6,7 @@ import {
   Model,
   Sequelize,
 } from "sequelize";
+import { User } from "./user";
 
 export class PasswordResetSession extends Model<
   InferAttributes<PasswordResetSession>,
@@ -32,6 +33,10 @@ export const initPasswordResetSessionModel = (db: Sequelize): void => {
       userId: {
         type: DataTypes.UUID,
         allowNull: false,
+        references: {
+          model: User,
+          key: "id",
+        },
       },
       token: {
         type: DataTypes.STRING(512),

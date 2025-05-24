@@ -7,25 +7,22 @@ import {
   Sequelize,
 } from "sequelize";
 import { User } from "./user";
+import { Game } from "./game";
 
-export class UserPhoto extends Model<
-  InferAttributes<UserPhoto>,
-  InferCreationAttributes<UserPhoto>
+export class UserGame extends Model<
+  InferAttributes<UserGame>,
+  InferCreationAttributes<UserGame>
 > {
   declare id: CreationOptional<string>;
   declare userId: string;
-  declare position: number;
-  declare originalFilename: string;
-  declare mimeType: string;
-  declare sizeBytes: number;
-  declare fileHash: string;
+  declare gameId: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 }
 
-export const initUserPhotoModel = (db: Sequelize): void => {
-  UserPhoto.init(
+export const initUserGameModel = (db: Sequelize): void => {
+  UserGame.init(
     {
       id: {
         type: DataTypes.UUID,
@@ -40,31 +37,20 @@ export const initUserPhotoModel = (db: Sequelize): void => {
           key: "id",
         },
       },
-      position: {
-        type: DataTypes.INTEGER,
+      gameId: {
+        type: DataTypes.UUID,
         allowNull: false,
-      },
-      originalFilename: {
-        type: DataTypes.STRING(255),
-      },
-      mimeType: {
-        type: DataTypes.STRING(100),
-      },
-      sizeBytes: {
-        type: DataTypes.INTEGER,
-      },
-      fileHash: {
-        type: DataTypes.STRING(512),
-        allowNull: false,
+        references: {
+          model: Game,
+          key: "id",
+        },
       },
       createdAt: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW,
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW,
       },
       deletedAt: {
@@ -75,18 +61,14 @@ export const initUserPhotoModel = (db: Sequelize): void => {
     },
     {
       sequelize: db,
-      modelName: "UserPhoto",
-      tableName: "user_photos",
+      modelName: "UserGame",
+      tableName: "user_games",
       paranoid: true,
       underscored: true,
       indexes: [
         {
-          name: "idx_user_photos_deleted_at",
+          name: "idx_user_games_deleted_at",
           fields: ["deleted_at"],
-        },
-        {
-          fields: ["user_id", "position", "deleted_at"],
-          unique: true,
         },
       ],
     }

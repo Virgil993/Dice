@@ -72,14 +72,22 @@ export class UserRoutes {
       this.userController.loginUser.bind(this.userController)
     );
     this.router.get(
-      "/user",
+      "/",
       this.authenticationMiddleware,
       this.rateLimiters.api,
       checkVerification,
       this.userController.getUser.bind(this.userController)
     );
+    this.router.get(
+      "/:userId",
+      this.authenticationMiddleware,
+      this.rateLimiters.api,
+      checkVerification,
+      this.userController.getUserById.bind(this.userController)
+    );
+
     this.router.put(
-      "/user",
+      "/",
       this.authenticationMiddleware,
       this.rateLimiters.api,
       checkVerification,

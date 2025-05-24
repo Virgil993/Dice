@@ -6,56 +6,34 @@ import {
   Model,
   Sequelize,
 } from "sequelize";
-import { User } from "./user";
 
-export class ActiveSession extends Model<
-  InferAttributes<ActiveSession>,
-  InferCreationAttributes<ActiveSession>
+export class Game extends Model<
+  InferAttributes<Game>,
+  InferCreationAttributes<Game>
 > {
   declare id: CreationOptional<string>;
-  declare userId: string;
-  declare token: string;
-  declare tokenUuid: CreationOptional<string>;
-  declare userAgent: string;
-  declare lastUsedAt: Date;
+  declare name: string;
+  declare description: string;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 }
 
-export const initActiveSessionModel = (db: Sequelize): void => {
-  ActiveSession.init(
+export const initGameModel = (db: Sequelize): void => {
+  Game.init(
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      userId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: User,
-          key: "id",
-        },
-      },
-      token: {
-        type: DataTypes.STRING(512),
-        allowNull: false,
-        unique: true,
-      },
-      userAgent: {
+      name: {
         type: DataTypes.STRING(512),
         allowNull: false,
       },
-      tokenUuid: {
-        type: DataTypes.STRING(255),
-        allowNull: true,
-        defaultValue: null,
-      },
-      lastUsedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+      description: {
+        type: DataTypes.TEXT,
+        defaultValue: "",
       },
       createdAt: {
         type: DataTypes.DATE,
@@ -73,13 +51,13 @@ export const initActiveSessionModel = (db: Sequelize): void => {
     },
     {
       sequelize: db,
-      tableName: "active_sessions",
-      modelName: "ActiveSession",
+      modelName: "Game",
+      tableName: "games",
       paranoid: true,
       underscored: true,
       indexes: [
         {
-          name: "idx_active_sessions_deleted_at",
+          name: "idx_games_deleted_at",
           fields: ["deleted_at"],
         },
       ],

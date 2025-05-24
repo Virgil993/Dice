@@ -8,6 +8,7 @@ import { Secrets } from "@/config/secrets";
 import { ActiveSession } from "@/db/models/activeSession";
 import { Gender, User } from "@/db/models/user";
 import { UserPhoto } from "@/db/models/userPhoto";
+import { GameDTO } from "@/dtos/game";
 import {
   GetUserResponse,
   Status,
@@ -18,7 +19,9 @@ import {
 } from "@/dtos/request";
 import { UserPhotoDTO } from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
+import { GameRepository } from "@/repositories/gameRepository";
 import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
+import { UserGameRepository } from "@/repositories/userGameRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
 import { UserError } from "@/types/errors";
@@ -30,7 +33,7 @@ import {
   verifyPasswordResetToken,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
-import { toUTCDate, userToDTO } from "@/utils/helper";
+import { gameToDTO, toUTCDate, userToDTO } from "@/utils/helper";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -64,6 +67,7 @@ export class UserService {
     birthday: string,
     gender: Gender,
     description: string,
+    gameIds: string[] = [],
     files: Express.Multer.File[]
   ): Promise<UserCreateResponse> {
     const existingUser = await UserRepository.getUserByEmail(email);
@@ -84,12 +88,14 @@ export class UserService {
     const result = await UserRepository.createUser(newUser);
 
     const userDto = userToDTO(result);
+    const updatedGames = await this.updateUserGames(result.id, gameIds);
 
     await this.updateUserPhotos(files, result.id);
 
     return {
       status: Status.SUCCESS,
       user: userDto,
+      games: updatedGames,
     };
   }
 
@@ -113,7 +119,18 @@ export class UserService {
       user.description = newUser.description;
     }
 
+    if (newUser.gameIds) {
+      await this.updateUserGames(userId, newUser.gameIds);
+    }
+
     const updatedUser = await UserRepository.updateUser(user);
+    const userGames = await UserGameRepository.getUserGames(userId);
+    if (!userGames) {
+      throw new UserError("User has no games", 404);
+    }
+    const games = await GameRepository.getGamesByIds(
+      userGames.map((userGame) => userGame.gameId)
+    );
 
     await this.updateUserPhotos(files, userId);
     const urls = await this.getUserPhotosUrls(userId);
@@ -121,6 +138,7 @@ export class UserService {
       status: Status.SUCCESS,
       user: userToDTO(updatedUser),
       photosUrls: urls,
+      games: games.map((game) => gameToDTO(game)),
     };
   }
 
@@ -185,11 +203,18 @@ export class UserService {
     if (!user) {
       throw new Error(`User with ID ${userId} not found`);
     }
+    const userGames = await UserGameRepository.getUserGames(userId);
+    if (!userGames) {
+      throw new UserError("User has no games", 404);
+    }
+    const gamesIds = userGames.map((userGame) => userGame.gameId);
+    const games = await GameRepository.getGamesByIds(gamesIds);
     const photosUrls = await this.getUserPhotosUrls(userId);
     return {
       status: Status.SUCCESS,
       user: userToDTO(user),
       photosUrls: photosUrls,
+      games: games.map((game) => gameToDTO(game)),
     };
   }
 
@@ -231,6 +256,60 @@ export class UserService {
     await PasswordResetSessionRepository.setPasswordResetSessionUsed(
       payload.tokenUUID
     );
+  }
+
+  private async updateUserGames(
+    userId: string,
+    gamesIds: string[]
+  ): Promise<GameDTO[]> {
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new UserError("User not found", 404);
+    }
+
+    const games = await GameRepository.getGamesByIds(gamesIds);
+    if (games.length !== gamesIds.length) {
+      throw new UserError("One or more games not found", 404);
+    }
+
+    const oldGames = await UserGameRepository.getUserGames(userId);
+    if (!oldGames) {
+      for (const gameId of gamesIds) {
+        await UserGameRepository.addUserGame(userId, gameId);
+      }
+    } else {
+      const oldGamesIds = oldGames.map((game) => game.gameId);
+      const gamesToAdd = gamesIds.filter(
+        (gameId) => !oldGamesIds.includes(gameId)
+      );
+      const gamesToRemove = oldGamesIds.filter(
+        (gameId) => !gamesIds.includes(gameId)
+      );
+
+      const unchagedGames = gamesIds.filter((gameId) =>
+        oldGamesIds.includes(gameId)
+      );
+
+      if (unchagedGames.length + gamesToAdd.length < 5) {
+        throw new UserError(
+          "You must have at least 5 games in your profile",
+          400
+        );
+      }
+
+      for (const gameId of gamesToAdd) {
+        await UserGameRepository.addUserGame(userId, gameId);
+      }
+
+      for (const gameId of gamesToRemove) {
+        await UserGameRepository.removeUserGame(userId, gameId);
+      }
+    }
+    const updatedGames = await GameRepository.getGamesByIds(gamesIds);
+    const updatedGamesDTO: GameDTO[] = updatedGames.map((game) =>
+      gameToDTO(game)
+    );
+    return updatedGamesDTO;
   }
 
   private async updateUserPhotos(

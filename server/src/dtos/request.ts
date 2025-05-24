@@ -1,3 +1,7 @@
+import { ConversationDTO } from "./conversation";
+import { GameDTO } from "./game";
+import { MessageDTO } from "./message";
+import { SwipeAction, SwipeDTO } from "./swipe";
 import { UserDTO } from "./user";
 
 export type ErrorResponse = {
@@ -20,23 +24,27 @@ export type UserCreateRequest = {
   birthday: string;
   gender: string;
   description: string;
+  gameIds: string[];
 };
 
 export type UserCreateResponse = {
   status: Status;
   user: UserDTO;
+  games: GameDTO[];
 };
 
 export type UserUpdateRequest = {
   name?: string;
   gender?: string;
   description?: string;
+  gameIds?: string[];
 };
 
 export type UserUpdateResponse = {
   status: Status;
   user: UserDTO;
   photosUrls: string[];
+  games: GameDTO[];
 };
 
 export type UserLoginRequest = {
@@ -55,6 +63,7 @@ export type GetUserResponse = {
   status: Status;
   user: UserDTO;
   photosUrls: string[];
+  games: GameDTO[];
 };
 
 // TOTP
@@ -84,4 +93,35 @@ export type EnableTotpResponse = {
 
 export type SendPasswordResetEmailRequest = {
   email: string;
+};
+
+// GAME
+
+export type GetGamesResponse = {
+  status: Status;
+  games: GameDTO[];
+};
+
+// SWIPE
+
+export type AddSwipeRequest = {
+  swipedId: string;
+  action: SwipeAction;
+};
+
+export type AddSwipeResponse = {
+  status: Status;
+  swipe: SwipeDTO;
+};
+
+// CONVERSATION
+export type GetConversationsResponse = {
+  status: Status;
+  conversations: ConversationDTO[];
+};
+
+// MESSAGE
+export type GetMessagesResponse = {
+  status: Status;
+  messages: MessageDTO[];
 };

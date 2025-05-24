@@ -1,9 +1,8 @@
-import React from "react";
 import "../styles/home.css";
 import Footer from "../components/Footer";
 import HeaderHero from "../components/HeaderHero";
-import { Button, Container } from "reactstrap";
 import { useNavigate } from "react-router-dom";
+import { Button, Container } from "@chakra-ui/react";
 
 function Home() {
   const navigate = useNavigate();

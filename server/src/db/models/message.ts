@@ -7,32 +7,37 @@ import {
   Sequelize,
 } from "sequelize";
 import { User } from "./user";
+import { Conversation } from "./conversation";
 
-export class UserPhoto extends Model<
-  InferAttributes<UserPhoto>,
-  InferCreationAttributes<UserPhoto>
+export class Message extends Model<
+  InferAttributes<Message>,
+  InferCreationAttributes<Message>
 > {
   declare id: CreationOptional<string>;
-  declare userId: string;
-  declare position: number;
-  declare originalFilename: string;
-  declare mimeType: string;
-  declare sizeBytes: number;
-  declare fileHash: string;
+  declare conversationId: string;
+  declare senderId: string;
+  declare content: string;
+  declare isRead: CreationOptional<boolean>;
+  declare readAt: CreationOptional<Date | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
   declare deletedAt: CreationOptional<Date | null>;
 }
 
-export const initUserPhotoModel = (db: Sequelize): void => {
-  UserPhoto.init(
+export const initMessageModel = (db: Sequelize): void => {
+  Message.init(
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      userId: {
+
+      createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      senderId: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
@@ -40,31 +45,30 @@ export const initUserPhotoModel = (db: Sequelize): void => {
           key: "id",
         },
       },
-      position: {
-        type: DataTypes.INTEGER,
+      conversationId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: Conversation,
+          key: "id",
+        },
+      },
+      content: {
+        type: DataTypes.TEXT,
+        defaultValue: "",
         allowNull: false,
       },
-      originalFilename: {
-        type: DataTypes.STRING(255),
+      isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
-      mimeType: {
-        type: DataTypes.STRING(100),
-      },
-      sizeBytes: {
-        type: DataTypes.INTEGER,
-      },
-      fileHash: {
-        type: DataTypes.STRING(512),
-        allowNull: false,
-      },
-      createdAt: {
+      readAt: {
         type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
+        allowNull: true,
+        defaultValue: null,
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull: false,
         defaultValue: DataTypes.NOW,
       },
       deletedAt: {
@@ -75,18 +79,14 @@ export const initUserPhotoModel = (db: Sequelize): void => {
     },
     {
       sequelize: db,
-      modelName: "UserPhoto",
-      tableName: "user_photos",
+      modelName: "Message",
+      tableName: "messages",
       paranoid: true,
       underscored: true,
       indexes: [
         {
-          name: "idx_user_photos_deleted_at",
+          name: "idx_messages_deleted_at",
           fields: ["deleted_at"],
-        },
-        {
-          fields: ["user_id", "position", "deleted_at"],
-          unique: true,
         },
       ],
     }

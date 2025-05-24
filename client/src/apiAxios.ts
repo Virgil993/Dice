@@ -28,8 +28,11 @@ const instance = axios.create({
 
 instance.interceptors.request.use(async (config) => {
   const token = localStorage.getItem("apiToken");
+  const totpTempToken = localStorage.getItem("totpTempToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else if (totpTempToken) {
+    config.headers.Authorization = `Bearer ${totpTempToken}`;
   }
   config.headers["Content-Type"] = "application/json";
   return config;
@@ -43,6 +46,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem("apiToken");
       localStorage.removeItem("user");
+      localStorage.removeItem("totpTempToken");
       window.location.href = "/auth/login";
     }
     try {

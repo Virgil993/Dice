@@ -15,6 +15,11 @@ import { initActiveSessionModel } from "./models/activeSession";
 import { initPasswordResetSessionModel } from "./models/passwordResetSession";
 import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";
 import { initUserPhotoModel } from "./models/userPhoto";
+import { initGameModel } from "./models/game";
+import { initUserGameModel } from "./models/userGame";
+import { initSwipeModel } from "./models/swipe";
+import { initConversationModel } from "./models/conversation";
+import { initMessageModel } from "./models/message";
 
 export class RDSAuthManager {
   private sequelize: Sequelize | null = null;
@@ -125,5 +130,10 @@ export class RDSAuthManager {
     initPasswordResetSessionModel(db);
     initEmailVerificationSessionModel(db);
     initUserPhotoModel(db);
+    initGameModel(db);
+    initUserGameModel(db);
+    initSwipeModel(db);
+    initConversationModel(db);
+    initMessageModel(db);
   }
 }

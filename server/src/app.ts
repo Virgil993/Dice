@@ -11,6 +11,7 @@ import { TotpRoutes } from "./routes/totpRoute";
 import { createTotpTokenMiddleware } from "./middlewares/totp";
 import { RedisInstance } from "./config/redis";
 import { createRateLimiters } from "./middlewares/rateLimit";
+import { GameRoute } from "./routes/gameRoute";
 
 export function createApp(secrets: Secrets): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
@@ -33,6 +34,7 @@ export function createApp(secrets: Secrets): Express {
     totpTokenMiddleware,
     rateLimiters
   );
+  const gameRoutes = new GameRoute(rateLimiters);
 
   const app: Express = express();
 
@@ -65,6 +67,7 @@ export function createApp(secrets: Secrets): Express {
   app.use("/api/users", userRoutes.getRouter());
   app.use("/api/email", emailRoutes.getRouter());
   app.use("/api/totp", totpRoutes.getRouter());
+  app.use("/api/games", gameRoutes.getRouter());
 
   // 404 handler
   app.use((_: Request, res: Response) => {

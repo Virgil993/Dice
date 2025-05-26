@@ -40,7 +40,12 @@ instance.interceptors.request.use(async (config) => {
   } else if (totpTempToken) {
     config.headers.Authorization = `Bearer ${totpTempToken}`;
   }
-  config.headers["Content-Type"] = "application/json";
+  if (
+    config.headers &&
+    !(config.headers["Content-Type"] === "multipart/form-data")
+  ) {
+    config.headers["Content-Type"] = "application/json";
+  }
   return config;
 });
 
@@ -49,7 +54,10 @@ instance.interceptors.response.use(
     return response;
   },
   (error: AxiosError): AxiosResponse<StatusError> => {
-    if (error.response?.status === 401) {
+    if (
+      error.response?.status === 401 &&
+      localStorage.getItem("apiToken") !== null
+    ) {
       localStorage.removeItem("apiToken");
       localStorage.removeItem("user");
       localStorage.removeItem("totpTempToken");
@@ -59,10 +67,14 @@ instance.interceptors.response.use(
       const parsedError = apiErrorSchema.parse(error.response?.data);
       if (
         error.response?.status === 403 &&
-        parsedError.message === "User not verified"
+        parsedError.message === "User not verified" &&
+        window.location.pathname !== "/send-verify-email" &&
+        window.location.pathname !== "/verify-email"
       ) {
+        console.log("User not verified, redirecting to send-verify-email");
+        console.log("window.location.pathname:", window.location.pathname);
         toast.error("Please verify your email to access this feature.");
-        window.location.href = "/auth/email-verification";
+        window.location.href = "/send-verify-email";
       }
       return {
         status: error.response?.status || 500,
@@ -113,7 +125,7 @@ export const loginUser = async (payload: UserLoginRequest) => {
 
 export const getUser = async () => {
   const response: AxiosResponse<Status<GetUserResponse>> = await instance.get(
-    "/api/users/user"
+    "/api/users"
   );
   return response;
 };
@@ -152,7 +164,7 @@ export const resetPassword = async (userId: string, token: string) => {
 
 export const sendVerificationEmail = async () => {
   const response: AxiosResponse<Status> = await instance.post(
-    "/api/email/send-verification-email"
+    "/api/email/send-verify-email"
   );
   return response;
 };

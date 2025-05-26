@@ -1,0 +1,48 @@
+
+.dashboard-body{
+    background-color: #ddead1;
+}
+
+.dashboard-wrapper{
+    display: flex;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-top: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.dashboard-first-card{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-dashboard{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.loading-icon{
+    text-align: center;
+
+    animation: rotation 2s infinite linear;
+    
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
+    }
+}
+
+.loading-text{
+    text-align: center;
+    font-size: 70px;
+}

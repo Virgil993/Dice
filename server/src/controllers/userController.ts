@@ -141,6 +141,7 @@ export class UserController {
     next: NextFunction
   ): Promise<void> {
     const userId = req.user!.userId;
+    console.log("Fetching user with ID:", userId);
     try {
       const user = await this.userService.getUserById(userId);
 
@@ -167,7 +168,7 @@ export class UserController {
       res.status(200).json(user);
       return;
     } catch (error) {
-      console.error("Error fetching user by ID:", error);
+      console.error("Error fetching external user by ID:", error);
       next(error);
     }
   }

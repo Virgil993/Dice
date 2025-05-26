@@ -1,0 +1,142 @@
+.chat-component{
+    padding: 0;
+    margin: 0;
+    display: flex;   
+    flex-direction: column;
+    border: #228C22 solid 5px;
+    border-radius: 0px 10px 10px 0px;
+
+}
+
+.recevier-profile{
+    height: 10%;
+    border-bottom: #228C22 5px solid;
+    background-color: rgb(174, 228, 174);
+    display: flex;
+    flex-direction: row;
+    justify-self: left;
+    align-items: center;
+}
+
+.recevier-profile-picture{
+    width: 50px;
+    height: 50px;
+}
+
+.recevier-container-info{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 0px;
+    width: fit-content;
+    cursor: pointer;
+    margin: 0px;
+}
+
+.recevier-profile-picture img{
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    border-radius: 30px;
+}
+
+.modal-recevier-body{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.close-icon-recevier-profile{
+    background-color: rgb(170, 170, 157);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    margin-right: 15px;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+#message-container {
+height: 80%;
+overflow: auto;
+scrollbar-color: grey;
+scrollbar-width: thin;
+padding: 15px 0px;
+/* background-color: rgb(250, 250, 202);*/
+background-color: #f1f7fb
+}
+
+#message-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+#message-container::-webkit-scrollbar-thumb {
+    background-color: grey
+}
+
+.send-input{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 10%;
+    background-color: rgb(252, 252, 237);
+}
+
+
+
+#send-form {
+background-color: rgb(252, 252, 237);
+width: 100%;
+display: flex;
+}
+
+#message-input {
+flex-grow: 1;
+border-radius: 10px;
+margin: 0px 15px;
+}
+
+#send-button{
+    background-color: rgb(170, 170, 157);
+    border-radius: 30px;
+    padding: 10px 10px 7px 7px;
+}
+
+.send-container{
+    display: flex;
+    padding: 5px 10px;
+}
+
+.send-container-unread{
+    display: flex;
+    flex-direction: column;
+}
+
+.unread-messages{
+    text-align: center;
+    background-color: rgb(175, 175, 175);
+    margin: 5px 0px ;
+    border-radius: 10px;
+}
+
+.send-div{
+    padding: 0px 15px;
+    background-color: lightblue;
+    width: fit-content;
+    border-radius: 10px;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+
+.recevie-div{
+    padding: 0px 15px;
+    background-color: rgb(174, 228, 174);
+    width: fit-content;
+    border-radius: 10px;
+    max-width: 400px;
+    word-wrap: break-word;
+}
+

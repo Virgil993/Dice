@@ -27,6 +27,7 @@ export type UserCreateRequest = {
   birthday: string;
   gender: string;
   description: string;
+  gameIds: string[];
 };
 
 export type UserCreateResponse = {

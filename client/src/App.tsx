@@ -1,14 +1,12 @@
 import { Outlet } from "react-router-dom";
+import Admin from "./layouts/Admin";
 
 function App() {
   return (
     <div
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
     >
-      {/* <Header /> */}
-      {/* Render page content */}
-      <Outlet />
-      {/* <Footer /> */}
+      <Admin element={<Outlet />} />
     </div>
   );
 }

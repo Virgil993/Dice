@@ -1,0 +1,103 @@
+.register-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.register-form {
+  margin-top: 100px;
+  width: 50%;
+}
+
+.title-form {
+  display: flex;
+  justify-content: center;
+}
+
+.form-flexbox-1 {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 30px;
+}
+
+.input-register-text {
+  background-color: #bab8b8;
+  border-color: black;
+  border: 2px solid;
+  color: black;
+}
+
+.input-register-text::placeholder {
+  color: black;
+}
+
+legend {
+  font-size: 16px;
+}
+
+#description-register {
+  height: 200px;
+}
+
+.photo-upload-container {
+  display: grid;
+  grid-template-columns: 200px 200px;
+  grid-template-rows: 250px 250px 250px;
+  column-gap: 20px;
+  row-gap: 20px;
+}
+
+.file-upload-form-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-radius: 20px;
+  cursor: pointer;
+  position: relative;
+}
+
+.add-photo-icon {
+  width: 30%;
+}
+
+.remove-photo-icon {
+  position: absolute;
+  width: 25%;
+  top: 85%;
+  left: 80%;
+}
+
+.photo-register {
+  border-radius: 20px;
+}
+
+.right-side-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.games-container-register {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.continue-button-container {
+  margin-top: 50px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-link {
+  font-size: 20px;
+  text-align: center;
+}
+
+.continue-button {
+  width: 200px;
+}

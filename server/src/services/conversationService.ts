@@ -1,3 +1,4 @@
+import { ConversationDTO } from "@/dtos/conversation";
 import { GetConversationsResponse, Status } from "@/dtos/request";
 import { ConversationRepository } from "@/repositories/conversationRepository";
 import { UserError } from "@/types/errors";
@@ -18,6 +19,18 @@ export class ConversationService {
         conversationToDTO(conversation)
       ),
     };
+  }
+
+  public async getConversationById(
+    conversationId: string
+  ): Promise<ConversationDTO> {
+    const conversation = await ConversationRepository.getConversationById(
+      conversationId
+    );
+    if (!conversation) {
+      throw new UserError("Conversation not found", 404);
+    }
+    return conversationToDTO(conversation);
   }
 
   public async deleteConversation(conversationId: string): Promise<void> {

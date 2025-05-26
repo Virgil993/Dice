@@ -1,4 +1,8 @@
-import type { User } from "./user";
+import type { Conversation } from "./conversation";
+import type { Game } from "./game";
+import type { Message } from "./message";
+import type { Swipe, SwipeAction } from "./swipe";
+import type { FullExternalUser, PhotoUrl, User } from "./user";
 
 export enum ResponseStatus {
   SUCCESS = "success",
@@ -26,18 +30,22 @@ export type UserCreateRequest = {
 };
 
 export type UserCreateResponse = {
+  status: Status;
   user: User;
+  photosUrls: PhotoUrl[];
+  games: Game[];
 };
-
 export type UserUpdateRequest = {
   name?: string;
   gender?: string;
   description?: string;
+  gameIds?: string[];
 };
 
 export type UserUpdateResponse = {
   user: User;
-  photosUrls: string[];
+  photosUrls: PhotoUrl[];
+  games: Game[];
 };
 
 export type UserLoginRequest = {
@@ -53,7 +61,12 @@ export type UserLoginResponse = {
 
 export type GetUserResponse = {
   user: User;
-  photosUrls: string[];
+  photosUrls: PhotoUrl[];
+  games: Game[];
+};
+
+export type GetUsersSortedResponse = {
+  users: FullExternalUser[];
 };
 
 // TOTP
@@ -81,4 +94,30 @@ export type EnableTotpResponse = {
 // EMAIL
 export type SendPasswordResetEmailRequest = {
   email: string;
+};
+
+// GAME
+export type GetGamesResponse = {
+  games: Game[];
+};
+
+// SWIPE
+export type AddSwipeRequest = {
+  swipedId: string;
+  action: SwipeAction;
+};
+
+export type AddSwipeResponse = {
+  swipe: Swipe;
+};
+
+//  CONVERSATION
+export type GetConversationsResponse = {
+  conversations: Conversation[];
+};
+
+// MESSAGE
+export type GetMessagesResponse = {
+  status: Status;
+  messages: Message[];
 };

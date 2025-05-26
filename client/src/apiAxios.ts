@@ -1,8 +1,14 @@
 import { z } from "zod";
 import {
   ResponseStatus,
+  type AddSwipeRequest,
+  type AddSwipeResponse,
   type EnableTotpRequest,
+  type GetConversationsResponse,
+  type GetGamesResponse,
+  type GetMessagesResponse,
   type GetUserResponse,
+  type GetUsersSortedResponse,
   type SendPasswordResetEmailRequest,
   type Status,
   type StatusError,
@@ -112,6 +118,19 @@ export const getUser = async () => {
   return response;
 };
 
+export const getUserById = async (userId: string) => {
+  const response: AxiosResponse<Status<GetUserResponse>> = await instance.get(
+    `/api/users/${userId}`
+  );
+  return response;
+};
+
+export const getUsersSorted = async () => {
+  const response: AxiosResponse<Status<GetUsersSortedResponse>> =
+    await instance.get("/api/users/sorted");
+  return response;
+};
+
 export const updateUser = async (payload: FormData) => {
   const response: AxiosResponse<Status<UserUpdateResponse>> =
     await instance.put("/api/users/user", payload, {
@@ -192,5 +211,45 @@ export const useBackupCode = async (payload: UseBackupCodeRequest) => {
     "/api/totp/backup",
     payload
   );
+  return response;
+};
+
+// GAME
+export const getGames = async () => {
+  const response: AxiosResponse<Status<GetGamesResponse>> = await instance.get(
+    "/api/games"
+  );
+  return response;
+};
+
+// SWIPE
+
+export const addSwipe = async (payload: AddSwipeRequest) => {
+  const response: AxiosResponse<Status<AddSwipeResponse>> = await instance.post(
+    "/api/swipes",
+    payload
+  );
+  return response;
+};
+
+// CONVERSATION
+
+export const getConversations = async () => {
+  const response: AxiosResponse<Status<GetConversationsResponse>> =
+    await instance.get("/api/conversations");
+  return response;
+};
+
+export const deleteConversationById = async (id: string) => {
+  const response: AxiosResponse<Status> = await instance.delete(
+    `/api/conversations/${id}`
+  );
+  return response;
+};
+
+// MESSAGE
+export const getMessagesByConversationId = async (id: string) => {
+  const response: AxiosResponse<Status<GetMessagesResponse>> =
+    await instance.get(`/api/messages/${id}`);
   return response;
 };

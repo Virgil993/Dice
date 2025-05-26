@@ -12,6 +12,11 @@ import { createTotpTokenMiddleware } from "./middlewares/totp";
 import { RedisInstance } from "./config/redis";
 import { createRateLimiters } from "./middlewares/rateLimit";
 import { GameRoute } from "./routes/gameRoute";
+import { SwipeRoute } from "./routes/swipeRoute";
+import { ConversationRoute } from "./routes/conversationRoute";
+import { MessageRoute } from "./routes/messageRoute";
+import { Status } from "./dtos/request";
+import { messageToErrorResponse } from "./utils/helper";
 
 export function createApp(secrets: Secrets): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
@@ -35,6 +40,15 @@ export function createApp(secrets: Secrets): Express {
     rateLimiters
   );
   const gameRoutes = new GameRoute(rateLimiters);
+  const swipeRoutes = new SwipeRoute(authenticationMiddleware, rateLimiters);
+  const conversationRoutes = new ConversationRoute(
+    authenticationMiddleware,
+    rateLimiters
+  );
+  const messageRoutes = new MessageRoute(
+    authenticationMiddleware,
+    rateLimiters
+  );
 
   const app: Express = express();
 
@@ -59,8 +73,8 @@ export function createApp(secrets: Secrets): Express {
   app.use(express.urlencoded({ extended: true }));
 
   // Health check endpoint
-  app.get("/api/health", (req: Request, res: Response) => {
-    res.status(200).json({ status: "ok" });
+  app.get("/api/health", rateLimiters.api, (_: Request, res: Response) => {
+    res.status(200).json({ status: Status.SUCCESS });
   });
 
   // Routes
@@ -68,13 +82,16 @@ export function createApp(secrets: Secrets): Express {
   app.use("/api/email", emailRoutes.getRouter());
   app.use("/api/totp", totpRoutes.getRouter());
   app.use("/api/games", gameRoutes.getRouter());
+  app.use("/api/swipes", swipeRoutes.getRouter());
+  app.use("/api/conversations", conversationRoutes.getRouter());
+  app.use("/api/messages", messageRoutes.getRouter());
+
+  app.use(errorHandler);
 
   // 404 handler
   app.use((_: Request, res: Response) => {
-    res.status(404).json({ message: "Route not found" });
+    res.status(404).json(messageToErrorResponse("Route not found"));
   });
-
-  app.use(errorHandler);
 
   return app;
 }

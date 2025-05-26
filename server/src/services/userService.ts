@@ -11,16 +11,18 @@ import { UserPhoto } from "@/db/models/userPhoto";
 import { GameDTO } from "@/dtos/game";
 import {
   GetUserResponse,
+  GetUsersSortedResponse,
   Status,
   UserCreateResponse,
   UserLoginResponse,
   UserUpdateRequest,
   UserUpdateResponse,
 } from "@/dtos/request";
-import { UserPhotoDTO } from "@/dtos/user";
+import { FullExternalUserDTO, PhotoUrlDTO, UserPhotoDTO } from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { GameRepository } from "@/repositories/gameRepository";
 import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
+import { SwipeRepository } from "@/repositories/swipeRepository";
 import { UserGameRepository } from "@/repositories/userGameRepository";
 import { UserPhotoRepository } from "@/repositories/userPhotoRepository";
 import { UserRepository } from "@/repositories/userRepository";
@@ -33,7 +35,13 @@ import {
   verifyPasswordResetToken,
 } from "@/utils/auth";
 import { hashFile } from "@/utils/hash";
-import { gameToDTO, toUTCDate, userToDTO } from "@/utils/helper";
+import {
+  gameToDTO,
+  sortUsersByGames,
+  toUTCDate,
+  userToDTO,
+  userToExternalUserDTO,
+} from "@/utils/helper";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -91,11 +99,13 @@ export class UserService {
     const updatedGames = await this.updateUserGames(result.id, gameIds);
 
     await this.updateUserPhotos(files, result.id);
+    const urls = await this.getUserPhotosUrls(result.id);
 
     return {
       status: Status.SUCCESS,
       user: userDto,
       games: updatedGames,
+      photosUrls: urls,
     };
   }
 
@@ -218,6 +228,55 @@ export class UserService {
     };
   }
 
+  public async getUsersSorted(userId: string): Promise<GetUsersSortedResponse> {
+    const swipes = await SwipeRepository.getSwipesBySwiperId(userId);
+    const allUsers = await UserRepository.getAllUsers();
+
+    const currentUser = await UserRepository.getUserById(userId);
+    if (!currentUser) {
+      throw new UserError("User not found", 404);
+    }
+
+    const currentUserGames = await UserGameRepository.getUserGames(userId);
+    if (!currentUserGames || currentUserGames.length < 5) {
+      throw new UserError(
+        "You must have at least 5 games in your profile",
+        400
+      );
+    }
+    const currentUserGameIds = currentUserGames.map(
+      (userGame) => userGame.gameId
+    );
+    const currentUserGamesData = await GameRepository.getGamesByIds(
+      currentUserGameIds
+    );
+
+    let usersUnswiped: FullExternalUserDTO[] = [];
+    for (const user of allUsers) {
+      if (
+        user.id !== userId &&
+        !swipes.some((swipe) => swipe.swipedId === user.id)
+      ) {
+        const userGames = await UserGameRepository.getUserGames(user.id);
+        if (!userGames || userGames.length < 5) {
+          continue; // Skip users with less than 5 games
+        }
+        const gameIds = userGames.map((userGame) => userGame.gameId);
+        const games = await GameRepository.getGamesByIds(gameIds);
+        usersUnswiped.push({
+          user: userToExternalUserDTO(user),
+          photosUrls: await this.getUserPhotosUrls(user.id),
+          games: games.map((game) => gameToDTO(game)),
+        });
+      }
+    }
+
+    const sortedUsers = sortUsersByGames(usersUnswiped, currentUserGamesData);
+    return {
+      status: Status.SUCCESS,
+      users: sortedUsers,
+    };
+  }
   public async resetPassword(
     userId: string,
     token: string,
@@ -373,8 +432,8 @@ export class UserService {
     return newPhotosDTOS;
   }
 
-  private async getUserPhotosUrls(userId: string): Promise<string[]> {
-    const urls: string[] = [];
+  private async getUserPhotosUrls(userId: string): Promise<PhotoUrlDTO[]> {
+    const urls: PhotoUrlDTO[] = [];
     const photos = await UserPhotoRepository.getUserPhotosByUserId(userId);
     for (const photo of photos) {
       const params = {
@@ -386,7 +445,10 @@ export class UserService {
         new GetObjectCommand(params),
         { expiresIn: 3600 } // URL expires in 1 hour
       );
-      urls.push(url);
+      urls.push({
+        url: url,
+        position: photo.position,
+      });
     }
     return urls;
   }

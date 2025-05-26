@@ -2,7 +2,7 @@ import { ConversationDTO } from "./conversation";
 import { GameDTO } from "./game";
 import { MessageDTO } from "./message";
 import { SwipeAction, SwipeDTO } from "./swipe";
-import { UserDTO } from "./user";
+import { FullExternalUserDTO, PhotoUrlDTO, UserDTO } from "./user";
 
 export type ErrorResponse = {
   status: Status;
@@ -30,6 +30,7 @@ export type UserCreateRequest = {
 export type UserCreateResponse = {
   status: Status;
   user: UserDTO;
+  photosUrls: PhotoUrlDTO[];
   games: GameDTO[];
 };
 
@@ -43,7 +44,7 @@ export type UserUpdateRequest = {
 export type UserUpdateResponse = {
   status: Status;
   user: UserDTO;
-  photosUrls: string[];
+  photosUrls: PhotoUrlDTO[];
   games: GameDTO[];
 };
 
@@ -62,8 +63,13 @@ export type UserLoginResponse = {
 export type GetUserResponse = {
   status: Status;
   user: UserDTO;
-  photosUrls: string[];
+  photosUrls: PhotoUrlDTO[];
   games: GameDTO[];
+};
+
+export type GetUsersSortedResponse = {
+  status: Status;
+  users: FullExternalUserDTO[];
 };
 
 // TOTP

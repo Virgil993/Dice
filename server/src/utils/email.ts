@@ -27,7 +27,7 @@ export function getVerificationEmail(
       <body>
         <h1>Welcome to AppDice!</h1>
         <p>Click the link below to verify your email address:</p>
-        <a href="${appUrl}/email/verify-email/?token=${token}&userId=${userId}">Verify Email</a>
+        <a href="${appUrl}/verify-email/?token=${token}&userId=${userId}">Verify Email</a>
       </body>
     </html>
   `;

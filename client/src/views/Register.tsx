@@ -1,74 +1,90 @@
-import React from "react";
+import { getGames, registerUser } from "@/apiAxios";
+import type { Game } from "@/models/game";
+import { ResponseStatus, type UserCreateRequest } from "@/models/request";
 import "../styles/register.css";
-import Footer from "../components/Footer";
+import { acceptedFileTypesPhotos, convertFromBlobToFile } from "@/utils/photos";
+import { calculateAge, isValidEmail } from "@/utils/validation";
+import imageCompression from "browser-image-compression";
+import { useEffect, useState } from "react";
+import closeIconLogo from "../assets/closePhotoIcon.svg";
+import addIconLogo from "../assets/addPhotoIcon.svg";
+import GameRegister from "../components/GameRegister";
+import { useNavigate } from "react-router-dom";
 import {
+  Alert,
   Button,
   Container,
   Form,
   FormGroup,
-  Label,
-  Input,
   FormText,
-  Alert,
+  Input,
+  Label,
 } from "reactstrap";
-import { acceptedFileTypesPhotos, availableGames } from "../constants/utils";
-import closeIconLogo from "../assets/closePhotoIcon.svg";
-import addIconLogo from "../assets/addPhotoIcon.svg";
-import GameRegister from "../components/GameRegister";
-import { User } from "../backend_sdk/user.sdk";
-import { useNavigate } from "react-router-dom";
-import imageCompression from "browser-image-compression";
+import Footer from "@/components/Footer";
 
 function Register() {
   const navigate = useNavigate();
 
-  const [image1, setImage1] = React.useState(null);
-  const [photo1Border, setPhoto1Border] = React.useState(
+  const [image1, setImage1] = useState<string>("");
+  const [photo1Border, setPhoto1Border] = useState<string>(
     "2px dashed rgb(58, 58, 66)"
   );
 
-  const [image2, setImage2] = React.useState(null);
-  const [photo2Border, setPhoto2Border] = React.useState(
+  const [image2, setImage2] = useState<string>("");
+  const [photo2Border, setPhoto2Border] = useState<string>(
     "2px dashed rgb(58, 58, 66)"
   );
 
-  const [image3, setImage3] = React.useState(null);
-  const [photo3Border, setPhoto3Border] = React.useState(
+  const [image3, setImage3] = useState<string>("");
+  const [photo3Border, setPhoto3Border] = useState<string>(
     "2px dashed rgb(58, 58, 66)"
   );
 
-  const [image4, setImage4] = React.useState(null);
-  const [photo4Border, setPhoto4Border] = React.useState(
+  const [image4, setImage4] = useState<string>("");
+  const [photo4Border, setPhoto4Border] = useState<string>(
     "2px dashed rgb(58, 58, 66)"
   );
 
-  const [image1File, setImage1File] = React.useState(null);
-  const [image2File, setImage2File] = React.useState(null);
-  const [image3File, setImage3File] = React.useState(null);
-  const [image4File, setImage4File] = React.useState(null);
+  const [image5, setImage5] = useState<string>("");
+  const [photo5Border, setPhoto5Border] = useState<string>(
+    "2px dashed rgb(58, 58, 66)"
+  );
 
-  const [gamesSelected, setGamesSelected] = React.useState([]);
+  const [image6, setImage6] = useState<string>("");
+  const [photo6Border, setPhoto6Border] = useState<string>(
+    "2px dashed rgb(58, 58, 66)"
+  );
 
-  const [firstName, setFirstName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [password1, setPassword1] = React.useState("");
-  const [password2, setPassword2] = React.useState("");
-  const [birthday, setBirthday] = React.useState("");
-  const [gender, setGender] = React.useState("");
-  const [description, setDescription] = React.useState("");
+  const [image1File, setImage1File] = useState<File | null>(null);
+  const [image2File, setImage2File] = useState<File | null>(null);
+  const [image3File, setImage3File] = useState<File | null>(null);
+  const [image4File, setImage4File] = useState<File | null>(null);
+  const [image5File, setImage5File] = useState<File | null>(null);
+  const [image6File, setImage6File] = useState<File | null>(null);
 
-  const [errorFirstName, setErrorFirstName] = React.useState(null);
-  const [errorEmail, setErrorEmail] = React.useState(null);
-  const [errorPassword1, setErrorPassword1] = React.useState(null);
-  const [errorPassword2, setErrorPassword2] = React.useState(null);
-  const [errorBirthday, setErrorBirthday] = React.useState(null);
-  const [errorGender, setErrorGender] = React.useState(null);
-  const [errorGeneral, setErrorGeneral] = React.useState(null);
+  const [gamesSelected, setGamesSelected] = useState<Game[]>([]);
+  const [availableGames, setAvailableGames] = useState<Game[]>([]);
 
-  const [validContinue, setValidContinue] = React.useState(false);
+  const [firstName, setFirstName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [password1, setPassword1] = useState<string>("");
+  const [password2, setPassword2] = useState<string>("");
+  const [birthday, setBirthday] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
 
-  React.useEffect(() => {
-    var numberOfImages = 0;
+  const [errorFirstName, setErrorFirstName] = useState<string | null>(null);
+  const [errorEmail, setErrorEmail] = useState<string | null>(null);
+  const [errorPassword1, setErrorPassword1] = useState<string | null>(null);
+  const [errorPassword2, setErrorPassword2] = useState<string | null>(null);
+  const [errorBirthday, setErrorBirthday] = useState<string | null>(null);
+  const [errorGender, setErrorGender] = useState<string | null>(null);
+  const [errorGeneral, setErrorGeneral] = useState<string | null>(null);
+
+  const [validContinue, setValidContinue] = useState<boolean>(false);
+
+  useEffect(() => {
+    let numberOfImages = 0;
     if (image1File) {
       numberOfImages = numberOfImages + 1;
     }
@@ -81,6 +97,12 @@ function Register() {
     if (image4File) {
       numberOfImages = numberOfImages + 1;
     }
+    if (image5File) {
+      numberOfImages = numberOfImages + 1;
+    }
+    if (image6File) {
+      numberOfImages = numberOfImages + 1;
+    }
     if (gamesSelected.length >= 5 && numberOfImages >= 2) {
       setValidContinue(true);
     } else {
@@ -91,179 +113,142 @@ function Register() {
     image2File,
     image3File,
     image4File,
+    image5File,
+    image6File,
     gamesSelected,
     validContinue,
   ]);
 
-  function isValidEmail(email) {
-    return /\S+@\S+\.\S+/.test(email);
-  }
-
-  function calculateAge(date) {
-    var newDate = new Date(date);
-    var nowDate = new Date();
-    var ageDifMs = newDate - nowDate;
-    var ageDate = new Date(ageDifMs);
-    return Math.abs(ageDate.getUTCFullYear() - 1970) - 1;
-  }
-
-  function convertFromBlobToFile(blob, ImageNr) {
-    const file = new File([blob], "Image" + ImageNr, {
-      type: blob.type,
-    });
-    return file;
-  }
-
-  async function uploadImageToS3(file, userId, fileName) {
-    var reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async function () {
-      const res1 = await User.UploadImageToS3(reader.result, userId, fileName);
+  useEffect(() => {
+    // Fetch available games from the API
+    const fetchAvailableGames = async () => {
+      try {
+        const response = await getGames();
+        if (
+          response.status !== 200 ||
+          response.data.status !== ResponseStatus.SUCCESS
+        ) {
+          setErrorGeneral("Failed to fetch games. Please try again later.");
+          return;
+        }
+        const data: Game[] = response.data.games;
+        setAvailableGames(data);
+      } catch (error) {
+        console.error("Error fetching games:", error);
+      }
     };
-    reader.onerror = function (error) {
-      console.log("Error: ", error);
-    };
-  }
 
-  async function handleSubmit(event) {
+    fetchAvailableGames();
+  }, []);
+
+  async function handleSubmit(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
+    setErrorFirstName(null);
+    setErrorEmail(null);
+    setErrorPassword1(null);
+    setErrorPassword2(null);
+    setErrorBirthday(null);
+    setErrorGender(null);
+    setErrorGeneral(null);
     if (firstName == "") {
       setErrorFirstName("First name is required!");
-      var element = document.getElementById("first-name-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("first-name-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (email == "") {
       setErrorEmail("Email is mandatory!");
-      var element = document.getElementById("email-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("email-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (!isValidEmail(email)) {
       setErrorEmail("Email is invalid!");
-      var element = document.getElementById("email-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("email-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (password1 == "") {
       setErrorPassword1("Password is mandatory!");
-      var element = document.getElementById("password1-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("password1-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (password1.length <= 9) {
       setErrorPassword1("Password must have at least 10 characters!");
-      var element = document.getElementById("password1-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("password1-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (password2 !== password1) {
       setErrorPassword2("Passwords do not match!");
-      var element = document.getElementById("password2-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("password2-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (password2 == "") {
       setErrorPassword2("Password is mandatory!");
-      var element = document.getElementById("password2-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("password2-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (birthday == "") {
       setErrorBirthday("Birthday is mandatory!");
-      var element = document.getElementById("birthday-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("birthday-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (calculateAge(birthday) < 18) {
       setErrorBirthday("You need to be at least 18 years old to use this app!");
-      var element = document.getElementById("birthday-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("birthday-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     if (gender == "") {
       setErrorGender("Gender is mandatory!");
-      var element = document.getElementById("gender-register");
-      element.scrollIntoView({ behavior: "smooth" });
+      const element = document.getElementById("gender-register");
+      element?.scrollIntoView({ behavior: "smooth" });
       return;
     }
+    const imageFiles: File[] = [];
 
-    var image1DB = new File([""], "Image1");
-    var image2DB = new File([""], "Image2");
-    var image3DB = new File([""], "Image3");
-    var image4DB = new File([""], "Image4");
+    if (image1File !== null) imageFiles.push(image1File);
+    if (image2File !== null) imageFiles.push(image2File);
+    if (image3File !== null) imageFiles.push(image3File);
+    if (image4File !== null) imageFiles.push(image4File);
+    if (image5File !== null) imageFiles.push(image5File);
+    if (image6File !== null) imageFiles.push(image6File);
 
-    if (image1 == null) {
-      if (image2 == null) {
-        image1DB = convertFromBlobToFile(image3File, "1");
-        image2DB = convertFromBlobToFile(image4File, "2");
-      } else {
-        image1DB = convertFromBlobToFile(image2File, "1");
-        if (image3 == null) {
-          image2DB = convertFromBlobToFile(image4File, "2");
-        } else {
-          image2DB = convertFromBlobToFile(image3File, "2");
-          if (image4 != null) {
-            image3DB = convertFromBlobToFile(image4File, "3");
-          }
-        }
-      }
-    } else {
-      image1DB = convertFromBlobToFile(image1File, "1");
-      if (image2 == null) {
-        if (image3 == null) {
-          image2DB = convertFromBlobToFile(image4File, "2");
-        } else {
-          image2DB = convertFromBlobToFile(image3File, "2");
-          if (image4 != null) {
-            image3DB = convertFromBlobToFile(image4File, "3");
-          }
-        }
-      } else {
-        image2DB = convertFromBlobToFile(image2File, "2");
-        if (image3 == null) {
-          if (image4 != null) {
-            image3DB = convertFromBlobToFile(image4File, "3");
-          }
-        } else {
-          image3DB = convertFromBlobToFile(image3File, "3");
-          if (image4 != null) {
-            image4DB = convertFromBlobToFile(image4File, "4");
-          }
-        }
-      }
-    }
-    const res = await User.create(
-      firstName,
-      email,
-      password1,
-      birthday,
-      gender,
-      description,
-      gamesSelected
-    ).catch((err) => {
-      setErrorGeneral(err.msg);
-      console.log(err);
-      return;
+    const payload: UserCreateRequest = {
+      name: firstName,
+      email: email,
+      password: password1,
+      birthday: birthday,
+      gender: gender,
+      description: description,
+      gameIds: gamesSelected.map((game) => game.id),
+    };
+
+    const formData = new FormData();
+    formData.append("user", JSON.stringify(payload));
+    imageFiles.forEach((file) => {
+      formData.append(`files`, file);
     });
-    if (!res) {
-      setErrorGeneral("Unknown error, please try again later");
-      console.log("Error at the Database");
-      return;
-    }
-    if (!res.success) {
-      setErrorGeneral(res.msg);
-      console.log(res.msg);
-      return;
-    } else {
-      await uploadImageToS3(image1DB, res.userId, "Image1");
-      await uploadImageToS3(image2DB, res.userId, "Image2");
-      await uploadImageToS3(image3DB, res.userId, "Image3");
-      await uploadImageToS3(image4DB, res.userId, "Image4");
-      navigate("/auth/login");
-    }
 
-    // setIsSubmiting(true)
+    const response = await registerUser(formData);
+    if (
+      response.status === 201 &&
+      response.data.status === ResponseStatus.SUCCESS
+    ) {
+      // Registration successful, redirect to login page
+      navigate("/verify-email");
+    } else if (response.data.status === ResponseStatus.ERROR) {
+      // Registration failed, show error message
+      setErrorGeneral(response.data.message);
+    } else {
+      // Unexpected error, show a generic error message
+      setErrorGeneral("An unexpected error occurred. Please try again later.");
+    }
   }
 
   return (
@@ -421,8 +406,8 @@ function Register() {
               id="gender-register"
               tag="fieldset"
               onChange={(e) => {
-                setGender(e.target.value);
-                console.log(e.target.value);
+                // @ts-expect-error event.target.value is a string
+                setGender(e.target.value.toLowerCase());
               }}
             >
               <legend>Gender</legend>
@@ -483,7 +468,8 @@ function Register() {
                 style={{ border: photo1Border }}
                 onClick={() => {
                   if (!image1) {
-                    document.querySelector(".photo1-upload-register").click();
+                    // @ts-expect-error document is not null
+                    document?.querySelector(".photo1-upload-register")?.click();
                   }
                 }}
               >
@@ -507,16 +493,23 @@ function Register() {
                         maxWidthOrHeight: 1024,
                       };
                       try {
-                        const compressedFile = await imageCompression(
+                        const compressedBlob = await imageCompression(
                           event.target.files[0],
                           options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
                         );
                         setImage1File(compressedFile);
                       } catch (error) {
                         console.log(error);
                       }
                     }
-                    event.target.value = null;
                   }}
                 />
                 {image1 ? (
@@ -530,17 +523,17 @@ function Register() {
                   <img
                     src={addIconLogo}
                     className="add-photo-icon"
-                    curosor="pointer"
+                    style={{ cursor: "pointer" }}
                   />
                 )}
                 {image1 ? (
                   <img
                     src={closeIconLogo}
                     className="remove-photo-icon"
-                    cursor="pointer"
+                    style={{ cursor: "pointer" }}
                     onClick={() => {
                       setImage1File(null);
-                      setImage1(null);
+                      setImage1("");
                       setPhoto1Border("2px dashed rgb(58, 58, 66)");
                     }}
                   />
@@ -554,6 +547,7 @@ function Register() {
                 style={{ border: photo2Border }}
                 onClick={() => {
                   if (!image2) {
+                    // @ts-expect-error document is not null
                     document.querySelector(".photo2-upload-register").click();
                   }
                 }}
@@ -578,16 +572,23 @@ function Register() {
                         maxWidthOrHeight: 1024,
                       };
                       try {
-                        const compressedFile = await imageCompression(
+                        const compressedBlob = await imageCompression(
                           event.target.files[0],
                           options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
                         );
                         setImage2File(compressedFile);
                       } catch (error) {
                         console.log(error);
                       }
                     }
-                    event.target.value = null;
                   }}
                 />
                 {image2 ? (
@@ -601,18 +602,18 @@ function Register() {
                   <img
                     src={addIconLogo}
                     className="add-photo-icon"
-                    curosor="pointer"
+                    style={{ cursor: "pointer" }}
                   />
                 )}
                 {image2 ? (
                   <img
                     src={closeIconLogo}
                     className="remove-photo-icon"
-                    cursor="pointer"
+                    style={{ cursor: "pointer" }}
                     onClick={() => {
                       setImage2File(null);
                       console.log(image2File);
-                      setImage2(null);
+                      setImage2("");
                       setPhoto2Border("2px dashed rgb(58, 58, 66)");
                     }}
                   />
@@ -626,6 +627,7 @@ function Register() {
                 style={{ border: photo3Border }}
                 onClick={() => {
                   if (!image3) {
+                    // @ts-expect-error document is not null
                     document.querySelector(".photo3-upload-register").click();
                   }
                 }}
@@ -650,16 +652,23 @@ function Register() {
                         maxWidthOrHeight: 1024,
                       };
                       try {
-                        const compressedFile = await imageCompression(
+                        const compressedBlob = await imageCompression(
                           event.target.files[0],
                           options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
                         );
                         setImage3File(compressedFile);
                       } catch (error) {
                         console.log(error);
                       }
                     }
-                    event.target.value = null;
                   }}
                 />
                 {image3 ? (
@@ -673,17 +682,17 @@ function Register() {
                   <img
                     src={addIconLogo}
                     className="add-photo-icon"
-                    curosor="pointer"
+                    style={{ cursor: "pointer" }}
                   />
                 )}
                 {image3 ? (
                   <img
                     src={closeIconLogo}
                     className="remove-photo-icon"
-                    cursor="pointer"
+                    style={{ cursor: "pointer" }}
                     onClick={() => {
                       setImage3File(null);
-                      setImage3(null);
+                      setImage3("");
                       setPhoto3Border("2px dashed rgb(58, 58, 66)");
                     }}
                   />
@@ -697,6 +706,7 @@ function Register() {
                 style={{ border: photo4Border }}
                 onClick={() => {
                   if (!image4) {
+                    // @ts-expect-error document is not null
                     document.querySelector(".photo4-upload-register").click();
                   }
                 }}
@@ -721,16 +731,23 @@ function Register() {
                         maxWidthOrHeight: 1024,
                       };
                       try {
-                        const compressedFile = await imageCompression(
+                        const compressedBlob = await imageCompression(
                           event.target.files[0],
                           options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
                         );
                         setImage4File(compressedFile);
                       } catch (error) {
                         console.log(error);
                       }
                     }
-                    event.target.value = null;
                   }}
                 />
                 {image4 ? (
@@ -744,18 +761,174 @@ function Register() {
                   <img
                     src={addIconLogo}
                     className="add-photo-icon"
-                    curosor="pointer"
+                    style={{ cursor: "pointer" }}
                   />
                 )}
                 {image4 ? (
                   <img
                     src={closeIconLogo}
                     className="remove-photo-icon"
-                    cursor="pointer"
+                    style={{ cursor: "pointer" }}
                     onClick={() => {
                       setImage4File(null);
-                      setImage4(null);
+                      setImage4("");
                       setPhoto4Border("2px dashed rgb(58, 58, 66)");
+                    }}
+                  />
+                ) : (
+                  <></>
+                )}
+              </FormGroup>
+              <FormGroup
+                className="file-upload-form-group"
+                style={{ border: photo5Border }}
+                onClick={() => {
+                  if (!image5) {
+                    // @ts-expect-error document is not null
+                    document.querySelector(".photo5-upload-register").click();
+                  }
+                }}
+              >
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="photo5-upload-register"
+                  hidden
+                  onChange={async (event) => {
+                    event.preventDefault();
+                    if (
+                      event.target.files &&
+                      acceptedFileTypesPhotos.includes(
+                        event.target.files[0].type
+                      )
+                    ) {
+                      setImage5(URL.createObjectURL(event.target.files[0]));
+                      setPhoto5Border("hidden");
+                      const options = {
+                        maxSizeMB: 0.5,
+                        maxWidthOrHeight: 1024,
+                      };
+                      try {
+                        const compressedBlob = await imageCompression(
+                          event.target.files[0],
+                          options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
+                        );
+                        setImage5File(compressedFile);
+                      } catch (error) {
+                        console.log(error);
+                      }
+                    }
+                  }}
+                />
+                {image5 ? (
+                  <img
+                    src={image4}
+                    width={"100%"}
+                    height={"100%"}
+                    className="photo-register"
+                  />
+                ) : (
+                  <img
+                    src={addIconLogo}
+                    className="add-photo-icon"
+                    style={{ cursor: "pointer" }}
+                  />
+                )}
+                {image5 ? (
+                  <img
+                    src={closeIconLogo}
+                    className="remove-photo-icon"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setImage5File(null);
+                      setImage5("");
+                      setPhoto5Border("2px dashed rgb(58, 58, 66)");
+                    }}
+                  />
+                ) : (
+                  <></>
+                )}
+              </FormGroup>
+              <FormGroup
+                className="file-upload-form-group"
+                style={{ border: photo6Border }}
+                onClick={() => {
+                  if (!image6) {
+                    // @ts-expect-error document is not null
+                    document.querySelector(".photo6-upload-register").click();
+                  }
+                }}
+              >
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="photo6-upload-register"
+                  hidden
+                  onChange={async (event) => {
+                    event.preventDefault();
+                    if (
+                      event.target.files &&
+                      acceptedFileTypesPhotos.includes(
+                        event.target.files[0].type
+                      )
+                    ) {
+                      setImage6(URL.createObjectURL(event.target.files[0]));
+                      setPhoto6Border("hidden");
+                      const options = {
+                        maxSizeMB: 0.5,
+                        maxWidthOrHeight: 1024,
+                      };
+                      try {
+                        const compressedBlob = await imageCompression(
+                          event.target.files[0],
+                          options
+                        );
+                        const name = event.target.files[0].name;
+                        const type = event.target.files[0].type;
+
+                        const compressedFile = convertFromBlobToFile(
+                          compressedBlob,
+                          name,
+                          type
+                        );
+                        setImage6File(compressedFile);
+                      } catch (error) {
+                        console.log(error);
+                      }
+                    }
+                  }}
+                />
+                {image6 ? (
+                  <img
+                    src={image6}
+                    width={"100%"}
+                    height={"100%"}
+                    className="photo-register"
+                  />
+                ) : (
+                  <img
+                    src={addIconLogo}
+                    className="add-photo-icon"
+                    style={{ cursor: "pointer" }}
+                  />
+                )}
+                {image6 ? (
+                  <img
+                    src={closeIconLogo}
+                    className="remove-photo-icon"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setImage6File(null);
+                      setImage6("");
+                      setPhoto6Border("2px dashed rgb(58, 58, 66)");
                     }}
                   />
                 ) : (
@@ -778,19 +951,27 @@ function Register() {
           What games do you play?
         </Container>
         <Container className="games-container-register">
-          {availableGames.map((element, index) => (
+          {availableGames.map((element) => (
             <GameRegister
-              key={element}
-              name={element}
-              isSelected={gamesSelected.includes(index)}
+              key={element.id}
+              name={element.name}
+              isSelected={
+                gamesSelected.find((game) => game.id === element.id) !==
+                undefined
+              }
               onClick={() => {
-                if (gamesSelected.includes(index)) {
-                  let newlist = [...gamesSelected];
-                  const result = newlist.filter((game) => game != index);
+                if (
+                  gamesSelected.find((game) => game.id === element.id) !==
+                  undefined
+                ) {
+                  const newlist = [...gamesSelected];
+                  const result = newlist.filter(
+                    (game) => game.id != element.id
+                  );
                   setGamesSelected(result);
                 } else {
-                  let newlist = [...gamesSelected];
-                  newlist.push(index);
+                  const newlist = [...gamesSelected];
+                  newlist.push(element);
                   setGamesSelected(newlist);
                 }
               }}

@@ -96,16 +96,6 @@ export async function validateFiles(
   const { fileTypeFromBuffer } = await loadEsm("file-type");
   const validMimeTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
   const maxFileSize = 10 * 1024 * 1024; // 10 MB
-  const allowedExtensions = [
-    ".jpg",
-    ".jpeg",
-    ".png",
-    ".webp",
-    ".PNG",
-    ".JPG",
-    ".JPEG",
-    ".WEBP",
-  ];
   if (files.length > 6) {
     throw new UserError("Too many files, maximum 6 allowed", 400);
   }
@@ -118,10 +108,6 @@ export async function validateFiles(
     }
     if (file.size > maxFileSize) {
       throw new UserError("File size is too large", 400);
-    }
-    const ext = file.originalname.split(".").pop();
-    if (!allowedExtensions.includes(`.${ext}`)) {
-      throw new UserError("File extension is not valid", 400);
     }
     if (file.originalname.length > 20000) {
       throw new UserError("File name is too long", 400);

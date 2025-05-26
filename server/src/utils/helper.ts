@@ -1,5 +1,5 @@
 import { User } from "@/db/models/user";
-import { UserDTO } from "@/dtos/user";
+import { ExternalUserDTO, FullExternalUserDTO, UserDTO } from "@/dtos/user";
 import { ErrorResponse, Status } from "@/dtos/request";
 import { Game } from "@/db/models/game";
 import { GameDTO } from "@/dtos/game";
@@ -97,4 +97,30 @@ export function messageToErrorResponse(message: string): ErrorResponse {
     status: Status.ERROR,
     message: message,
   };
+}
+
+export function userToExternalUserDTO(user: User): ExternalUserDTO {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    birthday: user.birthday,
+    description: user.description,
+    gender: user.gender,
+  };
+}
+
+export function sortUsersByGames(
+  users: FullExternalUserDTO[],
+  games: Game[]
+): FullExternalUserDTO[] {
+  return users.sort((a, b) => {
+    const aGameCount = a.games.filter((game) =>
+      games.some((g) => g.id === game.id)
+    ).length;
+    const bGameCount = b.games.filter((game) =>
+      games.some((g) => g.id === game.id)
+    ).length;
+    return bGameCount - aGameCount; // Sort in descending order
+  });
 }

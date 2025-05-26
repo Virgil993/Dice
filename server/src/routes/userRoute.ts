@@ -85,6 +85,13 @@ export class UserRoutes {
       checkVerification,
       this.userController.getUserById.bind(this.userController)
     );
+    this.router.get(
+      "/sorted",
+      this.authenticationMiddleware,
+      this.rateLimiters.api,
+      checkVerification,
+      this.userController.getUsersSorted.bind(this.userController)
+    );
 
     this.router.put(
       "/",

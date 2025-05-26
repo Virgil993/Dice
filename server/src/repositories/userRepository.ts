@@ -41,6 +41,16 @@ export class UserRepository {
     }
   }
 
+  public static async getAllUsers(): Promise<User[]> {
+    try {
+      const users = await User.findAll();
+      return users;
+    } catch (error) {
+      console.error("Error fetching all users:", error);
+      throw error;
+    }
+  }
+
   public static async setUserVerified(userId: string): Promise<User> {
     try {
       const user = await User.findOne({ where: { id: userId } });

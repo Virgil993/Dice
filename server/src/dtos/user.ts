@@ -1,4 +1,5 @@
 import { Gender } from "@/db/models/user";
+import { GameDTO } from "./game";
 
 export type UserDTO = {
   id: string;
@@ -14,6 +15,21 @@ export type UserDTO = {
   deletedAt: Date | null;
 };
 
+export type ExternalUserDTO = {
+  id: string;
+  email: string;
+  name: string;
+  birthday: Date;
+  description: string;
+  gender: Gender;
+};
+
+export type FullExternalUserDTO = {
+  user: ExternalUserDTO;
+  photosUrls: PhotoUrlDTO[];
+  games: GameDTO[];
+};
+
 export type UserPhotoDTO = {
   id: string;
   userId: string;
@@ -25,6 +41,11 @@ export type UserPhotoDTO = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+};
+
+export type PhotoUrlDTO = {
+  url: string;
+  position: number;
 };
 
 export type ActiveSessionPayload = {

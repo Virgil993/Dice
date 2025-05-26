@@ -58,7 +58,7 @@ export class UserController {
 
       res.status(201).json(user);
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error creating user:", error);
       next(error);
     }
@@ -104,7 +104,7 @@ export class UserController {
       const user = await this.userService.updateUser(userId, userInfo, files);
       res.status(200).json(user);
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error updating user:", error);
       next(error);
     }
@@ -128,7 +128,7 @@ export class UserController {
       const user = await this.userService.loginUser(email, password, userAgent);
       await this.rateLimiters.clearLoginAttempts(req);
       res.status(200).json(user);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error logging in user:", error);
       await this.rateLimiters.recordFailedLogin(req);
       next(error);
@@ -146,7 +146,7 @@ export class UserController {
 
       res.status(200).json(user);
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching user by ID:", error);
       next(error);
     }
@@ -166,8 +166,28 @@ export class UserController {
       const user = await this.userService.getUserById(userId);
       res.status(200).json(user);
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error fetching user by ID:", error);
+      next(error);
+    }
+  }
+
+  public async getUsersSorted(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const userId = req.user!.userId;
+    if (!userId) {
+      res.status(400).json(messageToErrorResponse("User ID is required"));
+      return;
+    }
+    try {
+      const users = await this.userService.getUsersSorted(userId);
+      res.status(200).json(users);
+      return;
+    } catch (error) {
+      console.error("Error fetching sorted users:", error);
       next(error);
     }
   }
@@ -198,7 +218,7 @@ export class UserController {
         status: Status.SUCCESS,
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error resetting password:", error);
       next(error);
     }

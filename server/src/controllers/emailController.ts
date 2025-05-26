@@ -26,7 +26,7 @@ export class EmailController {
         status: Status.SUCCESS,
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error sending verification email:", error);
       next(error);
       return;
@@ -57,7 +57,7 @@ export class EmailController {
         status: Status.SUCCESS,
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error verifying email:", error);
       next(error);
       return;
@@ -80,7 +80,7 @@ export class EmailController {
         status: Status.SUCCESS,
       });
       return;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error sending password reset email:", error);
       next(error);
       return;

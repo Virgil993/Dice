@@ -1,6 +1,6 @@
 import { GameController } from "@/controllers/gameController";
 import { RateLimitMiddlewares } from "@/middlewares/rateLimit";
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 
 export class GameRoute {
   private router: Router;
@@ -17,7 +17,7 @@ export class GameRoute {
 
   private setupRoutes(): void {
     this.router.get(
-      "/all",
+      "/",
       this.rateLimiters.api,
       this.gameController.getGames.bind(this.gameController)
     );

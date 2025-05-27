@@ -240,10 +240,10 @@ export function generateOTPAuthURL(
   const encodedIssuer = encodeURIComponent(issuer);
   const encodedAccount = encodeURIComponent(email);
 
-  console.log("Secret", secret);
+  const secretEncoded = encodeURIComponent(secret).replace(/=/g, ""); // Remove padding for URL
 
   // Build the otpauth URL according to the spec
-  let url = `otpauth://totp/${encodedIssuer}:${encodedAccount}?secret=${secret}`;
+  let url = `otpauth://totp/${encodedIssuer}:${encodedAccount}?secret=${secretEncoded}`;
 
   // Add issuer again as a parameter (recommended practice)
   url += `&issuer=${encodedIssuer}`;

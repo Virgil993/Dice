@@ -21,23 +21,18 @@ function EnableTotp() {
           navigate("/profile");
         }, 3000);
       } else {
+        console.log("TOTP URL:", response.data.otpauthUrl);
         setTotpUrl(response.data.otpauthUrl);
+        const dataUrl = await toDataURL(response.data.otpauthUrl);
+        setQrCodeUrl(dataUrl);
+        toast.success("TOTP URL generated successfully!");
       }
     };
 
-    if (!totpUrl) fetchTotpUrl();
-  }, [totpUrl]);
-
-  useEffect(() => {
-    const generateQrCode = async () => {
-      const dataUrl = await toDataURL(totpUrl);
-      setQrCodeUrl(dataUrl);
-    };
-
-    if (totpUrl && !qrCodeUrl) {
-      generateQrCode();
+    if (totpUrl === "") {
+      fetchTotpUrl();
     }
-  }, [totpUrl, qrCodeUrl]);
+  }, [totpUrl]);
 
   return (
     <Container className="d-flex flex-column align-items-center justify-content-center vh-100">

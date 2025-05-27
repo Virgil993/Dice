@@ -79,13 +79,6 @@ export class UserRoutes {
       this.userController.getUser.bind(this.userController)
     );
     this.router.get(
-      "/:userId",
-      this.authenticationMiddleware,
-      this.rateLimiters.api,
-      checkVerification,
-      this.userController.getUserById.bind(this.userController)
-    );
-    this.router.get(
       "/sorted",
       this.authenticationMiddleware,
       this.rateLimiters.api,
@@ -120,6 +113,13 @@ export class UserRoutes {
       "/reset-password",
       this.rateLimiters.resetPassword,
       this.userController.resetPassword.bind(this.userController)
+    );
+    this.router.delete(
+      "/",
+      this.authenticationMiddleware,
+      this.rateLimiters.api,
+      checkVerification,
+      this.userController.deleteUser.bind(this.userController)
     );
   }
 

@@ -224,4 +224,26 @@ export class UserController {
       next(error);
     }
   }
+
+  public async deleteUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    const userId = req.user!.userId;
+    if (!userId) {
+      res.status(400).json(messageToErrorResponse("User ID is required"));
+      return;
+    }
+    try {
+      await this.userService.deleteUser(userId);
+      res.status(200).json({
+        status: Status.SUCCESS,
+      });
+      return;
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      next(error);
+    }
+  }
 }

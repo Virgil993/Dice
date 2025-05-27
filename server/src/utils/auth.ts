@@ -240,6 +240,8 @@ export function generateOTPAuthURL(
   const encodedIssuer = encodeURIComponent(issuer);
   const encodedAccount = encodeURIComponent(email);
 
+  console.log("Secret", secret);
+
   // Build the otpauth URL according to the spec
   let url = `otpauth://totp/${encodedIssuer}:${encodedAccount}?secret=${secret}`;
 
@@ -302,7 +304,7 @@ export function decryptTotpSecret(
 
 export function verifyTOTPCode(userSecret: string, userCode: string): boolean {
   authenticator.options = {
-    window: 1, // Allow a 1-time window for time-based codes
+    window: 3, // Allow a 1-time window for time-based codes
     step: 30, // Time step in seconds
     digits: 6, // Number of digits in the code
   };

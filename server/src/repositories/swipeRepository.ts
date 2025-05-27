@@ -49,4 +49,15 @@ export class SwipeRepository {
       throw error;
     }
   }
+
+  public static async deleteSwipeByUserId(userId: string): Promise<void> {
+    try {
+      await Swipe.destroy({
+        where: { swiperId: userId },
+      });
+    } catch (error) {
+      console.error("Error deleting swipe by user ID:", error);
+      throw error;
+    }
+  }
 }

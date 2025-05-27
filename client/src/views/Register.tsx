@@ -241,7 +241,7 @@ function Register() {
       response.data.status === ResponseStatus.SUCCESS
     ) {
       // Registration successful, redirect to login page
-      navigate("/verify-email");
+      navigate("/auth/login");
     } else if (response.data.status === ResponseStatus.ERROR) {
       // Registration failed, show error message
       setErrorGeneral(response.data.message);

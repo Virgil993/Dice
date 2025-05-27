@@ -49,6 +49,10 @@ export type UserUpdateResponse = {
   games: Game[];
 };
 
+export type ResetPasswordRequest = {
+  password: string;
+};
+
 export type UserLoginRequest = {
   email: string;
   password: string;

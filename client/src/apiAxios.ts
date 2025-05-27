@@ -4,11 +4,14 @@ import {
   type AddSwipeRequest,
   type AddSwipeResponse,
   type EnableTotpRequest,
+  type EnableTotpResponse,
+  type GenerateTotpResponse,
   type GetConversationsResponse,
   type GetGamesResponse,
   type GetMessagesResponse,
   type GetUserResponse,
   type GetUsersSortedResponse,
+  type ResetPasswordRequest,
   type SendPasswordResetEmailRequest,
   type Status,
   type StatusError,
@@ -130,13 +133,6 @@ export const getUser = async () => {
   return response;
 };
 
-export const getUserById = async (userId: string) => {
-  const response: AxiosResponse<Status<GetUserResponse>> = await instance.get(
-    `/api/users/${userId}`
-  );
-  return response;
-};
-
 export const getUsersSorted = async () => {
   const response: AxiosResponse<Status<GetUsersSortedResponse>> =
     await instance.get("/api/users/sorted");
@@ -145,7 +141,7 @@ export const getUsersSorted = async () => {
 
 export const updateUser = async (payload: FormData) => {
   const response: AxiosResponse<Status<UserUpdateResponse>> =
-    await instance.put("/api/users/user", payload, {
+    await instance.put("/api/users", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -153,10 +149,20 @@ export const updateUser = async (payload: FormData) => {
   return response;
 };
 
-export const resetPassword = async (userId: string, token: string) => {
+export const resetPassword = async (
+  userId: string,
+  token: string,
+  payload: ResetPasswordRequest
+) => {
   const response: AxiosResponse<Status> = await instance.put(
-    `/api/users/reset-password?userId=${userId}&token=${token}`
+    `/api/users/reset-password?userId=${userId}&token=${token}`,
+    payload
   );
+  return response;
+};
+
+export const deleteUser = async () => {
+  const response: AxiosResponse<Status> = await instance.delete("/api/users");
   return response;
 };
 
@@ -189,9 +195,8 @@ export const sendPasswordResetEmail = async (
 // TOTP
 
 export const generateTotp = async () => {
-  const response: AxiosResponse<Status> = await instance.post(
-    "/api/totp/generate-secret"
-  );
+  const response: AxiosResponse<Status<GenerateTotpResponse>> =
+    await instance.post("/api/totp/generate-secret");
   return response;
 };
 
@@ -204,10 +209,8 @@ export const verifyTotp = async (payload: VerifyTotpRequest) => {
 };
 
 export const enableTotp = async (payload: EnableTotpRequest) => {
-  const response: AxiosResponse<Status> = await instance.post(
-    "/api/totp/enable",
-    payload
-  );
+  const response: AxiosResponse<Status<EnableTotpResponse>> =
+    await instance.post("/api/totp/enable", payload);
   return response;
 };
 

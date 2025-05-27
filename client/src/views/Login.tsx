@@ -141,7 +141,7 @@ function Login() {
               </FormGroup>
               <Container style={{ marginTop: "20px", paddingLeft: "0px" }}>
                 <a
-                  href="/auth/forgotPassword"
+                  href="/forgot-password"
                   style={{ fontWeight: "bold", color: "green" }}
                 >
                   Forgot password?

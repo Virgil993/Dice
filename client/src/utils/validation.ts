@@ -2,7 +2,7 @@ export function isValidEmail(email: string): boolean {
   return /\S+@\S+\.\S+/.test(email);
 }
 
-export function calculateAge(date: string): number {
+export function calculateAge(date: string | Date): number {
   const newDate = new Date(date);
   const nowDate = new Date();
   const ageDifMs = nowDate.getTime() - newDate.getTime();

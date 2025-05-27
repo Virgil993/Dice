@@ -48,4 +48,15 @@ export class UserGameRepository {
       throw error;
     }
   }
+
+  public static async deleteUserGamesByUserId(userId: string): Promise<void> {
+    try {
+      await UserGame.destroy({
+        where: { userId },
+      });
+    } catch (error) {
+      console.error("Error deleting user games by user ID:", error);
+      throw error;
+    }
+  }
 }

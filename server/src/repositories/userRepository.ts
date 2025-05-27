@@ -143,4 +143,17 @@ export class UserRepository {
       throw error;
     }
   }
+
+  public static async deleteUserById(userId: string): Promise<void> {
+    try {
+      const user = await User.findOne({ where: { id: userId } });
+      if (!user) {
+        throw new Error(`User with ID ${userId} not found`);
+      }
+      await user.destroy();
+    } catch (error) {
+      console.error("Error deleting user by ID:", error);
+      throw error;
+    }
+  }
 }

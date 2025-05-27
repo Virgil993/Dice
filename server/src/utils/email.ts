@@ -43,7 +43,7 @@ export function getPasswordResetEmail(
       <body>
         <h1>Reset Your Password</h1>
         <p>Click the link below to reset your password:</p>
-        <a href="${appUrl}/password/reset-password/?token=${token}&userId=${userId}">Reset Password</a>
+        <a href="${appUrl}/reset-password/?token=${token}&userId=${userId}">Reset Password</a>
       </body>
     </html>
   `;

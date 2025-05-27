@@ -26,4 +26,17 @@ export class ActiveSessionRepository {
       throw error;
     }
   }
+
+  public static async deleteActiveSessionByUserId(
+    userId: string
+  ): Promise<void> {
+    try {
+      await ActiveSession.destroy({
+        where: { userId: userId },
+      });
+    } catch (error) {
+      console.error("Error deleting active session by user ID:", error);
+      throw error;
+    }
+  }
 }

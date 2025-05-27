@@ -20,7 +20,9 @@ import {
 } from "@/dtos/request";
 import { FullExternalUserDTO, PhotoUrlDTO, UserPhotoDTO } from "@/dtos/user";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
+import { ConversationRepository } from "@/repositories/conversationRepository";
 import { GameRepository } from "@/repositories/gameRepository";
+import { MessageRepository } from "@/repositories/messageRepository";
 import { PasswordResetSessionRepository } from "@/repositories/passwordResetSessionRepository";
 import { SwipeRepository } from "@/repositories/swipeRepository";
 import { UserGameRepository } from "@/repositories/userGameRepository";
@@ -451,5 +453,26 @@ export class UserService {
       });
     }
     return urls;
+  }
+
+  public async deleteUser(userId: string): Promise<void> {
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new UserError("User not found", 404);
+    }
+
+    const conversations = await ConversationRepository.getConversationsByUserId(
+      userId
+    );
+    const conversationIds = conversations.map(
+      (conversation) => conversation.id
+    );
+
+    await MessageRepository.deleteAllByConversationIds(conversationIds);
+    await ConversationRepository.deleteAllConversations(userId);
+    await SwipeRepository.deleteSwipeByUserId(userId);
+    await UserGameRepository.deleteUserGamesByUserId(userId);
+    await this.updateUserPhotos([], userId); // Delete all photos
+    await UserRepository.deleteUserById(userId);
   }
 }

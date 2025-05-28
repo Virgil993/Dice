@@ -13,6 +13,8 @@ import ResetPassword from "./views/ResetPassword";
 import Profile from "./views/Profile";
 import EnableTotp from "./views/EnableTotp";
 import TestTotp from "./views/TestTotp";
+import VerifyTotp from "./views/VerifyTotp";
+import UseTotpBackup from "./views/UseTotpBackup";
 
 export const AppRoutes = () => {
   return (
@@ -28,6 +30,13 @@ export const AppRoutes = () => {
           <Route path={"/verify-email"} element={<VerifyEmail />} />
           <Route path={"/forgot-password"} element={<ForgotPassword />} />
           <Route path={"/reset-password"} element={<ResetPassword />} />
+          <Route path={"/auth/totp"} element={<VerifyTotp />} />
+          <Route
+            path={"/auth/lost-authenticator"}
+            element={<UseTotpBackup />}
+          />
+
+          {/* Main application routes */}
           <Route path={"/"} element={<App />}>
             <Route path={"/dashboard"} element={<Dashboard />} />
             <Route path={"/send-verify-email"} element={<SendVerifyEmail />} />

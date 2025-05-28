@@ -201,10 +201,8 @@ export const generateTotp = async () => {
 };
 
 export const verifyTotp = async (payload: VerifyTotpRequest) => {
-  const response: AxiosResponse<Status> = await instance.post(
-    "/api/totp/verify",
-    payload
-  );
+  const response: AxiosResponse<Status<UserLoginResponse>> =
+    await instance.post("/api/totp/verify", payload);
   return response;
 };
 
@@ -221,11 +219,9 @@ export const disableTotp = async () => {
   return response;
 };
 
-export const useBackupCode = async (payload: UseBackupCodeRequest) => {
-  const response: AxiosResponse<Status> = await instance.post(
-    "/api/totp/backup",
-    payload
-  );
+export const verifyBackupCode = async (payload: UseBackupCodeRequest) => {
+  const response: AxiosResponse<Status<UserLoginResponse>> =
+    await instance.post("/api/totp/backup", payload);
   return response;
 };
 

@@ -9,7 +9,6 @@ import { createAuthMiddleware } from "./middlewares/auth";
 import { EmailRoutes } from "./routes/emailRoute";
 import { TotpRoutes } from "./routes/totpRoute";
 import { createTotpTokenMiddleware } from "./middlewares/totp";
-import { RedisInstance } from "./config/redis";
 import { createRateLimiters } from "./middlewares/rateLimit";
 import { GameRoute } from "./routes/gameRoute";
 import { SwipeRoute } from "./routes/swipeRoute";
@@ -17,11 +16,11 @@ import { ConversationRoute } from "./routes/conversationRoute";
 import { MessageRoute } from "./routes/messageRoute";
 import { Status } from "./dtos/request";
 import { messageToErrorResponse } from "./utils/helper";
+import Redis from "ioredis";
 
-export function createApp(secrets: Secrets): Express {
+export function createApp(secrets: Secrets, redisClient: Redis): Express {
   const authenticationMiddleware = createAuthMiddleware(secrets);
   const totpTokenMiddleware = createTotpTokenMiddleware(secrets);
-  const redisClient = new RedisInstance(secrets).getClient();
   const rateLimiters = createRateLimiters(redisClient);
   const userRoutes = new UserRoutes(
     secrets,

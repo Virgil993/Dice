@@ -1,6 +1,7 @@
 import Redis from "ioredis";
 import { Request, Response, NextFunction } from "express";
 import { LoginAttempt } from "./auth";
+import { IncomingMessage } from "http";
 
 type RateLimitOptions = {
   windowMs?: number; // Time window in milliseconds
@@ -34,6 +35,7 @@ export type RateLimitMiddlewares = {
   api: (req: Request, res: Response, next: NextFunction) => Promise<void>;
   recordFailedLogin: (req: Request) => Promise<void>;
   clearLoginAttempts: (req: Request) => Promise<void>;
+  checkWebSocketRateLimit: (req: IncomingMessage) => Promise<boolean>;
 };
 
 class RateLimiter {
@@ -89,6 +91,27 @@ class RateLimiter {
         next();
       }
     };
+  }
+
+  generateKeyIncomingMessage(
+    req: IncomingMessage,
+    keyGenerator: string | ((req: IncomingMessage) => string),
+    route: string
+  ) {
+    let identifier;
+    if (typeof keyGenerator === "function") {
+      identifier = keyGenerator(req);
+    } else {
+      switch (keyGenerator) {
+        case "ip":
+          identifier = req.socket.remoteAddress || "";
+          break;
+        default:
+          identifier = keyGenerator;
+      }
+    }
+
+    return `rate_limit:${route}:${identifier}`;
   }
 
   // Generate rate limit key based on strategy
@@ -269,6 +292,34 @@ class RateLimiter {
       await this.redis.del(req.loginAttemptsKey);
     }
   };
+
+  checkWebSocketRateLimit = async (req: IncomingMessage) => {
+    const windowMs = 15 * 60 * 1000, // 15 minutes default
+      maxRequests = 10,
+      keyGenerator = "ip",
+      route = "websocket";
+
+    try {
+      // Generate the rate limit key
+      const key = this.generateKeyIncomingMessage(req, keyGenerator, route);
+
+      // Get current count
+      const current = await this.redis.get(key);
+      const count = current ? parseInt(current) : 0;
+
+      // Check if limit exceeded
+      if (count >= maxRequests) {
+        return false;
+      }
+
+      await this.incrementCounter(key, windowMs);
+      return true; // Allow the request to proceed
+    } catch (error) {
+      console.error("Rate limiting error:", error);
+      // Fail open - don't block requests if Redis is down
+      return true; // Allow the request to proceed
+    }
+  };
 }
 
 // Usage examples and helper functions
@@ -328,6 +379,8 @@ export function createRateLimiters(redisClient: Redis): RateLimitMiddlewares {
       route: "api",
       message: "API rate limit exceeded",
     }),
+    // WebSocket rate limit
+    checkWebSocketRateLimit: limiter.checkWebSocketRateLimit,
   };
 }
 

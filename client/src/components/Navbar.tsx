@@ -27,6 +27,7 @@ function NavbarMain(props: NavbarMainProps) {
     async function getCurrentUser() {
       const userRes = await getUser();
       if (userRes.data.status === ResponseStatus.SUCCESS) {
+        console.log("User data fetched successfully:", userRes.data);
         setUser(userRes.data);
         const image1 = userRes.data.photosUrls.find(
           (photo) => photo.position === 1

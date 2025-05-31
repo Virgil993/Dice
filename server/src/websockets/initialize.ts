@@ -23,6 +23,7 @@ interface AuthenticatedWebSocket extends WebSocket {
 
 type WebSocketMessage = {
   type: "message";
+  id?: string;
   token?: string;
   to?: string;
   from?: string;
@@ -173,10 +174,6 @@ async function handleMessage(
     ws.close(1008, "User ID mismatch");
     return;
   }
-  if (data.from && data.from !== ws.userId) {
-    ws.close(1008, "From user ID does not match authenticated user");
-    return;
-  }
   const toUserId = data.to || "";
 
   // Check if the recipient is the same as the sender
@@ -185,33 +182,29 @@ async function handleMessage(
     return;
   }
 
-  // Check if the recipient exists
-  const recipient = await UserRepository.getUserById(toUserId);
-  if (!recipient) {
-    ws.close(1008, "Recipient user does not exist");
-    return;
-  }
-
-  // Check if there is an active conversation
-  const conversation = await ConversationRepository.getConversationByUserIds(
-    ws.userId,
-    toUserId
-  );
-
-  if (!conversation) {
-    ws.close(1008, "No active conversation found");
-    return;
-  }
-
   // Add the message to the db
 
-  if (!data.to || !data.message || !ws.userId) {
+  if (!data.to || !data.message || !ws.userId || !data.token || !data.id) {
     ws.send(
       JSON.stringify({
         type: "error",
         message: "Missing required fields",
       })
     );
+    return;
+  }
+
+  const conversation = await ConversationRepository.getConversationByUserIds(
+    ws.userId,
+    toUserId
+  );
+  if (!conversation) {
+    ws.close(1008, "Conversation not found");
+    return;
+  }
+  const message = await MessageRepository.getMessageById(data.id);
+  if (!message) {
+    ws.close(1008, "Message not found");
     return;
   }
 
@@ -223,14 +216,12 @@ async function handleMessage(
     recipientWs.send(
       JSON.stringify({
         type: "message",
+        id: data.id,
         from: ws.userId,
+        to: toUserId,
         message: data.message,
-        timestamp: new Date().toISOString(),
+        timestamp: data.timestamp || new Date().toISOString(),
       })
     );
-    // Optional: Save message to database for persistence
-    // await messageService.saveMessage(ws.userId, data.to, data.message);
   }
-  //   Save message to the database
-  await MessageRepository.addMessage(conversation.id, ws.userId, data.message);
 }

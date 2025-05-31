@@ -6,6 +6,6 @@ export type Message = {
   isRead: boolean;
   readAt?: Date | null;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
   deletedAt?: Date | null;
 };

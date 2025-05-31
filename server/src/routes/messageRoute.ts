@@ -36,6 +36,28 @@ export class MessageRoute {
       checkVerification,
       this.messageController.getMessages.bind(this.messageController)
     );
+    this.router.post(
+      "/",
+      this.authenticationMiddleware,
+      checkVerification,
+      this.messageController.addMessage.bind(this.messageController)
+    );
+    this.router.put(
+      "/",
+      this.authenticationMiddleware,
+      checkVerification,
+      this.messageController.updateMessagsReadStatus.bind(
+        this.messageController
+      )
+    );
+    this.router.put(
+      "/single",
+      this.authenticationMiddleware,
+      checkVerification,
+      this.messageController.updateSingularMessageReadStatus.bind(
+        this.messageController
+      )
+    );
   }
 
   public getRouter(): Router {

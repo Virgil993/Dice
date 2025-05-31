@@ -1,190 +1,180 @@
-.messages-body{
-    /* background-color: #c7ddb5; */
-    background-color: #ddead1;
-    height: 100vh;
+.messages-body {
+  /* background-color: #c7ddb5; */
+  background-color: #ddead1;
+  height: 100vh;
 }
 
-.body-container{
-    display: flex;
-    flex-direction: row;
-    height: 80vh;
-    margin-top: 50px;
-    max-width: 90vw;
+.body-container {
+  display: flex;
+  flex-direction: row;
+  height: 80vh;
+  margin-top: 50px;
+  max-width: 90vw;
 }
 
-.conversations-component{
-    max-width: 600px;
-    border: #228C22 solid 5px;
-    border-radius: 10px 0px 0px 10px;
-    padding: 0px;
-    background-color: #f1f7fb;
+.conversations-component {
+  max-width: 600px;
+  border: #228c22 solid 5px;
+  border-radius: 10px 0px 0px 10px;
+  padding: 0px;
+  background-color: #f1f7fb;
 }
 
-.no-conversations-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90%;
-    text-align: center;
-    width: 60%;
-    font-size: 25px;
-    color: gray;
+.no-conversations-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+  text-align: center;
+  width: 60%;
+  font-size: 25px;
+  color: gray;
 }
 
-.conversation-profile{
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    width: 100%;
-    height: 10%;
-    gap:20px;
-    background-color: #228C22;
-    padding-bottom: 5px;
+.conversation-profile {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  width: 100%;
+  height: 10%;
+  gap: 20px;
+  background-color: #228c22;
+  padding-bottom: 5px;
 }
 
-.conversation-profile-text-div{
-    font-size: 25px;
-    color: black;
-    font-weight: 500;
-
+.conversation-profile-text-div {
+  font-size: 25px;
+  color: black;
+  font-weight: 500;
 }
 
-#profile-row-img{
-    cursor: pointer;
+#profile-row-img {
+  cursor: pointer;
 }
 
-.conversation-row-container{
-    display: flex;
-    justify-content: left;
-    flex-direction: column;
-    overflow: auto;
-    scrollbar-color: grey;
-    scrollbar-width: thin;
-    height: 90%;
-    padding: 0px;
+.conversation-row-container {
+  display: flex;
+  justify-content: left;
+  flex-direction: column;
+  overflow: auto;
+  scrollbar-color: grey;
+  scrollbar-width: thin;
+  height: 90%;
+  padding: 0px;
 }
 
 .conversation-row-container::-webkit-scrollbar {
-    width: 5px;
+  width: 5px;
 }
 
 .conversation-row-container::-webkit-scrollbar-thumb {
-    background-color: grey
+  background-color: grey;
 }
 
-.conversation-row{
-    background-color:rgb(174, 228, 174);
-    width: fit-content;
-    padding: 10px;
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    border-bottom: #228C22 3px solid;
-    cursor: pointer;
- 
+.conversation-row {
+  background-color: rgb(174, 228, 174);
+  width: fit-content;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border-bottom: #228c22 3px solid;
+  cursor: pointer;
 }
-.conversation-row:hover{
-    background-color: #72bf6a
-}
-
-.notification-point-conversation-row{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;
-    font-weight: 700;
-    font-size: 20px;
-    border-radius: 20px;
-    background-color:#d2d443;
-    color: #264E49;
-    margin-top: 5px;
+.conversation-row:hover {
+  background-color: #72bf6a;
 }
 
-
-.delete-conversation-button{
-    background-color: #f05951;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    margin-left: auto;
-    margin-right: 15px;
-    border-radius: 30px;
-    cursor: pointer;
-    
+.notification-point-conversation-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  font-weight: 700;
+  font-size: 20px;
+  border-radius: 20px;
+  background-color: #d2d443;
+  color: #264e49;
+  margin-top: 5px;
 }
 
-.delete-conversation-button:hover{
-    background-color: rgb(153, 52, 52); 
+.delete-conversation-button {
+  background-color: #f05951;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  margin-right: 15px;
+  border-radius: 30px;
+  cursor: pointer;
 }
 
-
-
-.profile-picture-conversation-div{
-    width: 50px;
-    height: 50px;
+.delete-conversation-button:hover {
+  background-color: rgb(153, 52, 52);
 }
 
-.profile-picture-conversation-div img{
-    object-fit: cover;
-    width: 100%;
-    height: 100%;
-    border-radius: 30px;
+.profile-picture-conversation-div {
+  width: 50px;
+  height: 50px;
 }
 
-.conversation-row-name{
-    font-size: 25px;
+.profile-picture-conversation-div img {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
 }
 
-.loading-messages{
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+.conversation-row-name {
+  font-size: 25px;
 }
 
-.loading-conversations{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 90%;
-    text-align: center;
-    width: 60%;
-    color: gray;
+.loading-messages {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
+.loading-conversations {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 90%;
+  text-align: center;
+  width: 60%;
+  color: gray;
+}
 
-.loading-icon{
-    text-align: center;
+.loading-icon {
+  width: fit-content;
 
-    animation: rotation 2s infinite linear;
-    
+  animation: rotation 2s infinite linear;
 }
 
 @keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
-.loading-text{
-    text-align: center;
-    font-size: 70px;
+.loading-text {
+  text-align: center;
+  font-size: 70px;
 }
 
-.loading-conversations-text{
-    text-align: center;
-    font-size: 50px;
+.loading-conversations-text {
+  text-align: center;
+  font-size: 50px;
 }
-
-

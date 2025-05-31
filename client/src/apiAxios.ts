@@ -1,12 +1,15 @@
 import { z } from "zod";
 import {
   ResponseStatus,
+  type AddMessageRequest,
+  type AddMessageResponse,
   type AddSwipeRequest,
   type AddSwipeResponse,
   type EnableTotpRequest,
   type EnableTotpResponse,
   type GenerateTotpResponse,
   type GetConversationsResponse,
+  type GetExternalUserResponse,
   type GetGamesResponse,
   type GetMessagesResponse,
   type GetUserResponse,
@@ -15,6 +18,8 @@ import {
   type SendPasswordResetEmailRequest,
   type Status,
   type StatusError,
+  type UpdateMessagesReadStatusRequest,
+  type UpdateSingularMessageReadStatusRequest,
   type UseBackupCodeRequest,
   type UserCreateResponse,
   type UserLoginRequest,
@@ -130,6 +135,12 @@ export const getUser = async () => {
   const response: AxiosResponse<Status<GetUserResponse>> = await instance.get(
     "/api/users"
   );
+  return response;
+};
+
+export const getUserById = async (id: string) => {
+  const response: AxiosResponse<Status<GetExternalUserResponse>> =
+    await instance.get(`/api/users/single/${id}`);
   return response;
 };
 
@@ -262,5 +273,31 @@ export const deleteConversationById = async (id: string) => {
 export const getMessagesByConversationId = async (id: string) => {
   const response: AxiosResponse<Status<GetMessagesResponse>> =
     await instance.get(`/api/messages/${id}`);
+  return response;
+};
+
+export const addMessage = async (payload: AddMessageRequest) => {
+  const response: AxiosResponse<Status<AddMessageResponse>> =
+    await instance.post("/api/messages", payload);
+  return response;
+};
+
+export const updateMessagesReadStatus = async (
+  payload: UpdateMessagesReadStatusRequest
+) => {
+  const response: AxiosResponse<Status> = await instance.put(
+    "/api/messages/",
+    payload
+  );
+  return response;
+};
+
+export const updateSingularMessageReadStatus = async (
+  payload: UpdateSingularMessageReadStatusRequest
+) => {
+  const response: AxiosResponse<Status> = await instance.put(
+    "/api/messages/single",
+    payload
+  );
   return response;
 };

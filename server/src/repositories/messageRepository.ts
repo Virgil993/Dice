@@ -34,6 +34,18 @@ export class MessageRepository {
     }
   }
 
+  public static async getMessageById(
+    messageId: string
+  ): Promise<Message | null> {
+    try {
+      const message = await Message.findByPk(messageId);
+      return message;
+    } catch (error) {
+      console.error("Error fetching message by ID:", error);
+      throw error;
+    }
+  }
+
   public static async updateMessageReadStatus(
     messageId: string,
     isRead: boolean
@@ -53,6 +65,35 @@ export class MessageRepository {
       return message;
     } catch (error) {
       console.error("Error updating message read status:", error);
+      throw error;
+    }
+  }
+
+  public static async updateMessagesReadStatusByConversationId(
+    readerId: string,
+    conversationId: string,
+    isRead: boolean
+  ): Promise<void> {
+    try {
+      const messages = await Message.findAll({
+        where: { conversationId },
+      });
+      for (const message of messages) {
+        if (message.senderId !== readerId) {
+          message.isRead = isRead;
+          if (isRead) {
+            message.readAt = new Date();
+          } else {
+            message.readAt = null;
+          }
+          await message.save();
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Error updating messages read status by conversation ID:",
+        error
+      );
       throw error;
     }
   }

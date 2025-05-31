@@ -1,6 +1,8 @@
 import { ConversationDTO } from "@/dtos/conversation";
 import { GetConversationsResponse, Status } from "@/dtos/request";
 import { ConversationRepository } from "@/repositories/conversationRepository";
+import { MessageRepository } from "@/repositories/messageRepository";
+import { SwipeRepository } from "@/repositories/swipeRepository";
 import { UserError } from "@/types/errors";
 import { conversationToDTO } from "@/utils/helper";
 
@@ -40,6 +42,7 @@ export class ConversationService {
     if (!conversation) {
       throw new UserError("Conversation not found", 404);
     }
+    await MessageRepository.deleteAllByConversationId(conversationId);
     await ConversationRepository.deleteConversation(conversationId);
   }
 }

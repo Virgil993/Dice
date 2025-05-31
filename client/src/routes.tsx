@@ -15,6 +15,7 @@ import EnableTotp from "./views/EnableTotp";
 import TestTotp from "./views/TestTotp";
 import VerifyTotp from "./views/VerifyTotp";
 import UseTotpBackup from "./views/UseTotpBackup";
+import Messages from "./views/Messages";
 
 export const AppRoutes = () => {
   return (
@@ -43,6 +44,7 @@ export const AppRoutes = () => {
             <Route path={"/profile"} element={<Profile />} />
             <Route path={"/enable-totp"} element={<EnableTotp />} />
             <Route path={"/test-totp"} element={<TestTotp />} />
+            <Route path={"/messages"} element={<Messages />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/home" />} />

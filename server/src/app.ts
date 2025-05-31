@@ -4,7 +4,7 @@ import helmet from "helmet";
 import { UserRoutes } from "./routes/userRoute";
 import { Secrets } from "./config/secrets";
 import { errorHandler } from "./middlewares/errorHandler";
-import { API_URL } from "./config/envHandler";
+import { API_URL, APP_URL } from "./config/envHandler";
 import { createAuthMiddleware } from "./middlewares/auth";
 import { EmailRoutes } from "./routes/emailRoute";
 import { TotpRoutes } from "./routes/totpRoute";
@@ -67,7 +67,13 @@ export function createApp(secrets: Secrets, redisClient: Redis): Express {
       },
     })
   );
-  app.use(cors());
+  app.use(
+    cors({
+      origin: APP_URL,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+    })
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

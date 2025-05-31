@@ -1,117 +1,111 @@
-.dashboard-person-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 1000px;
+.dashboard-person-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1000px;
 }
 
-.card-main{
-    padding: 30px;
+.card-main {
+  padding: 30px;
 }
 
-.name-card-main{
-    display: flex;
-    flex-direction: row;
+.name-card-main {
+  display: flex;
+  flex-direction: row;
 }
 
-.container-header-card-main{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.container-header-card-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-
-
-.container-actions-card-main{
-    display: flex;
-    justify-content: right;
+.container-actions-card-main {
+  display: flex;
+  justify-content: right;
 }
 
-.buttons-choose{
-    border-radius: 50px;
-    width: 200px;
-    height: 70px;
-    margin: 10px;
+.buttons-choose {
+  border-radius: 50px;
+  width: 200px;
+  height: 70px;
+  margin: 10px;
 }
 
-.photos-card-main{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
+.photos-card-main {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
-.container-desc-compat{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding: 0px;
-    margin-top: 20px;
-    margin-bottom: 100px;
-    
+.container-desc-compat {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0px;
+  margin-top: 20px;
+  margin-bottom: 100px;
 }
 
-.card-desc{
-    width: 100%;
-    margin-right: 20px;
-    height: 100%;
-    
+.card-desc {
+  width: 100%;
+  margin-right: 20px;
+  height: 100%;
 }
 
-.card-compat{
-    width: 100%;
-    margin-left: 20px;
-    margin-bottom: 20px;
+.card-compat {
+  width: 100%;
+  margin-left: 20px;
+  margin-bottom: 20px;
 }
 
-.common-games-container{
-    text-align: center;
-    margin-bottom: 20px;
+.common-games-container {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.game-dashboard{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 10px;
-    text-align: center;
-    margin: 5px;
-    color: white;
-    font-size: 20px;
-    width: auto;
-    border: 3px solid grey;
-    display: inline-block;
-    background-color:#198754;
+.game-dashboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  text-align: center;
+  margin: 5px;
+  color: white;
+  font-size: 20px;
+  width: auto;
+  border: 3px solid grey;
+  display: inline-block;
+  background-color: #198754;
 }
 
-
-.loading-photos{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 250px;
-    margin-top: 20px;
+.loading-photos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 250px;
+  margin-top: 20px;
 }
 
-.loading-icon-photos{
-    text-align: center;
+.loading-icon-photos {
+  width: fit-content;
 
-    animation: rotation 2s infinite linear;
-    
+  animation: rotation 2s infinite linear;
 }
 
 @keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
-.loading-text-photos{
-    text-align: center;
-    font-size: 40px;
+.loading-text-photos {
+  text-align: center;
+  font-size: 40px;
 }

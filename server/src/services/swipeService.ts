@@ -34,7 +34,7 @@ export class SwipeService {
           swiperId,
           swipedId
         );
-      if (!existingConversation) {
+      if (existingConversation) {
         throw new UserError("Conversation already exists", 409);
       }
       await ConversationRepository.createConversation(swiperId, swipedId);

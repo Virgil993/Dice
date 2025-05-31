@@ -79,6 +79,13 @@ export class UserRoutes {
       this.userController.getUser.bind(this.userController)
     );
     this.router.get(
+      "/single/:id",
+      this.authenticationMiddleware,
+      this.rateLimiters.api,
+      checkVerification,
+      this.userController.getUserById.bind(this.userController)
+    );
+    this.router.get(
       "/sorted",
       this.authenticationMiddleware,
       this.rateLimiters.api,

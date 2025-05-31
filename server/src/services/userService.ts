@@ -10,6 +10,7 @@ import { Gender, User } from "@/db/models/user";
 import { UserPhoto } from "@/db/models/userPhoto";
 import { GameDTO } from "@/dtos/game";
 import {
+  GetExternalUserResponse,
   GetUserResponse,
   GetUsersSortedResponse,
   Status,
@@ -210,10 +211,10 @@ export class UserService {
     };
   }
 
-  public async getUserById(userId: string): Promise<GetUserResponse> {
+  public async getUser(userId: string): Promise<GetUserResponse> {
     const user = await UserRepository.getUserById(userId);
     if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
+      throw new UserError("User not found", 404);
     }
     const userGames = await UserGameRepository.getUserGames(userId);
     if (!userGames) {
@@ -227,6 +228,30 @@ export class UserService {
       user: userToDTO(user),
       photosUrls: photosUrls,
       games: games.map((game) => gameToDTO(game)),
+    };
+  }
+
+  public async getUserById(userId: string): Promise<GetExternalUserResponse> {
+    const user = await UserRepository.getUserById(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    const userGames = await UserGameRepository.getUserGames(userId);
+    if (!userGames) {
+      throw new UserError("User has no games", 404);
+    }
+    const gamesIds = userGames.map((userGame) => userGame.gameId);
+    const games = await GameRepository.getGamesByIds(gamesIds);
+    const photosUrls = await this.getUserPhotosUrls(userId);
+    const userToDTO = userToExternalUserDTO(user);
+    const userRes: FullExternalUserDTO = {
+      user: userToDTO,
+      photosUrls: photosUrls,
+      games: games.map((game) => gameToDTO(game)),
+    };
+    return {
+      status: Status.SUCCESS,
+      user: userRes,
     };
   }
 

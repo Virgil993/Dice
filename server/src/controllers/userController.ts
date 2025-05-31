@@ -143,7 +143,7 @@ export class UserController {
     const userId = req.user!.userId;
     console.log("Fetching user with ID:", userId);
     try {
-      const user = await this.userService.getUserById(userId);
+      const user = await this.userService.getUser(userId);
 
       res.status(200).json(user);
       return;
@@ -158,7 +158,7 @@ export class UserController {
     res: Response,
     next: NextFunction
   ): Promise<void> {
-    const userId = req.params.userId;
+    const userId = req.params.id;
     if (!userId) {
       res.status(400).json(messageToErrorResponse("User ID is required"));
       return;

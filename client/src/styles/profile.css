@@ -1,276 +1,267 @@
-.profile-body{
-    background-color: #ddead1;
-
+.profile-body {
+  background-color: #ddead1;
 }
-.profile-body-container{
-    display: flex;
-    justify-items: left;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 30px;
+.profile-body-container {
+  display: flex;
+  justify-items: left;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
 }
-.profile-title-main{
-    font-size: 35px;
-    font-weight: 500;
-    padding: 30px;
+.profile-title-main {
+  font-size: 35px;
+  font-weight: 500;
+  padding: 30px;
 }
-.profile-picture-name{
-    /* height: 300px; */
-    display: flex;
-    padding: 50px;
-    flex-direction: row;
-    align-items: center;
-}
-
-.profile-picture-name-card-body{
-    display: flex;
-
+.profile-picture-name {
+  /* height: 300px; */
+  display: flex;
+  padding: 50px;
+  flex-direction: row;
+  align-items: center;
 }
 
-.img-profile-picture{
-    width: 25%;
+.profile-picture-name-card-body {
+  display: flex;
 }
 
-.img-profile-picture img{
-    width: 100%;
-    height: 100%;
-    border-radius: 30px;
+.img-profile-picture {
+  width: 25%;
 }
 
-.user-name-gender-age{
-    width: 35%;
-    display: flex;
-    flex-direction: column;
-    padding-left: 30px;
-    gap:10px;
+.img-profile-picture img {
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
 }
 
-.description-container{
-    width: 45%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.user-name-gender-age {
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  padding-left: 30px;
+  gap: 10px;
 }
 
-.description-title{
-    font-size: 30px;
-    font-weight: 500;
-    text-align: center;
-    height: 15%;
+.description-container {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.description-content-wrapper{
-    padding: 10px;
-    height: 85%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap:15px;
+.description-title {
+  font-size: 30px;
+  font-weight: 500;
+  text-align: center;
+  height: 15%;
 }
 
-.description-content{
-    height: 85%;
+.description-content-wrapper {
+  padding: 10px;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
 }
 
-.description-edit-buttons{
-    display: flex;
-    gap:10px;
-    height: 15%;
+.description-content {
+  height: 85%;
 }
 
-.description-edit-buttons button{
-    width: 100px;
-    font-weight: 500;
-    font-size: 15px;
-    min-height: 35px;
+.description-edit-buttons {
+  display: flex;
+  gap: 10px;
+  height: 15%;
 }
 
-
-.user-info-div{
-    flex-grow: 1;
-    font-size: 30px;
-    word-spacing: 10px;
-    font-weight: 500;
-    display: flex;
-    flex-direction: column;
-    gap:10px;
+.description-edit-buttons button {
+  width: 100px;
+  font-weight: 500;
+  font-size: 15px;
+  min-height: 35px;
 }
 
-.user-info{
-    display: flex;
-    flex-direction: row;
-    gap: 15px;
+.user-info-div {
+  flex-grow: 1;
+  font-size: 30px;
+  word-spacing: 10px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.user-info-div-update{
-    flex-grow: 1;
-    font-size: 30px;
-    word-spacing: 15px;
-    font-weight: 500;
-    display: flex;
-    flex-direction: column;
-    gap:10px;
+.user-info {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
 }
 
-.user-info-edit-buttons{
-    display: flex;
-    gap: 10px;
+.user-info-div-update {
+  flex-grow: 1;
+  font-size: 30px;
+  word-spacing: 15px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.user-info-edit-buttons button{
-    width: 100px;
-    font-weight: 500;
-    font-size: 15px;
+.user-info-edit-buttons {
+  display: flex;
+  gap: 10px;
 }
 
-#gender-profile{
-    margin-bottom: 0px !important;
-    gap:15px;
+.user-info-edit-buttons button {
+  width: 100px;
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.profile-photos-card{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
+#gender-profile {
+  margin-bottom: 0px !important;
+  gap: 15px;
 }
 
-.photos-card-title{
-    font-size: 30px;
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: 500;
+.profile-photos-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.photos-card-container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap:15px;
+.photos-card-title {
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
 }
 
-
-
-.photos-container{
-    display: flex;
-    height: 210px;
-    justify-content: center;
+.photos-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.single-photo-container{
-    width: 150px;
-    height: 180px;
-    margin: 10px;
-    display: flex;
-    border: solid;
-    padding: 0px;
-    border-radius: 15px;
-    position: relative;
+.photos-container {
+  display: flex;
+  height: 210px;
+  justify-content: center;
 }
 
-.single-photo-container img{
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    
+.single-photo-container {
+  width: 150px;
+  height: 180px;
+  margin: 10px;
+  display: flex;
+  border: solid;
+  padding: 0px;
+  border-radius: 15px;
+  position: relative;
 }
 
-.remove-photo-icon-profile{
-    position: absolute;
-    width: 25% !important;
-    height: fit-content !important;
-    top: 90%;
-    left: 87%;
-    cursor: pointer;
+.single-photo-container img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
 }
 
-.add-photo-icon-profile{
-    width: 50% !important;
-    margin: auto;
+.remove-photo-icon-profile {
+  position: absolute;
+  width: 25% !important;
+  height: fit-content !important;
+  top: 90%;
+  left: 87%;
+  cursor: pointer;
 }
 
-.photos-edit-buttons{
-    display: flex;
-    justify-content: center;
-    gap:10px;
+.add-photo-icon-profile {
+  width: 50% !important;
+  margin: auto;
 }
 
-.photos-edit-buttons button{
-    width: 100px;
-    font-weight: 500;
-    font-size: 15px;
+.photos-edit-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-.games-profile-card{
-
-    padding: 20px;
-    align-items: center;
+.photos-edit-buttons button {
+  width: 100px;
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.profile-games-card-body{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.games-profile-card {
+  padding: 20px;
+  align-items: center;
 }
 
-.games-wrapper{
-    display: flex;
-    flex-direction: column;
-    gap:15px;
+.profile-games-card-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.games-container{
-    text-align: center;
+.games-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.games-edit-buttons{
-    display: flex;
-    justify-content: center;
-    gap:10px;
+.games-container {
+  text-align: center;
 }
 
-.games-edit-buttons button{
-    width: 100px;
-    font-weight: 500;
-    font-size: 15px;
+.games-edit-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-.profile-logout-delete-buttons{
-    display: flex;
-    justify-content: center;
-    gap:20px;
+.games-edit-buttons button {
+  width: 100px;
+  font-weight: 500;
+  font-size: 15px;
 }
 
-.profile-logout-delete-buttons button{
-    width: 200px;
+.profile-logout-delete-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
-.loading-profile{
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+.profile-logout-delete-buttons button {
+  width: 200px;
 }
 
-.loading-icon{
-    text-align: center;
+.loading-profile {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
 
-    animation: rotation 2s infinite linear;
-    
+.loading-icon {
+  width: fit-content;
+  animation: rotation 2s infinite linear;
 }
 
 @keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
 }
 
-.loading-text{
-    text-align: center;
-    font-size: 70px;
+.loading-text {
+  text-align: center;
+  font-size: 70px;
 }

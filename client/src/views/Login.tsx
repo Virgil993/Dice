@@ -61,6 +61,7 @@ function Login() {
         navigate("/auth/totp");
       } else {
         localStorage.setItem("apiToken", res.data.token);
+        localStorage.setItem("userId", res.data.user!.id);
 
         navigate("/dashboard");
       }

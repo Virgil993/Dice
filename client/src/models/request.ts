@@ -70,6 +70,11 @@ export type GetUserResponse = {
   games: Game[];
 };
 
+export type GetExternalUserResponse = {
+  status: Status;
+  user: FullExternalUser;
+};
+
 export type GetUsersSortedResponse = {
   users: FullExternalUser[];
 };
@@ -123,6 +128,24 @@ export type GetConversationsResponse = {
 
 // MESSAGE
 export type GetMessagesResponse = {
-  status: Status;
   messages: Message[];
+};
+
+export type AddMessageRequest = {
+  conversationId: string;
+  content: string;
+};
+
+export type AddMessageResponse = {
+  message: Message;
+};
+
+export type UpdateSingularMessageReadStatusRequest = {
+  messageId: string;
+  isRead: boolean;
+};
+
+export type UpdateMessagesReadStatusRequest = {
+  conversationId: string;
+  isRead: boolean;
 };

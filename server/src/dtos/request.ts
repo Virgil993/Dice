@@ -67,6 +67,11 @@ export type GetUserResponse = {
   games: GameDTO[];
 };
 
+export type GetExternalUserResponse = {
+  status: Status;
+  user: FullExternalUserDTO;
+};
+
 export type GetUsersSortedResponse = {
   status: Status;
   users: FullExternalUserDTO[];
@@ -130,4 +135,24 @@ export type GetConversationsResponse = {
 export type GetMessagesResponse = {
   status: Status;
   messages: MessageDTO[];
+};
+
+export type AddMessageRequest = {
+  conversationId: string;
+  content: string;
+};
+
+export type AddMessageResponse = {
+  status: Status;
+  message: MessageDTO;
+};
+
+export type UpdateSingularMessageReadStatusRequest = {
+  messageId: string;
+  isRead: boolean;
+};
+
+export type UpdateMessagesReadStatusRequest = {
+  conversationId: string;
+  isRead: boolean;
 };

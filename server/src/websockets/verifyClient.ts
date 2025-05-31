@@ -1,4 +1,4 @@
-import { ENVIRONMENT } from "@/config/envHandler";
+import { APP_URL, ENVIRONMENT } from "@/config/envHandler";
 import { Secrets } from "@/config/secrets";
 import { RateLimitMiddlewares } from "@/middlewares/rateLimit";
 import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
@@ -33,10 +33,7 @@ async function verifyClientAsync(info: {
       message: "Server configuration error",
     };
   }
-  const allowedOrigins = ["https://dicegames.ro"];
-  if (ENVIRONMENT === "dev") {
-    allowedOrigins.push("http://localhost:5173"); // Allow local dev server
-  }
+  const allowedOrigins = [APP_URL];
   if (ENVIRONMENT !== "dev" && !info.secure) {
     console.log(
       "WebSocket connection rejected: Non-secure connection in production"

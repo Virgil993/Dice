@@ -8,7 +8,7 @@ import {
   DB_USER,
   ENVIRONMENT,
 } from "@/config/envHandler";
-import { Signer } from "@aws-sdk/rds-signer";
+import { Signer, SignerConfig } from "@aws-sdk/rds-signer";
 import { Sequelize } from "sequelize";
 import { initUserModel } from "./models/user";
 import mysql from "mysql2";
@@ -37,15 +37,16 @@ export class RDSAuthManager {
       accessKeyId: AWS_ACCESS_KEY_ID,
       secretAccessKey: AWS_SECRET_ACCESS_KEY,
     };
-    this.signer = new Signer({
+    const signerConfig: SignerConfig = {
       region: AWS_REGION,
       hostname: DB_HOST,
       port: Number(DB_PORT),
       username: DB_USER,
-
-      // This part is required only for local development
-      credentials: ENVIRONMENT === "dev" ? credentials : undefined,
-    });
+    };
+    if (ENVIRONMENT === "dev") {
+      signerConfig.credentials = credentials;
+    }
+    this.signer = new Signer(signerConfig);
   }
 
   private async generateRDSAuthToken(): Promise<string> {

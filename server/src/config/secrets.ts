@@ -1,6 +1,7 @@
 import {
   GetSecretValueCommand,
   SecretsManagerClient,
+  SecretsManagerClientConfig,
 } from "@aws-sdk/client-secrets-manager";
 import {
   AWS_ACCESS_KEY_ID,
@@ -31,12 +32,13 @@ export async function loadSecrets(): Promise<Secrets> {
     accessKeyId: AWS_ACCESS_KEY_ID,
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
   };
-  const client = new SecretsManagerClient({
+  const clientConfig: SecretsManagerClientConfig = {
     region: AWS_REGION,
-
-    // This part is required only for local development
-    credentials: ENVIRONMENT === "dev" ? credentials : undefined,
-  });
+  };
+  if (ENVIRONMENT === "dev") {
+    clientConfig.credentials = credentials;
+  }
+  const client = new SecretsManagerClient(clientConfig);
 
   const response = await client.send(
     new GetSecretValueCommand({

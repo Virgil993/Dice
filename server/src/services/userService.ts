@@ -51,6 +51,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
+  S3ClientConfig,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
@@ -68,11 +69,13 @@ export class UserService {
       accessKeyId: AWS_ACCESS_KEY_ID,
       secretAccessKey: AWS_SECRET_ACCESS_KEY,
     };
-    this.s3Client = new S3Client({
+    const s3ClientConfig: S3ClientConfig = {
       region: AWS_REGION,
-      // This part is required only for local development
-      credentials: ENVIRONMENT === "dev" ? credentials : undefined,
-    });
+    };
+    if (ENVIRONMENT === "dev") {
+      s3ClientConfig.credentials = credentials;
+    }
+    this.s3Client = new S3Client(s3ClientConfig);
     this.bucketName = BUCKET_NAME;
   }
 

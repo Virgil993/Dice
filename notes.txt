@@ -130,3 +130,11 @@ Security notes:
     - Use a load balancer for the ECS instances to distribute traffic evenly.
     - Use CloudWatch for monitoring the ECS instances.
     - Use CloudTrail for auditing the ECS instances.
+
+16. CloudFront Considerations:
+    - Use CloudFront for serving the frontend.
+    - Use CloudFront for caching the static assets.
+    - create new OAC (Origin Access Control) for the CloudFront distribution to allow access to the S3 bucket only from CloudFront.
+    - Redirect HTTP to HTTPS for the CloudFront distribution.
+    - Use WAF rules to protect the CloudFront distribution from common web exploits (optional if you use it for API's)
+    

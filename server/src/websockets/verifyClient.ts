@@ -33,8 +33,14 @@ async function verifyClientAsync(info: {
       message: "Server configuration error",
     };
   }
+
+  const isSecure =
+    info.secure ||
+    info.req.headers["x-forwarded-proto"] === "https" ||
+    info.req.headers["x-forwarded-ssl"] === "on";
+
   const allowedOrigins = [APP_URL];
-  if (ENVIRONMENT !== "dev" && !info.secure) {
+  if (ENVIRONMENT !== "dev" && !isSecure) {
     console.log(
       "WebSocket connection rejected: Non-secure connection in production"
     );

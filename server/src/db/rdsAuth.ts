@@ -6,6 +6,7 @@ import {
   DB_NAME,
   DB_PORT,
   DB_USER,
+  ENVIRONMENT,
 } from "@/config/envHandler";
 import { Signer } from "@aws-sdk/rds-signer";
 import { Sequelize } from "sequelize";
@@ -29,6 +30,13 @@ export class RDSAuthManager {
   private readonly signer: Signer;
 
   constructor() {
+    const credentials: {
+      accessKeyId: string;
+      secretAccessKey: string;
+    } = {
+      accessKeyId: AWS_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    };
     this.signer = new Signer({
       region: AWS_REGION,
       hostname: DB_HOST,
@@ -36,10 +44,7 @@ export class RDSAuthManager {
       username: DB_USER,
 
       // This part is required only for local development
-      credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY,
-      },
+      credentials: ENVIRONMENT === "dev" ? credentials : undefined,
     });
   }
 

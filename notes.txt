@@ -6,12 +6,29 @@ Security notes:
 1. Configuring the VPC's:
     - Create a VPC with appropriate CIDR block.
     - A CIDR block is a method for allocating IP addresses in the VPC.
+    - Have two availability zones for high availability.
+    - Each availability zone should have a public, private and isolated subnet.
+    - When accesing S3 from the EC2 instances, use the VPC endpoint for S3 to avoid going through the internet.
+    - Enable DNS Resolution to allow the EC2 instances to resolve extenral domain names like redis or RDS.
+    - Enable DNS Hostnames to allow the EC2 instances to have public DNS names so the health checks from the load balancer can work correctly.
+    - Create isolated subnets for the RDS instance to ensure that it is not accessible from the internet.
+    - Asign the newly created isolated subnets to a route table that does not have a route to the internet gateway.
+    - Create an isolated subnet for the RDS instance to ensure that it is not accessible from the internet.
+
+1.1 Security Group Considerations:
+    - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
+    - Create a security group for the EC2 instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the EC2 instances on port 3306.
+    - create a security group bastion host that allows incoming traffic from the internet on port 22 for SSH access.
+    - Use Network ACLs to control traffic to and from the subnets.
+    - Use VPC Flow Logs to monitor traffic in and out of the VPC.
+
 
 2. Considerations when choosing a CIDR Block:
     - Avoid public IP addresses in the CIDR block.
     - Avoid using the same CIDR block as other VPCs.
     - Ensure no overlap between public, private and isolated subnets.
-    - IP address: 10.0.0.0/16
+
 
 3. AWS RDS:
     - Use MYSQL for the database.
@@ -20,6 +37,7 @@ Security notes:
     - Use memory optimized instances because the application writes messages to the database frequently. This way, we take advantage of the in-memory caching.
     - Create a master user with admin privileges.
     - store the credentials in AWS Secrets Manager.
+    - Block public access to the RDS instance.
     - Connect to the database using SSL.
     - Create a new database user with limited privileges for the application.
     - Store the new database credentials in AWS Secrets Manager.

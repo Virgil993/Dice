@@ -1,5 +1,11 @@
 CREATE SCHEMA `dice-prod-db` ;
 
+CREATE USER 'app'@'%' IDENTIFIED WITH AWSAuthenticationPlugin AS 'RDS';
+ALTER USER 'app'@'%' REQUIRE SSL;     
+
+GRANT SELECT, INSERT, DELETE, UPDATE ON `dice-prod-db`.* TO 'app'@'%';
+
+FLUSH PRIVILEGES;
 CREATE TABLE `dice-prod-db`.`users` (
   id VARCHAR(128) NOT NULL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,

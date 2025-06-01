@@ -3,6 +3,7 @@ import {
   AWS_REGION,
   AWS_SECRET_ACCESS_KEY,
   BUCKET_NAME,
+  ENVIRONMENT,
 } from "@/config/envHandler";
 import { Secrets } from "@/config/secrets";
 import { ActiveSession } from "@/db/models/activeSession";
@@ -60,13 +61,17 @@ export class UserService {
 
   constructor(secrets: Secrets) {
     this.secrets = secrets;
+    const credentials: {
+      accessKeyId: string;
+      secretAccessKey: string;
+    } = {
+      accessKeyId: AWS_ACCESS_KEY_ID,
+      secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    };
     this.s3Client = new S3Client({
       region: AWS_REGION,
       // This part is required only for local development
-      credentials: {
-        accessKeyId: AWS_ACCESS_KEY_ID,
-        secretAccessKey: AWS_SECRET_ACCESS_KEY,
-      },
+      credentials: ENVIRONMENT === "dev" ? credentials : undefined,
     });
     this.bucketName = BUCKET_NAME;
   }

@@ -78,7 +78,7 @@ export function createApp(secrets: Secrets, redisClient: Redis): Express {
   app.use(express.urlencoded({ extended: true }));
 
   // Health check endpoint
-  app.get("/api/health", rateLimiters.api, (_: Request, res: Response) => {
+  app.get("/api/health", (_: Request, res: Response) => {
     res.status(200).json({ status: Status.SUCCESS });
   });
 

@@ -6,6 +6,7 @@ import {
   AWS_ACCESS_KEY_ID,
   AWS_REGION,
   AWS_SECRET_ACCESS_KEY,
+  ENVIRONMENT,
 } from "./envHandler";
 
 export type Secrets = {
@@ -23,15 +24,18 @@ export type Secrets = {
 
 export async function loadSecrets(): Promise<Secrets> {
   const secretName = "AppDice";
-
+  const credentials: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  } = {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  };
   const client = new SecretsManagerClient({
     region: AWS_REGION,
 
     // This part is required only for local development
-    credentials: {
-      accessKeyId: AWS_ACCESS_KEY_ID,
-      secretAccessKey: AWS_SECRET_ACCESS_KEY,
-    },
+    credentials: ENVIRONMENT === "dev" ? credentials : undefined,
   });
 
   const response = await client.send(

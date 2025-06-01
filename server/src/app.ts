@@ -79,6 +79,7 @@ export function createApp(secrets: Secrets, redisClient: Redis): Express {
 
   // Health check endpoint
   app.get("/api/health", (_: Request, res: Response) => {
+    console.log("Health check endpoint hit");
     res.status(200).json({ status: Status.SUCCESS });
   });
 

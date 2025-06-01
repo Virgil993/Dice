@@ -19,6 +19,8 @@ RUN npm run build
 # Production stage
 FROM node:20-alpine
 
+RUN apk add --no-cache curl
+
 WORKDIR /usr/src/app
 
 # Copy package files

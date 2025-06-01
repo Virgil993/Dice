@@ -8,20 +8,28 @@ Security notes:
     - A CIDR block is a method for allocating IP addresses in the VPC.
     - Have two availability zones for high availability.
     - Each availability zone should have a public, private and isolated subnet.
-    - When accesing S3 from the EC2 instances, use the VPC endpoint for S3 to avoid going through the internet.
-    - Enable DNS Resolution to allow the EC2 instances to resolve extenral domain names like redis or RDS.
-    - Enable DNS Hostnames to allow the EC2 instances to have public DNS names so the health checks from the load balancer can work correctly.
+    - When accesing S3 from the ECS instances, use the VPC endpoint for S3 to avoid going through the internet.
+    - Enable DNS Resolution to allow the ECS instances to resolve extenral domain names like redis or RDS.
+    - Enable DNS Hostnames to allow the ECS instances to have public DNS names so the health checks from the load balancer can work correctly.
     - Create isolated subnets for the RDS instance to ensure that it is not accessible from the internet.
     - Asign the newly created isolated subnets to a route table that does not have a route to the internet gateway.
     - Create an isolated subnet for the RDS instance to ensure that it is not accessible from the internet.
 
 1.1 Security Group Considerations:
     - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
-    - Create a security group for the EC2 instances that allows incoming traffic from the application load balancer on port 80 and 443.
-    - Create a security group for the RDS instance that allows incoming traffic from the EC2 instances on port 3306.
+    - Create a security group for the ECS instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the ECS instances on port 3306.
     - create a security group bastion host that allows incoming traffic from the internet on port 22 for SSH access.
     - Use Network ACLs to control traffic to and from the subnets.
     - Use VPC Flow Logs to monitor traffic in and out of the VPC.
+
+1.2 Bastion Considerations:
+    - create an ec2 instance in the public subnet to act as a bastion host.
+    - auto assign a public IP address to the bastion host.
+    - create a key pair for the bastion host to allow SSH access.
+    - use ED25519 for the key pair for better security.
+    - set the security group for the bastion host to allow incoming traffic from the internet on port 22 for SSH access.
+    - Use the bastion host to access RDS and other resources in the isolated subnets.
 
 
 2. Considerations when choosing a CIDR Block:
@@ -55,15 +63,15 @@ Security notes:
 5. Steps to set up the architecthure:
     - Create a VPC with a public, private and isolated subnets.
     - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
-    - Create a security group for the EC2 instances that allows incoming traffic from the application load balancer on port 80 and 443.
-    - Create a security group for the RDS instance that allows incoming traffic from the EC2 instances on port 3306.
-    - Create a security group for the S3 bucket that allows incoming traffic from the EC2 instances on port 80 and 443.
+    - Create a security group for the ECS instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the ECS instances on port 3306.
+    - Create a security group for the S3 bucket that allows incoming traffic from the ECS instances on port 80 and 443.
     - Create the application load balancer and associate it with the public subnet.
-    - Create the EC2 instances and associate them with the private subnet.
+    - Create the ECS instances and associate them with the private subnet.
     - Create the RDS instance and associate it with the isolated subnet.
-    - Create the S3 bucket and make it so that it is accesible only from the EC2 instances.
+    - Create the S3 bucket and make it so that it is accesible only from the ECS instances.
     - Create the IAM role for app management and policies for access to S3, RDS and secrets manager.
-    - Create Instance profiles for the EC2 instances to allow them to access the S3 bucket and RDS instance.
+    - Create Instance profiles for the ECS instances to allow them to access the S3 bucket and RDS instance.
     - Deploy the frontend to CloudFront and set up WAF rules to protect the application from common web exploits.
 
 6. Backend Considerations
@@ -114,3 +122,11 @@ Security notes:
     - use a sliding window algorithm for rate limiting.
     - use Redis for storing the rate limiting data.
     - Use AWS ElastiCache for Redis for high availability and scalability.
+
+15. ECS Considerations:
+    - Use Fargate for running the ECS instances.
+    - Use a task definition for the ECS instances.
+    - Use a service discovery for the ECS instances to allow them to communicate with each other.
+    - Use a load balancer for the ECS instances to distribute traffic evenly.
+    - Use CloudWatch for monitoring the ECS instances.
+    - Use CloudTrail for auditing the ECS instances.

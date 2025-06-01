@@ -130,9 +130,9 @@ function ChatComponent({
     e.preventDefault();
     if (sending) return; // Prevent multiple sends
     if (message && socket && isConnected && conversationLoad) {
+      const fallbackMessage = message;
       setMessage("");
       setSending(true);
-      const fallbackMessage = message;
       const token = localStorage.getItem("apiToken") || "";
       const payload: AddMessageRequest = {
         conversationId: conversationLoad.id,

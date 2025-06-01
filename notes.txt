@@ -137,4 +137,10 @@ Security notes:
     - create new OAC (Origin Access Control) for the CloudFront distribution to allow access to the S3 bucket only from CloudFront.
     - Redirect HTTP to HTTPS for the CloudFront distribution.
     - Use WAF rules to protect the CloudFront distribution from common web exploits (optional if you use it for API's)
-    
+
+17. Restoration Steps:
+    - NAT Gateway Public in Public subnet
+    - ECS Service set desired count to 2 and redeploy the service.
+    - EC2 Bastion Host start the instance
+    - recreate the ALB with the target group and route the api endpoint in route 53 to the ALB.
+    - ECS register with new target group.

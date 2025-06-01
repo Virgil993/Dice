@@ -1,2 +1,0 @@
-1: Do email verification
-2: Do password recovery

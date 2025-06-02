@@ -143,3 +143,4 @@ Security notes:
     - ECS Service set desired count to 2 and redeploy the service.
     - EC2 Bastion Host start the instance
     - recreate the ALB with the target group and route the api endpoint in route 53 to the ALB.
+    - start the RDS instance.

@@ -1,0 +1,180 @@
+
+Notes regarding diseration aspects:
+
+Security notes:
+
+1. Configuring the VPC's:
+    - Create a VPC with appropriate CIDR block.
+    - A CIDR block is a method for allocating IP addresses in the VPC.
+    - Have two availability zones for high availability.
+    - Each availability zone should have a public, private and isolated subnet.
+    - When accesing S3 from the ECS instances, use the VPC endpoint for S3 to avoid going through the internet.
+    - Enable DNS Resolution to allow the ECS instances to resolve extenral domain names like redis or RDS.
+    - Enable DNS Hostnames to allow the ECS instances to have public DNS names so the health checks from the load balancer can work correctly.
+    - Create isolated subnets for the RDS instance to ensure that it is not accessible from the internet.
+    - Asign the newly created isolated subnets to a route table that does not have a route to the internet gateway.
+    - Create an isolated subnet for the RDS instance to ensure that it is not accessible from the internet.
+
+1.1 Security Group Considerations:
+    - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
+    - Create a security group for the ECS instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the ECS instances on port 3306.
+    - create a security group bastion host that allows incoming traffic from the internet on port 22 for SSH access.
+    - Use Network ACLs to control traffic to and from the subnets.
+    - Use VPC Flow Logs to monitor traffic in and out of the VPC.
+
+1.2 Bastion Considerations:
+    - create an ec2 instance in the public subnet to act as a bastion host.
+    - auto assign a public IP address to the bastion host.
+    - create a key pair for the bastion host to allow SSH access.
+    - use ED25519 for the key pair for better security.
+    - set the security group for the bastion host to allow incoming traffic from the internet on port 22 for SSH access.
+    - Use the bastion host to access RDS and other resources in the isolated subnets.
+
+
+2. Considerations when choosing a CIDR Block:
+    - Avoid public IP addresses in the CIDR block.
+    - Avoid using the same CIDR block as other VPCs.
+    - Ensure no overlap between public, private and isolated subnets.
+
+
+3. AWS RDS:
+    - Use MYSQL for the database.
+    - Use the latest version of MYSQL.
+    - Use Multi-AZ deployments for high availability.
+    - Use memory optimized instances because the application writes messages to the database frequently. This way, we take advantage of the in-memory caching.
+    - Create a master user with admin privileges.
+    - store the credentials in AWS Secrets Manager.
+    - Block public access to the RDS instance.
+    - Connect to the database using SSL.
+    - Create a new database user with limited privileges for the application.
+    - Store the new database credentials in AWS Secrets Manager.
+    - Use Database Insights Advanced Monitoring to monitor the database performance.
+    - Export Audit, Error, General and Slow Query logs to CloudWatch for analysis.
+    - Use Password and IAM database authentication for connecting to database.
+    - Use Dualstack (IPv4 and IPv6) for the database.
+
+4. Choosing Between An application load balancer and an API Gateway:
+    - Use an application load balancer if you need to route traffic to multiple services or if you need to perform SSL termination.
+    - Use an API Gateway if you need to create a RESTful API or if you need to perform request/response transformations.
+    - Use an application load balancer if you need to support WebSockets or HTTP/2.
+    - Use an API Gateway if you need to support OAuth 2.0 or if you need to create a usage plan for your API.
+
+5. Steps to set up the architecthure:
+    - Create a VPC with a public, private and isolated subnets.
+    - Create a security group for the application load balancer that allows incoming traffic on port 80 and 443.
+    - Create a security group for the ECS instances that allows incoming traffic from the application load balancer on port 80 and 443.
+    - Create a security group for the RDS instance that allows incoming traffic from the ECS instances on port 3306.
+    - Create a security group for the S3 bucket that allows incoming traffic from the ECS instances on port 80 and 443.
+    - Create the application load balancer and associate it with the public subnet.
+    - Create the ECS instances and associate them with the private subnet.
+    - Create the RDS instance and associate it with the isolated subnet.
+    - Create the S3 bucket and make it so that it is accesible only from the ECS instances.
+    - Create the IAM role for app management and policies for access to S3, RDS and secrets manager.
+    - Create Instance profiles for the ECS instances to allow them to access the S3 bucket and RDS instance.
+    - Deploy the frontend to CloudFront and set up WAF rules to protect the application from common web exploits.
+
+6. Backend Considerations
+    - use cors
+    - use helmet
+    - use rate limiting for auth
+    - soft delete data to ensure that data is not lost.
+    - validate data before inserting it into the database.
+    - use PASETO tokens for authentication and authorization.
+
+7. What to hold in secrets manager:
+    - Database credentials
+    - SMTP server credentials
+    - Secret signing key for active_session, verify_email_session and password_reset_session.
+    - rotate the session signing keys every 30 days.
+
+8. Secrets Manager Considerations:
+    - Create a custom key in KMS for the secrets manager for encryption
+    - Replicate the secrets manager to multiple regions for high availability.
+    - Use both IAM roles and policies to control access to the secrets manager and the Resource Permissions Manger from the Secrets manager to have a fine-grained access control.
+
+9. KMS (Key Management Service) Considerations:
+    - Use a custom key for the database credentials in the secrets manager.
+    - Use o custom key for the SMTP server credentials in the secrets manager.
+    - use a custom key for the secret signing keys in the secrets manager.
+
+10. For Local Development:
+    - Create an IAM user with limited privileges for local development.
+    - Add all the policies from the IAM role for app usage to the IAM user.
+    - Use the IAM user credentials to access the AWS resources from local development.
+
+11. S3 Considerations:
+    - Disable public access to the S3 bucket.
+    - Use server-side encryption for the S3 bucket.
+    - Use versioning for the S3 bucket.
+
+12. Sessions:
+    - mitigate XSS by setting a strong content security policy.
+    - decided to use local storage for the session tokens because we have cross origin requests which means we need to set the cookie SameSite=None and Secure=True. 
+    However, this is still not enough because the cookie can still be stolen by a malicious site with https that makes a request to our backend.
+
+13. Nodemailer:
+    - use Nodemailer for sending emails.
+    - authenticate using OAuth2 with gmail.
+
+14. RateLimiting:
+    - use rate limiting for the auth endpoints to prevent brute force attacks.
+    - use a sliding window algorithm for rate limiting.
+    - use Redis for storing the rate limiting data.
+    - Use AWS ElastiCache for Redis for high availability and scalability.
+
+15. ECS Considerations:
+    - Use Fargate for running the ECS instances.
+    - Use a task definition for the ECS instances.
+    - Use a service discovery for the ECS instances to allow them to communicate with each other.
+    - Use a load balancer for the ECS instances to distribute traffic evenly.
+    - Use CloudWatch for monitoring the ECS instances.
+    - Use CloudTrail for auditing the ECS instances.
+
+16. CloudFront Considerations:
+    - Use CloudFront for serving the frontend.
+    - Use CloudFront for caching the static assets.
+    - create new OAC (Origin Access Control) for the CloudFront distribution to allow access to the S3 bucket only from CloudFront.
+    - Redirect HTTP to HTTPS for the CloudFront distribution.
+    - Use WAF rules to protect the CloudFront distribution from common web exploits (optional if you use it for API's)
+
+17. Restoration Steps:
+    - NAT Gateway Public in Public subnet
+    - ECS Service set desired count to 2 and redeploy the service.
+    - EC2 Bastion Host start the instance
+    - recreate the ALB with the target group and route the api endpoint in route 53 to the ALB.
+    - start the RDS instance.
+
+18. References:
+    - 1. 2021 OWASP Top 10: https://owasp.org/Top10/
+    - 2. Mhaskar and alabbad https://www.sciencedirect.com/science/article/abs/pii/S0167404820304351
+    - 3. Industry-Specific applications of IAM and inrastructure in cloud security: INDUSTRY-SPECIFIC_APPLICATIONS_OF_IAM_AND_INFRASTR.pdf
+    - 4. Secrets Revelead in Container: Secrets_Revealed_in_Container.pdf
+    - 5. A CISO guide to container security: https://www.kroll.com/en/insights/publications/cyber/ciso-guide-container-security?utm_source=chatgpt.com
+    - 6. AWS Well-Architected Framework's Security Pillar: https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/welcome.html
+    - 7. RFC 6238 - TOTP: Time-Based One-Time Password Algorithm: https://datatracker.ietf.org/doc/html/rfc6238
+    - 8. IBM Data Breach Costs Report 2023: https://www.ibm.com/reports/data-breach
+    - 9. Virtual Private Cloud Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+    - 10. IAM Documentation: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+    - 11. ECS Documentation: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html
+    - 12. GuardDuty Documentation: https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html
+    - 13. CloudWatch Documentation: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html
+    - 14. VPC Flow Logs Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html
+    - 15. Kubernetes Documentation: https://kubernetes.io/docs/home/
+    - 16. NACLs Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
+    - 17. NAT Gateway Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html
+    - 18. Internet Gateway Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html
+    - 19. RDS Documentation: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.html
+    - 20. EC2 Documentation: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
+    - 21. S3 Documentation: https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
+    - 22. Application Load Balancer Documentation: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
+    - 23. Security Groups Documentation: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+    - 24. Route 53 Documentation: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html
+    - 25. AWS Secrets Manager Documentation: https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
+    - 26. AWS Web Application Firewall (WAF) Documentation: https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html
+    - 27. ClamAV Documentation: https://docs.clamav.net/
+    - 28. AWS ECR Documentation: https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
+    - 29. AWS Certificate Manager Documentation: https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html
+    - 30. AWS CloudFront Documentation: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html
+    - 31. AWS Signature Version 4: https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
+    - 32. AWS CloudTrail Documentation: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html

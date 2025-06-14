@@ -1,0 +1,30 @@
+.home {
+  background-image: url("../assets/home_hero.webp");
+  background-size: cover;
+}
+
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 70vh;
+  flex-direction: column;
+}
+
+.welcome-hero {
+  font-size: 100px;
+}
+
+.signup-button {
+  color: black;
+  background-color: green;
+  width: 200px;
+  border-color: green;
+  font-size: 1.5rem;
+}
+
+.signup-button:hover {
+  background-color: darkgreen;
+  border-color: darkgreen;
+}

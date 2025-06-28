@@ -1,24 +1,22 @@
 // websocket.ts - WebSocket module to add to your existing Express app
-import WebSocket from "ws";
-import http from "http";
-import { IncomingMessage } from "http";
-import url from "url";
 import { Secrets } from "@/config/secrets";
-import { ENVIRONMENT } from "@/config/envHandler";
-import Redis from "ioredis";
-import { createRateLimiters } from "@/middlewares/rateLimit";
-import { createAsyncVerifyClient } from "./verifyClient";
-import { compareHashes, verifyActiveSessionToken } from "@/utils/auth";
-import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
-import { UserRepository } from "@/repositories/userRepository";
 import { ActiveSessionPayload } from "@/dtos/user";
+import { createRateLimiters } from "@/middlewares/rateLimit";
+import { ActiveSessionRepository } from "@/repositories/activeSessionRepository";
 import { ConversationRepository } from "@/repositories/conversationRepository";
 import { MessageRepository } from "@/repositories/messageRepository";
+import { compareHashes, verifyActiveSessionToken } from "@/utils/auth";
+import http, { IncomingMessage } from "http";
+import Redis from "ioredis";
+import url from "url";
+import WebSocket from "ws";
+import { createAsyncVerifyClient } from "./verifyClient";
 
 // Types
 interface AuthenticatedWebSocket extends WebSocket {
   userId?: string;
   isAuthenticated?: boolean;
+  isAlive?: boolean; // Optional: track if the user is still connected
 }
 
 type WebSocketMessage = {
@@ -30,6 +28,8 @@ type WebSocketMessage = {
   message?: string;
   timestamp?: string;
 };
+
+const HEARTBEAT_INTERVAL = 30000; // 30 seconds
 
 // Store connected authenticated users
 const connectedUsers = new Map<string, AuthenticatedWebSocket>();
@@ -51,7 +51,7 @@ export function initializeWebSocket(
     "connection",
     async (ws: AuthenticatedWebSocket, req: IncomingMessage) => {
       console.log("New WebSocket client attempting to connect");
-
+      ws.isAlive = true; // Mark the WebSocket as alive
       const { token } = url.parse(req.url || "", true).query;
       if (!token || typeof token !== "string") {
         console.log("WebSocket connection rejected: No token provided");
@@ -134,10 +134,28 @@ export function initializeWebSocket(
         }
       });
 
+      ws.on("pong", () => {
+        console.log(`Received pong from user ${ws.userId}`);
+        ws.isAlive = true; // Mark the WebSocket as alive
+      });
+
+      const heartbeatInterval = setInterval(() => {
+        if (ws.isAlive === false) {
+          console.log(`WebSocket connection closed for user ${ws.userId}`);
+          connectedUsers.delete(ws.userId!);
+          ws.terminate();
+          clearInterval(heartbeatInterval);
+          return;
+        }
+        ws.isAlive = false; // Reset the isAlive flag
+        ws.ping(); // Send a ping to check if the connection is still alive
+      }, HEARTBEAT_INTERVAL);
+
       // Handle disconnection
       ws.on("close", () => {
         if (ws.userId) {
           connectedUsers.delete(ws.userId);
+          clearInterval(heartbeatInterval); // Clear the heartbeat interval
           console.log(`User ${ws.userId} disconnected from WebSocket`);
         }
       });

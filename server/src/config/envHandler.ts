@@ -13,3 +13,6 @@ export const ENVIRONMENT = process.env.ENVIRONMENT || "dev";
 export const BUCKET_NAME = process.env.BUCKET_NAME || "";
 export const API_URL = process.env.API_URL || "";
 export const APP_URL = process.env.APP_URL || "";
+export const DB_REMOTE_HOST = process.env.DB_REMOTE_HOST || "";
+export const DB_REMOTE_PORT = process.env.DB_REMOTE_PORT || "";
+export const DB_REMOTE_USER = process.env.DB_REMOTE_USER || "";

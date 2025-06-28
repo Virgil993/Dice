@@ -5,22 +5,25 @@ import {
   DB_HOST,
   DB_NAME,
   DB_PORT,
+  DB_REMOTE_HOST,
+  DB_REMOTE_PORT,
+  DB_REMOTE_USER,
   DB_USER,
   ENVIRONMENT,
 } from "@/config/envHandler";
 import { Signer, SignerConfig } from "@aws-sdk/rds-signer";
-import { Sequelize } from "sequelize";
-import { initUserModel } from "./models/user";
 import mysql from "mysql2";
+import { Sequelize } from "sequelize";
 import { initActiveSessionModel } from "./models/activeSession";
-import { initPasswordResetSessionModel } from "./models/passwordResetSession";
-import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";
-import { initUserPhotoModel } from "./models/userPhoto";
-import { initGameModel } from "./models/game";
-import { initUserGameModel } from "./models/userGame";
-import { initSwipeModel } from "./models/swipe";
 import { initConversationModel } from "./models/conversation";
+import { initEmailVerificationSessionModel } from "./models/emailVerificationSession";
+import { initGameModel } from "./models/game";
 import { initMessageModel } from "./models/message";
+import { initPasswordResetSessionModel } from "./models/passwordResetSession";
+import { initSwipeModel } from "./models/swipe";
+import { initUserModel } from "./models/user";
+import { initUserGameModel } from "./models/userGame";
+import { initUserPhotoModel } from "./models/userPhoto";
 
 export class RDSAuthManager {
   private sequelize: Sequelize | null = null;
@@ -39,9 +42,9 @@ export class RDSAuthManager {
     };
     const signerConfig: SignerConfig = {
       region: AWS_REGION,
-      hostname: DB_HOST,
-      port: Number(DB_PORT),
-      username: DB_USER,
+      hostname: DB_REMOTE_HOST,
+      port: Number(DB_REMOTE_PORT),
+      username: DB_REMOTE_USER,
     };
     if (ENVIRONMENT === "dev") {
       signerConfig.credentials = credentials;

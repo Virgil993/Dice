@@ -24,7 +24,6 @@ export type Secrets = {
 };
 
 export async function loadSecrets(): Promise<Secrets> {
-  console.log("Loading secrets from AWS Secrets Manager...");
   const secretName = "AppDice";
   const credentials: {
     accessKeyId: string;
@@ -37,10 +36,8 @@ export async function loadSecrets(): Promise<Secrets> {
     region: AWS_REGION,
   };
   if (ENVIRONMENT === "dev") {
-    console.log("Using AWS credentials for development environment");
     clientConfig.credentials = credentials;
   }
-  console.log("Using AWS Secrets Manager client config:", clientConfig);
   const client = new SecretsManagerClient(clientConfig);
 
   const response = await client.send(

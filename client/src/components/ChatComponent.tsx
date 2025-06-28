@@ -7,7 +7,6 @@ import {
 import { useWebSocket } from "@/contexts/WebSocketContext";
 import type { Conversation } from "@/models/conversation";
 import type { Message } from "@/models/message";
-import "../styles/chat_component.css";
 import {
   ResponseStatus,
   type AddMessageRequest,
@@ -17,15 +16,17 @@ import type { FullExternalUser } from "@/models/user";
 import { calculateAge } from "@/utils/validation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { Container, Modal, ModalBody, ModalHeader } from "reactstrap";
-import GameRegister from "./GameRegister";
-import { GrClose } from "react-icons/gr";
 import { BsSendFill } from "react-icons/bs";
+import { GrClose } from "react-icons/gr";
 import { ClipLoader } from "react-spinners";
+import { Container, Modal, ModalBody, ModalHeader } from "reactstrap";
+import "../styles/chat_component.css";
+import GameRegister from "./GameRegister";
 type ChatComponentProps = {
   connectedUser: GetUserResponse;
   conversation: Conversation;
   receiver: FullExternalUser;
+  indexInConversations: number | null;
   setIndexInConversations: (index: number | null) => void;
 };
 
@@ -42,6 +43,7 @@ function ChatComponent({
   connectedUser,
   conversation,
   receiver,
+  indexInConversations,
   setIndexInConversations,
 }: ChatComponentProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -77,14 +79,23 @@ function ChatComponent({
         toast.error("Error fetching messages");
         return;
       }
-      const res = await updateMessagesReadStatus({
-        conversationId: conversation.id,
-        isRead: true,
-      });
-      if (res.data.status === ResponseStatus.ERROR) {
-        console.error("Error updating message read status:", res.data.message);
-        toast.error("Error updating message read status");
-        return;
+      const newMessagesPresent = resMessages.data.messages.filter(
+        (message) =>
+          !message.isRead && message.senderId !== connectedUser.user.id
+      );
+      if (newMessagesPresent.length > 0) {
+        const res = await updateMessagesReadStatus({
+          conversationId: conversation.id,
+          isRead: true,
+        });
+        if (res.data.status === ResponseStatus.ERROR) {
+          console.error(
+            "Error updating message read status:",
+            res.data.message
+          );
+          toast.error("Error updating message read status");
+          return;
+        }
       }
       setConversationLoad(conversation);
     }
@@ -96,6 +107,16 @@ function ChatComponent({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    console.log("WebSocket connection status:", isConnected);
+    console.log("WebSocket instance:", socket);
+    console.log("Index in conversations:", indexInConversations);
+  }, [isConnected, socket, indexInConversations]);
+
+  useEffect(() => {
+    setConversationLoad(null);
+  }, [indexInConversations]);
 
   useEffect(() => {
     if (!socket || !isConnected) return;
@@ -247,44 +268,68 @@ function ChatComponent({
           <GrClose size={25} />
         </div>
       </Container>
-      <Container id="message-container">
-        {messages.length != 0 ? (
-          messages.map((elem, index) => {
-            const currentDate = new Date(elem.createdAt);
-            if (elem.senderId == connectedUser.user.id) {
+      {conversationLoad ? (
+        <Container id="message-container">
+          {messages.length != 0 ? (
+            messages.map((elem, index) => {
+              const currentDate = new Date(elem.createdAt);
+              if (elem.senderId == connectedUser.user.id) {
+                return (
+                  <Container
+                    key={index}
+                    className="send-container"
+                    style={{ justifyContent: "right" }}
+                  >
+                    <div className="send-div">
+                      <div>{elem.content}</div>
+                      <div style={{ fontSize: "12px" }}>
+                        {currentDate.getDate() +
+                          "/" +
+                          String(currentDate.getMonth() + 1) +
+                          "/" +
+                          currentDate.getFullYear()}{" "}
+                        {currentDate.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </Container>
+                );
+              } else if (
+                firstUndreadMessageId &&
+                elem.id == firstUndreadMessageId
+              ) {
+                return (
+                  <Container
+                    key={index}
+                    className="send-container-unread"
+                    style={{ justifyContent: "left" }}
+                  >
+                    <div className="unread-messages">Unread messages</div>
+                    <div className="recevie-div">
+                      <div>{elem.content}</div>
+                      <div style={{ fontSize: "12px" }}>
+                        {currentDate.getDate() +
+                          "/" +
+                          String(currentDate.getMonth() + 1) +
+                          "/" +
+                          currentDate.getFullYear()}{" "}
+                        {currentDate.toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </Container>
+                );
+              }
               return (
                 <Container
                   key={index}
                   className="send-container"
-                  style={{ justifyContent: "right" }}
-                >
-                  <div className="send-div">
-                    <div>{elem.content}</div>
-                    <div style={{ fontSize: "12px" }}>
-                      {currentDate.getDate() +
-                        "/" +
-                        String(currentDate.getMonth() + 1) +
-                        "/" +
-                        currentDate.getFullYear()}{" "}
-                      {currentDate.toLocaleTimeString("en-US", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </div>
-                  </div>
-                </Container>
-              );
-            } else if (
-              firstUndreadMessageId &&
-              elem.id == firstUndreadMessageId
-            ) {
-              return (
-                <Container
-                  key={index}
-                  className="send-container-unread"
                   style={{ justifyContent: "left" }}
                 >
-                  <div className="unread-messages">Unread messages</div>
                   <div className="recevie-div">
                     <div>{elem.content}</div>
                     <div style={{ fontSize: "12px" }}>
@@ -301,50 +346,38 @@ function ChatComponent({
                   </div>
                 </Container>
               );
-            }
-            return (
-              <Container
-                key={index}
-                className="send-container"
-                style={{ justifyContent: "left" }}
-              >
-                <div className="recevie-div">
-                  <div>{elem.content}</div>
-                  <div style={{ fontSize: "12px" }}>
-                    {currentDate.getDate() +
-                      "/" +
-                      String(currentDate.getMonth() + 1) +
-                      "/" +
-                      currentDate.getFullYear()}{" "}
-                    {currentDate.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                </div>
-              </Container>
-            );
-          })
-        ) : (
-          <Container
-            style={{
-              display: "flex",
-              width: "400px",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{ textAlign: "center", fontSize: "20px", color: "gray" }}
+            })
+          ) : (
+            <Container
+              style={{
+                display: "flex",
+                width: "400px",
+                height: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
-              This is the beginning of your conversation, say hello for starters
-              :)
-            </div>
-          </Container>
-        )}
-        <div ref={bottomRef} />
-      </Container>
+              <div
+                style={{ textAlign: "center", fontSize: "20px", color: "gray" }}
+              >
+                This is the beginning of your conversation, say hello for
+                starters :)
+              </div>
+            </Container>
+          )}
+          <div ref={bottomRef} />
+        </Container>
+      ) : (
+        <Container
+          id="message-container"
+          style={{ textAlign: "center", paddingTop: "250px" }}
+        >
+          <ClipLoader
+            loading={conversationLoad === null}
+            size={60}
+          ></ClipLoader>
+        </Container>
+      )}
       <Container className="send-input">
         {conversationLoad ? (
           <form id="send-form" onSubmit={handleSendMessage}>

@@ -4,7 +4,6 @@ import {
   getUser,
   getUserById,
 } from "@/apiAxios";
-import "../styles/messages.css";
 import ChatComponent from "@/components/ChatComponent";
 import NavbarMain from "@/components/Navbar";
 import { type Conversation } from "@/models/conversation";
@@ -22,6 +21,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "reactstrap";
+import "../styles/messages.css";
 
 function Messages() {
   const navigate = useNavigate();
@@ -298,6 +298,7 @@ function Messages() {
                 conversationsInfo[allConversations[indexInConversations].id]
                   .user
               }
+              indexInConversations={indexInConversations}
               conversation={allConversations[indexInConversations]}
               setIndexInConversations={setIndexInConversations}
             ></ChatComponent>

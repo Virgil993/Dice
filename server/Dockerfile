@@ -35,5 +35,7 @@ COPY --from=builder /usr/src/app/dist ./dist
 # Expose port
 EXPOSE 3000
 
+RUN chown -R node:node /usr/src/app
+USER node
 # Start the app (adjust path to your compiled entry point)
 CMD ["node", "dist/server.js"]

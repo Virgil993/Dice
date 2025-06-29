@@ -1,4 +1,7 @@
 import { Game } from "@/db/models/game";
+import { z } from "zod";
+
+const uuidSchema = z.array(z.string().uuid());
 
 export class GameRepository {
   public static async getGames(): Promise<Game[]> {
@@ -13,6 +16,7 @@ export class GameRepository {
 
   public static async getGamesByIds(gameIds: string[]): Promise<Game[]> {
     try {
+      uuidSchema.parse(gameIds); // Validate gameIds format
       const games = await Game.findAll({
         where: {
           id: gameIds,

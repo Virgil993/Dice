@@ -1,5 +1,8 @@
 import { PasswordResetSession } from "@/db/models/passwordResetSession";
 import { z } from "zod";
+
+const uuidSchema = z.string().uuid();
+
 export class PasswordResetSessionRepository {
   public static async createPasswordResetSession(
     session: PasswordResetSession
@@ -17,8 +20,7 @@ export class PasswordResetSessionRepository {
     tokenUUID: string
   ): Promise<PasswordResetSession | null> {
     try {
-      const tokenUUIDSchema = z.string().uuid();
-      tokenUUIDSchema.parse(tokenUUID); // Validate UUID format
+      uuidSchema.parse(tokenUUID); // Validate UUID format
       const session = await PasswordResetSession.findOne({
         where: { tokenUuid: tokenUUID },
       });
@@ -33,8 +35,7 @@ export class PasswordResetSessionRepository {
     tokenUUID: string
   ): Promise<void> {
     try {
-      const tokenUUIDSchema = z.string().uuid();
-      tokenUUIDSchema.parse(tokenUUID); // Validate UUID format
+      uuidSchema.parse(tokenUUID); // Validate UUID format
       const session = await PasswordResetSession.findOne({
         where: { tokenUuid: tokenUUID },
       });

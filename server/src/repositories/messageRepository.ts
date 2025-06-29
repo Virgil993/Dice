@@ -1,4 +1,8 @@
 import { Message } from "@/db/models/message";
+import { z } from "zod";
+
+const uuidSchema = z.string().uuid();
+const uuidArraySchema = z.array(z.string().uuid());
 
 export class MessageRepository {
   public static async addMessage(
@@ -7,6 +11,8 @@ export class MessageRepository {
     content: string
   ): Promise<Message> {
     try {
+      uuidSchema.parse(conversationId); // Validate conversationId format
+      uuidSchema.parse(senderId); // Validate senderId format
       const message = await Message.create({
         conversationId,
         senderId,
@@ -23,6 +29,7 @@ export class MessageRepository {
     conversationId: string
   ): Promise<Message[]> {
     try {
+      uuidSchema.parse(conversationId); // Validate conversationId format
       const messages = await Message.findAll({
         where: { conversationId },
         order: [["createdAt", "ASC"]],
@@ -38,6 +45,7 @@ export class MessageRepository {
     messageId: string
   ): Promise<Message | null> {
     try {
+      uuidSchema.parse(messageId); // Validate messageId format
       const message = await Message.findByPk(messageId);
       return message;
     } catch (error) {
@@ -51,6 +59,7 @@ export class MessageRepository {
     isRead: boolean
   ): Promise<Message> {
     try {
+      uuidSchema.parse(messageId); // Validate messageId format
       const message = await Message.findByPk(messageId);
       if (!message) {
         throw new Error("Message not found");
@@ -75,6 +84,8 @@ export class MessageRepository {
     isRead: boolean
   ): Promise<void> {
     try {
+      uuidSchema.parse(readerId); // Validate readerId format
+      uuidSchema.parse(conversationId); // Validate conversationId format
       const messages = await Message.findAll({
         where: { conversationId },
       });
@@ -102,6 +113,7 @@ export class MessageRepository {
     conversationId: string
   ): Promise<void> {
     try {
+      uuidSchema.parse(conversationId); // Validate conversationId format
       await Message.destroy({
         where: { conversationId },
       });
@@ -115,6 +127,7 @@ export class MessageRepository {
     conversationIds: string[]
   ): Promise<void> {
     try {
+      uuidArraySchema.parse(conversationIds); // Validate conversationIds format
       await Message.destroy({
         where: { conversationId: conversationIds },
       });

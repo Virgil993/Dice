@@ -1,6 +1,8 @@
 import { EmailVerificationSession } from "@/db/models/emailVerificationSession";
 import { z } from "zod";
 
+const uuidSchema = z.string().uuid();
+
 export class EmailVerificationSessionRepository {
   public static async createEmailVerificationSession(
     session: EmailVerificationSession
@@ -17,8 +19,7 @@ export class EmailVerificationSessionRepository {
     tokenUUID: string
   ): Promise<EmailVerificationSession | null> {
     try {
-      const tokenUUIDSchema = z.string().uuid();
-      tokenUUIDSchema.parse(tokenUUID); // Validate UUID format
+      uuidSchema.parse(tokenUUID); // Validate UUID format
       const session = await EmailVerificationSession.findOne({
         where: { tokenUuid: tokenUUID },
       });

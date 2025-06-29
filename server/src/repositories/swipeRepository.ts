@@ -1,6 +1,8 @@
 import { Swipe } from "@/db/models/swipe";
 import { z } from "zod";
 
+const uuidSchema = z.string().uuid();
+
 export class SwipeRepository {
   public static async createSwipe(
     swiperId: string,
@@ -8,6 +10,11 @@ export class SwipeRepository {
     action: "like" | "dislike"
   ): Promise<Swipe> {
     try {
+      uuidSchema.parse(swiperId); // Validate swiperId format
+      uuidSchema.parse(swipedId); // Validate swipedId format
+      if (!["like", "dislike"].includes(action)) {
+        throw new Error("Invalid action. Must be 'like' or 'dislike'.");
+      }
       const swipe = await Swipe.create({
         swiperId,
         swipedId,
@@ -25,7 +32,6 @@ export class SwipeRepository {
     swipedId: string
   ): Promise<Swipe | null> {
     try {
-      const uuidSchema = z.string().uuid();
       uuidSchema.parse(swiperId); // Validate swiperId format
       uuidSchema.parse(swipedId); // Validate swipedId format
       const swipe = await Swipe.findOne({
@@ -43,6 +49,7 @@ export class SwipeRepository {
 
   public static async getSwipesBySwiperId(swiperId: string): Promise<Swipe[]> {
     try {
+      uuidSchema.parse(swiperId); // Validate swiperId format
       const swipes = await Swipe.findAll({
         where: { swiperId },
         order: [["createdAt", "DESC"]],
@@ -56,6 +63,7 @@ export class SwipeRepository {
 
   public static async deleteSwipeByUserId(userId: string): Promise<void> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       await Swipe.destroy({
         where: { swiperId: userId },
       });

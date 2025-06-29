@@ -2,6 +2,7 @@ import { UserPhoto } from "@/db/models/userPhoto";
 import { z } from "zod";
 
 const uuidSchema = z.string().uuid();
+const uuidArraySchema = z.array(z.string().uuid());
 
 export class UserPhotoRepository {
   public static async createUserPhoto(
@@ -33,6 +34,7 @@ export class UserPhotoRepository {
 
   public static async deleteUserPhotosByID(ids: string[]) {
     try {
+      uuidArraySchema.parse(ids); // Validate ids format
       const deletedPhotos = await UserPhoto.destroy({
         where: { id: ids },
       });

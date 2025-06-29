@@ -1,4 +1,7 @@
 import { UserPhoto } from "@/db/models/userPhoto";
+import { z } from "zod";
+
+const uuidSchema = z.string().uuid();
 
 export class UserPhotoRepository {
   public static async createUserPhoto(
@@ -17,6 +20,7 @@ export class UserPhotoRepository {
     userId: string
   ): Promise<UserPhoto[]> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const userPhotos = await UserPhoto.findAll({
         where: { userId: userId },
       });

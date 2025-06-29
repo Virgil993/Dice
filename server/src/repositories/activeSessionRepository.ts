@@ -1,4 +1,5 @@
 import { ActiveSession } from "@/db/models/activeSession";
+import { z } from "zod";
 
 export class ActiveSessionRepository {
   public static async createActiveSession(
@@ -17,6 +18,8 @@ export class ActiveSessionRepository {
     tokenUUID: string
   ): Promise<ActiveSession | null> {
     try {
+      const tokenUUIDSchema = z.string().uuid();
+      tokenUUIDSchema.parse(tokenUUID); // Validate UUID format
       const session = await ActiveSession.findOne({
         where: { tokenUuid: tokenUUID },
       });

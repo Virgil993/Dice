@@ -1,4 +1,5 @@
 import { Swipe } from "@/db/models/swipe";
+import { z } from "zod";
 
 export class SwipeRepository {
   public static async createSwipe(
@@ -24,6 +25,9 @@ export class SwipeRepository {
     swipedId: string
   ): Promise<Swipe | null> {
     try {
+      const uuidSchema = z.string().uuid();
+      uuidSchema.parse(swiperId); // Validate swiperId format
+      uuidSchema.parse(swipedId); // Validate swipedId format
       const swipe = await Swipe.findOne({
         where: {
           swiperId,

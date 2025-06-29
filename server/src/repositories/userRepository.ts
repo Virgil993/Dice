@@ -1,5 +1,8 @@
 import { User } from "@/db/models/user";
+import { z } from "zod";
 
+const uuidSchema = z.string().uuid();
+const emailSchema = z.string().email();
 export class UserRepository {
   public static async createUser(user: User): Promise<User> {
     try {
@@ -23,6 +26,7 @@ export class UserRepository {
 
   public static async getUserByEmail(email: string): Promise<User | null> {
     try {
+      emailSchema.parse(email); // Validate email format
       const user = await User.findOne({ where: { email: email } });
       return user;
     } catch (error) {
@@ -33,6 +37,7 @@ export class UserRepository {
 
   public static async getUserById(userId: string): Promise<User | null> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       return user;
     } catch (error) {
@@ -53,6 +58,7 @@ export class UserRepository {
 
   public static async setUserVerified(userId: string): Promise<User> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
@@ -71,6 +77,7 @@ export class UserRepository {
     password: string
   ): Promise<User> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
@@ -89,6 +96,7 @@ export class UserRepository {
     totpSecret: string | null
   ): Promise<User> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
@@ -107,6 +115,7 @@ export class UserRepository {
     backupCodes: string[] | null
   ): Promise<User> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
@@ -131,6 +140,7 @@ export class UserRepository {
     totp: boolean
   ): Promise<User> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);
@@ -146,6 +156,7 @@ export class UserRepository {
 
   public static async deleteUserById(userId: string): Promise<void> {
     try {
+      uuidSchema.parse(userId); // Validate userId format
       const user = await User.findOne({ where: { id: userId } });
       if (!user) {
         throw new Error(`User with ID ${userId} not found`);

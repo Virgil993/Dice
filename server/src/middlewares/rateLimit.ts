@@ -1,7 +1,7 @@
-import Redis from "ioredis";
-import { Request, Response, NextFunction } from "express";
-import { LoginAttempt } from "./auth";
+import { NextFunction, Request, Response } from "express";
 import { IncomingMessage } from "http";
+import Redis from "ioredis";
+import { LoginAttempt } from "./auth";
 
 type RateLimitOptions = {
   windowMs?: number; // Time window in milliseconds
@@ -295,7 +295,7 @@ class RateLimiter {
 
   checkWebSocketRateLimit = async (req: IncomingMessage) => {
     const windowMs = 15 * 60 * 1000, // 15 minutes default
-      maxRequests = 10,
+      maxRequests = 100,
       keyGenerator = "ip",
       route = "websocket";
 
@@ -356,7 +356,7 @@ export function createRateLimiters(redisClient: Redis): RateLimitMiddlewares {
     // Password reset - IP based
     resetPassword: limiter.createMiddleware({
       windowMs: 60 * 60 * 1000, // 1 hour
-      maxRequests: 3,
+      maxRequests: 10,
       keyGenerator: "ip",
       route: "reset_password",
       message: "Too many password reset attempts from this IP",
@@ -374,7 +374,7 @@ export function createRateLimiters(redisClient: Redis): RateLimitMiddlewares {
     // General API - User based, generous limits
     api: limiter.createMiddleware({
       windowMs: 60 * 60 * 1000, // 1 hour
-      maxRequests: 100,
+      maxRequests: 5000, // 5000 requests per hour
       keyGenerator: "user",
       route: "api",
       message: "API rate limit exceeded",
